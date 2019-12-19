@@ -1324,6 +1324,215 @@ function callbacksComplex( test )
 
 //
 
+function relook( test )
+{
+  let upsLevel = [];
+  let upsLogicalLevel = [];
+  let upsSelector = [];
+  let upsPath = [];
+  let dwsLevel = [];
+  let dwsLogicalLevel = [];
+  let dwsSelector = [];
+  let dwsPath = [];
+
+  /* */
+
+  test.case = 'onUp';
+
+  clean();
+
+  var src =
+  {
+    a : { name : 'name1', value : 13 },
+    b : { name : 'name2', value : 77 },
+    c : { value : 25, date : new Date( Date.UTC( 1990, 0, 0 ) ) },
+  }
+
+  var it = _.look
+  ({
+    src : src,
+    onUp : onUp,
+    onDown : onDown,
+  });
+
+  var exp = [ 0, 1, 2, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ]
+  test.identical( upsLevel, exp );
+  var exp =
+  [
+    '/',
+    '/a',
+    '/a/name',
+    '/a/name',
+    '/a/name/0',
+    '/a/name/1',
+    '/a/name/2',
+    '/a/value',
+    '/b',
+    '/b/name',
+    '/b/value',
+    '/c',
+    '/c/value',
+    '/c/date'
+  ]
+  test.identical( upsPath, exp );
+
+  var exp = [ 2, 3, 3, 3, 2, 2, 1, 2, 2, 1, 2, 2, 1, 0 ];
+  test.identical( dwsLevel, exp );
+  var exp =
+  [
+    '/a/name',
+    '/a/name/0',
+    '/a/name/1',
+    '/a/name/2',
+    '/a/name',
+    '/a/value',
+    '/a',
+    '/b/name',
+    '/b/value',
+    '/b',
+    '/c/value',
+    '/c/date',
+    '/c',
+    '/'
+  ]
+  test.identical( dwsPath, exp );
+
+  /* */
+
+  test.case = 'onTerminal';
+
+  clean();
+
+  var src =
+  {
+    a : { name : 'name1', value : 13 },
+    b : { name : 'name2', value : 77 },
+    c : { value : 25, date : new Date( Date.UTC( 1990, 0, 0 ) ) },
+  }
+
+  var it = _.look
+  ({
+    src : src,
+    onUp : onUp,
+    onDown : onDown,
+    onTerminal : onTerminal,
+  });
+
+  var exp = [ 0, 1, 2, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ]
+  test.identical( upsLevel, exp );
+  var exp =
+  [
+    '/',
+    '/a',
+    '/a/name',
+    '/a/name',
+    '/a/name/0',
+    '/a/name/1',
+    '/a/name/2',
+    '/a/value',
+    '/b',
+    '/b/name',
+    '/b/value',
+    '/c',
+    '/c/value',
+    '/c/date'
+  ]
+  test.identical( upsPath, exp );
+
+  var exp = [ 3, 3, 3, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 0 ];
+  test.identical( dwsLevel, exp );
+  var exp =
+  [
+    '/a/name/0',
+    '/a/name/1',
+    '/a/name/2',
+    '/a/name',
+    '/a/name',
+    '/a/value',
+    '/a',
+    '/b/name',
+    '/b/value',
+    '/b',
+    '/c/value',
+    '/c/date',
+    '/c',
+    '/'
+  ]
+  test.identical( dwsPath, exp );
+
+  /* */
+
+  function onUp( e, k, it )
+  {
+
+    upsLevel.push( it.level );
+    upsLogicalLevel.push( it.logicalLevel );
+    upsSelector.push( it.selector );
+    upsPath.push( it.path );
+
+    test.identical( arguments.length, 3 );
+
+  }
+
+  function onDown0( e, k, it )
+  {
+
+    dwsLevel.push( it.level );
+    dwsLogicalLevel.push( it.logicalLevel );
+    dwsSelector.push( it.selector );
+    dwsPath.push( it.path );
+
+    test.identical( arguments.length, 3 );
+
+  }
+
+  function onDown( e, k, it )
+  {
+
+    onDown0.apply( this, arguments );
+
+    if( it.path === '/a/name' )
+    if( !_.arrayIs( it.src ) )
+    {
+      it.relook( [ 'r1', 'r2', 'r3' ] );
+    }
+
+  }
+
+  function onTerminal( e )
+  {
+    let it = this;
+    debugger;
+
+    test.identical( arguments.length, 1 );
+
+    if( it.path === '/a/name' )
+    if( !_.arrayIs( it.src ) )
+    {
+      debugger;
+      it.relook( [ 'r1', 'r2', 'r3' ] );
+    }
+
+  }
+
+  function clean()
+  {
+    upsLevel.splice( 0 );
+    upsLogicalLevel.splice( 0 );
+    upsSelector.splice( 0 );
+    upsPath.splice( 0 );
+    dwsLevel.splice( 0 );
+    dwsLogicalLevel.splice( 0 );
+    dwsSelector.splice( 0 );
+    dwsPath.splice( 0 );
+  }
+
+  /* */
+
+}
+
+//
+
 function optionRevisiting( test )
 {
   let ups = [];
@@ -1551,10 +1760,14 @@ function optionOnSrcChanged( test )
       if( _.longIs( it.src.elements ) )
       {
         it.iterable = 'Obj';
-        it.ascendAct = function objAscend( onIteration, src )
+        it.ascendAct = function objAscend( src )
         {
-          return this._longAscend( onIteration, src.elements );
+          return this._longAscend( src.elements );
         }
+        // it.ascendAct = function objAscend( onIteration, src )
+        // {
+        //   return this._longAscend( onIteration, src.elements );
+        // }
       }
     }
   }
@@ -1609,10 +1822,14 @@ function optionOnUpNonContainer( test )
       if( _.longIs( it.src.elements ) )
       {
         it.iterable = 'Obj';
-        it.ascendAct = function objAscend( onIteration, src )
+        it.ascendAct = function objAscend( src )
         {
-          return this._longAscend( onIteration, src.elements );
+          return this._longAscend( src.elements );
         }
+        // it.ascendAct = function objAscend( onIteration, src )
+        // {
+        //   return this._longAscend( onIteration, src.elements );
+        // }
       }
     }
 
@@ -1632,7 +1849,7 @@ function optionOnUpNonContainer( test )
 
 //
 
-function optionOnPath( test )
+function optionOnPathJoin( test )
 {
   let ups = [];
   let dws = [];
@@ -1738,6 +1955,130 @@ function optionOnPath( test )
 
 //
 
+function optionAscend( test )
+{
+  let upsLevel = [];
+  let upsLogicalLevel = [];
+  let upsSelector = [];
+  let upsPath = [];
+  let dwsLevel = [];
+  let dwsLogicalLevel = [];
+  let dwsSelector = [];
+  let dwsPath = [];
+
+  /* */
+
+  test.case = 'basic';
+
+  clean();
+
+  var src =
+  {
+    a : { name : 'name1', value : 13 },
+    b : { name : 'name2', value : 77 },
+    c : { value : 25, date : new Date( Date.UTC( 1990, 0, 0 ) ) },
+  }
+
+  debugger;
+  var it = _.look
+  ({
+    src : src,
+    onDown : onDown,
+    onUp : onUp,
+    onAscend : onAscend,
+  });
+  debugger;
+
+  var exp = [ 0, 1, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ];
+  test.identical( upsLevel, exp );
+  var exp =
+  [
+    '/',
+    '/a',
+    '/a/name',
+    '/a/name/0',
+    '/a/name/1',
+    '/a/name/2',
+    '/a/value',
+    '/b',
+    '/b/name',
+    '/b/value',
+    '/c',
+    '/c/value',
+    '/c/date'
+  ]
+  test.identical( upsPath, exp );
+
+  var exp = [ 3, 3, 3, 2, 2, 1, 2, 2, 1, 2, 2, 1, 0 ];
+  test.identical( dwsLevel, exp );
+  var exp =
+  [
+    '/a/name/0',
+    '/a/name/1',
+    '/a/name/2',
+    '/a/name',
+    '/a/value',
+    '/a',
+    '/b/name',
+    '/b/value',
+    '/b',
+    '/c/value',
+    '/c/date',
+    '/c',
+    '/'
+  ]
+  test.identical( dwsPath, exp );
+
+  /* */
+
+  function onUp( e, k, it )
+  {
+    upsLevel.push( it.level );
+    upsLogicalLevel.push( it.logicalLevel );
+    upsSelector.push( it.selector );
+    upsPath.push( it.path );
+  }
+
+  function onDown( e, k, it )
+  {
+
+    dwsLevel.push( it.level );
+    dwsLogicalLevel.push( it.logicalLevel );
+    dwsSelector.push( it.selector );
+    dwsPath.push( it.path );
+
+  }
+
+  function onAscend()
+  {
+    let it = this;
+    test.is( arguments.length === 0 );
+    if( it.src === 'name1' )
+    debugger;
+    if( it.src === 'name1' )
+    it._longAscend( [ 'r1', 'r2', 'r3' ] );
+    else
+    it.ascendAct( it.src );
+  }
+
+  function clean()
+  {
+    upsLevel.splice( 0 );
+    upsLogicalLevel.splice( 0 );
+    upsSelector.splice( 0 );
+    upsPath.splice( 0 );
+    dwsLevel.splice( 0 );
+    dwsLogicalLevel.splice( 0 );
+    dwsSelector.splice( 0 );
+    dwsPath.splice( 0 );
+  }
+
+  /* */
+
+}
+
+//
+
 function optionRoot( test )
 {
 
@@ -1755,6 +2096,7 @@ function optionRoot( test )
   var gotDownRoots = [];
 
   test.case = 'explicit';
+  clean();
   var it = _.look({ src : structure1, onUp : handleUp1, onDown: handleDown1, root : structure1 });
   var expectedRoots = [ structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1 ];
   test.description = 'roots on up';
@@ -2298,16 +2640,18 @@ var Self =
     lookRecursive,
     fieldPaths,
     callbacksComplex,
+    relook,
 
     optionRevisiting,
     optionOnSrcChanged,
     optionOnUpNonContainer,
-    optionOnPath,
+    optionOnPathJoin,
 
+    optionAscend,
     optionRoot,
     optionFastPerformance,
-    optionFast,
-    optionFastCycled,
+    // optionFast,
+    // optionFastCycled,
 
   }
 

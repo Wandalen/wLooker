@@ -107,7 +107,6 @@ function iteratorMake( o )
     delete iterator.lastSelected;
     delete iterator.upToken;
     delete iterator.defaultUpToken;
-    // delete iterator.logicalLevel;
     delete iterator.context;
   }
   else
@@ -181,33 +180,10 @@ function iterationMake()
   let it = this;
   let newIt = it.iterationMakeAct();
 
-  // if( !it.fast )
-  // newIt.logicalLevel = it.logicalLevel + 1; /* yyy : level and logicalLevel should have the same value if no reinit done */
-
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 0, 'Expects no arguments' );
 
   return newIt;
 }
-
-// //
-//
-// /**
-//  * @function iterationRemake
-//  * @memberof module:Tools/base/Looker.Tools( module::Looker )
-//  */
-//
-// function iterationRemake()
-// {
-//   let it = this;
-//   let newIt = it.iterationMakeAct();
-//
-//   // if( !it.fast )
-//   // newIt.logicalLevel = it.logicalLevel;
-//
-//   _.assert( arguments.length === 0 );
-//
-//   return newIt;
-// }
 
 //
 
@@ -220,13 +196,12 @@ function iterationMakeAct()
 {
   let it = this;
 
-  // _.assert( arguments.length === 0 );
+  // _.assert( arguments.length === 0, 'Expects no arguments' );
   // _.assert( it.level >= 0 );
   // _.assert( _.objectIs( it.iterator ) );
   // _.assert( _.objectIs( it.Looker ) );
   // _.assert( it.looker === undefined );
   // _.assert( _.numberIs( it.level ) && it.level >= 0 );
-  // _.assert( _.numberIs( it.logicalLevel ) && it.logicalLevel >= 0 );
 
   let newIt = Object.create( it.iterator );
   Object.assign( newIt, it.Looker.Iteration );
@@ -332,7 +307,7 @@ function relook( src )
 function start()
 {
   let it = this;
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 0, 'Expects no arguments' );
   return it.look();
 }
 
@@ -349,7 +324,10 @@ function look()
 
   if( !it.fast )
   _.assert( it.level >= 0 );
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+
+  // if( it.path === '/children/function_declaration::0/statement_block::bodyNode/function_declaration::parent' )
+  // debugger;
 
   it.visiting = it.canVisit();
   if( !it.visiting )
@@ -361,13 +339,10 @@ function look()
   if( it.ascending )
   {
     it.ascend();
-    // it.ascend( function( eit )
-    // {
-    //   eit.look();
-    // });
   }
 
   it.visitDown();
+
   return it;
 }
 
@@ -406,19 +381,9 @@ function visitUpBegin()
   it.ascending = true;
 
   _.assert( it.visiting );
-  // if( !it.visiting )
-  // return;
 
   if( it.down && !it.fast )
   it.down.childrenCounter += 1;
-
-  // if( it.iterator.revisiting < 2 )
-  // {
-  //   if( it.iterator.visitedContainer.indexOf( it.src ) !== -1 )
-  //   it.revisited = true;
-  // }
-
-  // _.assert( it.continue );
 
   if( it.continue )
   it.srcChanged();
@@ -458,7 +423,7 @@ function visitDown()
   it.visitDownBegin();
 
   _.assert( it.visiting );
-  // if( it.visiting )
+
   if( it.onDown )
   {
     let r = it.onDown.call( it, it.src, it.key, it );
@@ -484,11 +449,6 @@ function visitDownBegin()
   it.ascending = false;
 
   _.assert( it.visiting );
-  // if( !it.visiting )
-  // return;
-
-  // if( !it.iterable )
-  // it.onTerminal();
 
   it.visitPop();
 
@@ -612,102 +572,40 @@ function canSibling()
 
 //
 
-// function ascend( onIteration )
 function ascend()
 {
   let it = this;
 
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 0, 'Expects no arguments' );
   _.assert( it.iterable !== null && it.iterable !== undefined );
-  // _.assert( _.routineIs( onIteration ) );
-  // _.assert( onIteration.length === 0 || onIteration.length === 1 );
   _.assert( !!it.continue );
   _.assert( !!it.iterator.continue );
-  // _.assert( _.routineIs( it.ascendAct ), `Expects routine {- ascendAct -}` )
 
   return it.onAscend();
-  // return it.ascendAct( onIteration, it.src );
-  // return it._ascend( onIteration, it.src );
 }
 
 //
 
-// function ascend( onIteration )
 function onAscend()
 {
   let it = this;
-
-  _.assert( arguments.length === 0 );
-  // _.assert( it.iterable !== null && it.iterable !== undefined );
-  // _.assert( _.routineIs( onIteration ) );
-  // _.assert( onIteration.length === 0 || onIteration.length === 1 );
-  // _.assert( !!it.continue );
-  // _.assert( !!it.iterator.continue );
-  _.assert( _.routineIs( it.ascendAct ), `Expects routine {- ascendAct -}` )
-
+  _.assert( arguments.length === 0, 'Expects no arguments' );
   return it.ascendAct( it.src );
-  // return it.ascendAct( onIteration, it.src );
-  // return it._ascend( onIteration, it.src );
 }
 
-// //
-//
-// function _ascend( onIteration )
-// {
-//   let it = this;
-//
-//   _.assert( arguments.length === 1 );
-//
-//   if( _.arrayLike( it.src ) )
-//   {
-//     it.iterable = 'long-like';
-//     return it._longAscend( onIteration );
-//   }
-//   else if( _.mapLike( it.src ) )
-//   {
-//     it.iterable = 'map-like';
-//     return it._mapAscend( onIteration );
-//   }
-//   else if( _.hashMapLike( it.src ) )
-//   {
-//     it.iterable = 'hash-map-like';
-//     return it._hashMapAscend( onIteration );
-//   }
-//   else if( _.setLike( it.src ) )
-//   {
-//     it.iterable = 'set-like';
-//     return it._setAscend( onIteration );
-//   }
-//   else
-//   {
-//     it.iterable = false;
-//     return it._termianlAscend( onIteration );
-//   }
-//
-// }
-
 //
 
-// function _longAscend( onIteration, src )
 function _longAscend( src )
 {
   let it = this;
-
-  // if( it.fast )
-  // var newIt = it.iterationMake();
 
   for( let k = 0 ; k < src.length ; k++ )
   {
     let e = src[ k ];
     let eit;
 
-    // if( it.fast )
-    // eit = newIt.choose( e, k );
-    // else
     eit = it.iterationMake().choose( e, k );
-
     eit.look();
-    // onIteration.call( it, eit );
 
     if( !it.canSibling() )
     break;
@@ -717,28 +615,20 @@ function _longAscend( src )
 
 //
 
-// function _mapAscend( onIteration, src )
 function _mapAscend( src )
 {
   let it = this;
 
   _.assert( arguments.length === 1 );
 
-  // if( it.fast )
-  // var newIt = it.iterationMake();
-
   for( let k in src )
   {
     let e = src[ k ];
     let eit;
 
-    // if( it.fast )
-    // eit = newIt.choose( e, k );
-    // else
     eit = it.iterationMake().choose( e, k );
 
     eit.look();
-    // onIteration.call( it, eit );
 
     if( !it.canSibling() )
     break;
@@ -749,27 +639,19 @@ function _mapAscend( src )
 
 //
 
-// function _hashMapAscend( onIteration, src )
 function _hashMapAscend( src )
 {
   let it = this;
 
   _.assert( arguments.length === 1 );
 
-  // if( it.fast )
-  // var newIt = it.iterationMake();
-
   for( var [ k, e ] of src )
   {
     let eit;
 
-    // if( it.fast )
-    // eit = newIt.choose( e, k );
-    // else
     eit = it.iterationMake().choose( e, k );
 
     eit.look();
-    // onIteration.call( it, eit );
 
     if( !it.canSibling() )
     break;
@@ -780,28 +662,20 @@ function _hashMapAscend( src )
 
 //
 
-// function _setAscend( onIteration, src )
 function _setAscend( src )
 {
   let it = this;
 
   _.assert( arguments.length === 1 );
 
-  // if( it.fast )
-  // var newIt = it.iterationMake();
-
   for( let e of src )
   {
     let k = e;
     let eit;
 
-    // if( it.fast )
-    // eit = newIt.choose( e, k );
-    // else
     eit = it.iterationMake().choose( e, k );
 
     eit.look();
-    // onIteration.call( it, eit );
 
     if( !it.canSibling() )
     break;
@@ -812,7 +686,6 @@ function _setAscend( src )
 
 //
 
-// function _termianlAscend( onIteration, src )
 function _termianlAscend( src )
 {
   let it = this;
@@ -829,16 +702,15 @@ function srcChanged()
 {
   let it = this;
 
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 0, 'Expects no arguments' );
 
+  // if( it.iterable === null ) // xxx : uncomment later
   it.iterableEval();
 
   if( it.onSrcChanged )
-  {
-    it.onSrcChanged();
-  }
+  it.onSrcChanged();
 
-  it.revisitedEval();
+  it.revisitedEval( it.src );
 
 }
 
@@ -848,7 +720,8 @@ function iterableEval()
 {
   let it = this;
 
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+  _.assert( it.iterable === null );
 
   if( _.arrayLike( it.src ) )
   {
@@ -880,16 +753,16 @@ function iterableEval()
 
 //
 
-function revisitedEval()
+function revisitedEval( src )
 {
   let it = this;
 
-  _.assert( arguments.length === 0 );
+  _.assert( arguments.length === 1 );
 
   if( it.iterator.visitedContainer )
   if( it.iterable )
   {
-    if( it.iterator.visitedContainer.has( it.src ) )
+    if( it.iterator.visitedContainer.has( src ) )
     it.revisited = true;
   }
 
@@ -956,7 +829,6 @@ function onPathJoin( selectorPath, upToken, defaultUpToken, selectorName )
  * @property {Function} onTerminal
  * @property {Function} ascend
  * @property {Function} onIterable
- * @property {Boolean} own = 0;
  * @property {Number} recursive = Infinity
  * @property {Boolean} trackingVisits = 1
  * @property {String} upToken = '/'
@@ -981,17 +853,13 @@ Defaults.onAscend = onAscend;
 Defaults.onTerminal = onTerminal;
 Defaults.onSrcChanged = onSrcChanged;
 Defaults.onPathJoin = onPathJoin;
-// Defaults.own = 0;
 Defaults.fast = 0;
 Defaults.recursive = Infinity;
-// Defaults.withStem = 1;
-// Defaults.trackingVisits = 1;
 Defaults.revisiting = 0;
 Defaults.upToken = '/';
 Defaults.defaultUpToken = null;
 Defaults.path = null;
 Defaults.level = 0;
-// Defaults.logicalLevel = 0;
 Defaults.src = null;
 Defaults.root = null;
 Defaults.context = null;
@@ -1027,7 +895,6 @@ Looker.iteratorCopy = iteratorCopy;
 
 Looker.iterationIs = iterationIs,
 Looker.iterationMake = iterationMake;
-// Looker.iterationRemake = iterationRemake;
 Looker.iterationMakeAct = iterationMakeAct;
 Looker.choose = choose;
 
@@ -1047,7 +914,6 @@ Looker.canVisit = canVisit;
 Looker.canAscend = canAscend;
 Looker.canSibling = canSibling;
 Looker.ascend = ascend;
-// Looker._ascend = _ascend;
 Looker._longAscend = _longAscend;
 Looker._mapAscend = _mapAscend;
 Looker._hashMapAscend = _hashMapAscend;
@@ -1122,7 +988,6 @@ Object.freeze( Iterator );
 let Iteration = Looker.Iteration = Object.create( null );
 Iteration.childrenCounter = 0;
 Iteration.level = 0,
-// Iteration.logicalLevel = 0;
 Iteration.path = '/';
 Iteration.key = null;
 Iteration.index = null;
@@ -1156,7 +1021,7 @@ Object.freeze( IterationPreserve );
 
 //
 
-let ErrorLooking = _.error_functor( 'ErrorLooking' ); /* xxx : cover in Err.test.s */
+let ErrorLooking = _.error_functor( 'ErrorLooking' ); /* xxx : cover error_functor in Err.test.s */
 
 // --
 // expose
@@ -1216,14 +1081,6 @@ function look_pre( routine, args )
   {
 
     o.it.iterator.iteratorCopy( o );
-    // let iterator = o.it.iterator;
-    // for( let k in o )
-    // {
-    //   if( iterator[ k ] === null && o[ k ] !== null && o[ k ] !== undefined )
-    //   {
-    //     iterator[ k ] = o[ k ];
-    //   }
-    // }
 
   }
 
@@ -1256,21 +1113,7 @@ look_body.defaults = Object.create( Defaults );
 let lookAll = _.routineFromPreAndBody( look_pre, look_body );
 
 var defaults = lookAll.defaults;
-// defaults.own = 0;
 defaults.recursive = Infinity;
-
-//
-
-// /**
-//  * @function lookOwn
-//  * @memberof module:Tools/base/Looker.Tools( module::Looker )
-//  */
-//
-// let lookOwn = _.routineFromPreAndBody( look_pre, look_body );
-//
-// var defaults = lookOwn.defaults;
-// defaults.own = 1;
-// defaults.recursive = Infinity;
 
 //
 
@@ -1338,7 +1181,6 @@ let LookerExtension =
 
   look : lookAll,
   lookAll,
-  // lookOwn,
 
   lookerIs,
   lookIteratorIs,
@@ -1354,7 +1196,6 @@ let ToolsExtension =
 
   look : lookAll,
   lookAll,
-  // lookOwn,
 
   lookerIs,
   lookIteratorIs,

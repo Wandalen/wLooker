@@ -1,6 +1,6 @@
 {
   "name" : "wlooker", 
-  "version" : "0.3.107", 
+  "version" : "0.3.108", 
   "description" : "Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.", 
   "author" : "Kostiantyn Wandalen <wanalen@willbe.so>", 
   "license" : "MIT", 
@@ -12,7 +12,7 @@
   {
     "url" : "https://github.com/Wandalen/wLooker/issues"
   }, 
-  "dependencies" : { "wTools" : "beta" }, 
-  "devDependencies" : { "wstringer" : "beta", "wTesting" : "beta" }, 
+  "dependencies" : { "wTools" : "alpha" }, 
+  "devDependencies" : { "wstringer" : "alpha", "wTesting" : "alpha" }, 
   "keywords" : [ "wTools" ]
 }

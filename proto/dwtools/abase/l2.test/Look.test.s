@@ -1349,11 +1349,9 @@ function callbacksComplex( test )
 function relook( test )
 {
   let upsLevel = [];
-  let upsLogicalLevel = [];
   let upsSelector = [];
   let upsPath = [];
   let dwsLevel = [];
-  let dwsLogicalLevel = [];
   let dwsSelector = [];
   let dwsPath = [];
 
@@ -1488,7 +1486,6 @@ function relook( test )
   {
 
     upsLevel.push( it.level );
-    upsLogicalLevel.push( it.logicalLevel );
     upsSelector.push( it.selector );
     upsPath.push( it.path );
 
@@ -1500,7 +1497,6 @@ function relook( test )
   {
 
     dwsLevel.push( it.level );
-    dwsLogicalLevel.push( it.logicalLevel );
     dwsSelector.push( it.selector );
     dwsPath.push( it.path );
 
@@ -1540,11 +1536,9 @@ function relook( test )
   function clean()
   {
     upsLevel.splice( 0 );
-    upsLogicalLevel.splice( 0 );
     upsSelector.splice( 0 );
     upsPath.splice( 0 );
     dwsLevel.splice( 0 );
-    dwsLogicalLevel.splice( 0 );
     dwsSelector.splice( 0 );
     dwsPath.splice( 0 );
   }
@@ -1980,11 +1974,9 @@ function optionOnPathJoin( test )
 function optionAscend( test )
 {
   let upsLevel = [];
-  let upsLogicalLevel = [];
   let upsSelector = [];
   let upsPath = [];
   let dwsLevel = [];
-  let dwsLogicalLevel = [];
   let dwsSelector = [];
   let dwsPath = [];
 
@@ -2056,7 +2048,6 @@ function optionAscend( test )
   function onUp( e, k, it )
   {
     upsLevel.push( it.level );
-    upsLogicalLevel.push( it.logicalLevel );
     upsSelector.push( it.selector );
     upsPath.push( it.path );
   }
@@ -2065,7 +2056,6 @@ function optionAscend( test )
   {
 
     dwsLevel.push( it.level );
-    dwsLogicalLevel.push( it.logicalLevel );
     dwsSelector.push( it.selector );
     dwsPath.push( it.path );
 
@@ -2086,11 +2076,9 @@ function optionAscend( test )
   function clean()
   {
     upsLevel.splice( 0 );
-    upsLogicalLevel.splice( 0 );
     upsSelector.splice( 0 );
     upsPath.splice( 0 );
     dwsLevel.splice( 0 );
-    dwsLogicalLevel.splice( 0 );
     dwsSelector.splice( 0 );
     dwsPath.splice( 0 );
   }

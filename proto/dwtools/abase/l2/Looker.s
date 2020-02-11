@@ -364,6 +364,10 @@ function visitUp()
   let r = it.onUp.call( it, it.src, it.key, it );
   _.assert( r === undefined );
 
+  if( it.continue === _.dont )
+  it.continue = false;
+  _.assert( _.boolIs( it.continue ), () => 'Expects boolean it.continue, but got ' + _.strType( it.continue ) );
+
   it.visitUpEnd()
 
 }
@@ -402,9 +406,9 @@ function visitUpEnd()
 {
   let it = this;
 
-  if( it.continue === _.dont )
-  it.continue = false;
-  _.assert( _.boolIs( it.continue ), () => 'Expects boolean it.continue, but got ' + _.strType( it.continue ) );
+  // if( it.continue === _.dont )
+  // it.continue = false;
+  // _.assert( _.boolIs( it.continue ), () => 'Expects boolean it.continue, but got ' + _.strType( it.continue ) );
 
   it.visitPush();
 
@@ -705,7 +709,7 @@ function srcChanged()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  // if( it.iterable === null ) // xxx : uncomment later, maybe
+  // if( it.iterable === null ) // xxx : uncomment later, maybe?
   it.iterableEval();
 
   if( it.onSrcChanged )
@@ -720,9 +724,10 @@ function srcChanged()
 function iterableEval()
 {
   let it = this;
+  it.iterable = null;
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  _.assert( it.iterable === null ); // xxx : uncomment later
+  // _.assert( it.iterable === null ); // xxx : uncomment later, maybe?
 
   if( _.arrayLike( it.src ) )
   {

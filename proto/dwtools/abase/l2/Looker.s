@@ -299,6 +299,7 @@ function relook( src )
   let it = this;
   _.assert( arguments.length === 1 );
   it.src = src;
+  it.iterable = null;
   return it.look();
 }
 
@@ -704,7 +705,7 @@ function srcChanged()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  // if( it.iterable === null ) // xxx : uncomment later
+  // if( it.iterable === null ) // xxx : uncomment later, maybe
   it.iterableEval();
 
   if( it.onSrcChanged )
@@ -721,7 +722,7 @@ function iterableEval()
   let it = this;
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  _.assert( it.iterable === null );
+  _.assert( it.iterable === null ); // xxx : uncomment later
 
   if( _.arrayLike( it.src ) )
   {

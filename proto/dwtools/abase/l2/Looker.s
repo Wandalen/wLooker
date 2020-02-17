@@ -595,7 +595,7 @@ function onAscend()
 {
   let it = this;
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  return it.ascendAct( it.src );
+  return it.ascendAct( it.srcToIterate );
 }
 
 //
@@ -709,11 +709,15 @@ function srcChanged()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
+  it.srcToIterate = it.src;
+
   // if( it.iterable === null ) // xxx : uncomment later, maybe?
   it.iterableEval();
 
   if( it.onSrcChanged )
   it.onSrcChanged();
+
+  it.ascendEval();
 
   it.revisitedEval( it.src );
 
@@ -731,29 +735,66 @@ function iterableEval()
 
   if( _.arrayLike( it.src ) )
   {
-    it.iterable = 'long-like';
-    it.ascendAct = it._longAscend;
+    it.iterable = _.looker.containerNameToIdMap.long;
+    // it.iterable = 'long-like';
   }
   else if( _.mapLike( it.src ) )
   {
-    it.iterable = 'map-like';
-    it.ascendAct = it._mapAscend;
+    it.iterable = _.looker.containerNameToIdMap.map;
+    // it.iterable = 'map-like';
   }
   else if( _.hashMapLike( it.src ) )
   {
-    it.iterable = 'hash-map-like';
-    it.ascendAct = it._hashMapAscend;
+    it.iterable = _.looker.containerNameToIdMap.hashMap;
+    // it.iterable = 'hash-map-like';
   }
   else if( _.setLike( it.src ) )
   {
-    it.iterable = 'set-like';
-    it.ascendAct = it._setAscend;
+    it.iterable = _.looker.containerNameToIdMap.set;
+    // it.iterable = 'set-like';
   }
   else
   {
-    it.iterable = false;
-    it.ascendAct = it._termianlAscend;
+    it.iterable = 0;
+    // it.iterable = false;
   }
+
+  _.assert( it.iterable >= 0 );
+}
+
+//
+
+function ascendEval()
+{
+  let it = this;
+
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+  // _.assert( it.iterable === null ); // xxx : uncomment later, maybe?
+
+  it.ascendAct = _.looker.containerIdToAscendMap[ it.iterable ];
+
+  _.assert( _.routineIs( it.ascendAct ) );
+
+  // if( it.iterable === 'long-like' )
+  // {
+  //   it.ascendAct = it._longAscend;
+  // }
+  // else if( it.iterable === 'map-like' )
+  // {
+  //   it.ascendAct = it._mapAscend;
+  // }
+  // else if( it.iterable === 'hash-map-like' )
+  // {
+  //   it.ascendAct = it._hashMapAscend;
+  // }
+  // else if( it.iterable === 'set-like' )
+  // {
+  //   it.ascendAct = it._setAscend;
+  // }
+  // else
+  // {
+  //   it.ascendAct = it._termianlAscend;
+  // }
 
 }
 
@@ -927,6 +968,7 @@ Looker._setAscend = _setAscend;
 Looker._termianlAscend = _termianlAscend;
 Looker.srcChanged = srcChanged;
 Looker.iterableEval = iterableEval;
+Looker.ascendEval = ascendEval;
 Looker.revisitedEval = revisitedEval;
 
 //
@@ -998,6 +1040,7 @@ Iteration.path = '/';
 Iteration.key = null;
 Iteration.index = null;
 Iteration.src = null;
+Iteration.srcToIterate = null;
 Iteration.continue = true;
 Iteration.ascending = true;
 Iteration.ascendAct = null;
@@ -1179,11 +1222,62 @@ function lookIterationIs( it )
 // declare
 // --
 
+let containerNameToIdMap =
+{
+  'long' : 1,
+  'map' : 2,
+  'hashMap' : 3,
+  'set' : 4,
+  'last' : 4,
+}
+
+let containerIdToNameMap =
+{
+  1 : 'long',
+  2 : 'map',
+  3 : 'hashMap',
+  4 : 'set',
+}
+
+let containerIdToAscendMap =
+{
+  0 : _termianlAscend,
+  1 : _longAscend,
+  2 : _mapAscend,
+  3 : _hashMapAscend,
+  4 : _setAscend,
+}
+
+  // if( _.arrayLike( it.src ) )
+  // {
+  //   it.iterable = 'long-like';
+  // }
+  // else if( _.mapLike( it.src ) )
+  // {
+  //   it.iterable = 'map-like';
+  // }
+  // else if( _.hashMapLike( it.src ) )
+  // {
+  //   it.iterable = 'hash-map-like';
+  // }
+  // else if( _.setLike( it.src ) )
+  // {
+  //   it.iterable = 'set-like';
+  // }
+  // else
+  // {
+  //   it.iterable = false;
+  // }
+
 let LookerExtension =
 {
 
   Looker,
   ErrorLooking,
+
+  containerNameToIdMap,
+  containerIdToNameMap,
+  containerIdToAscendMap,
 
   look : lookAll,
   lookAll,

@@ -60,13 +60,13 @@ function look( test )
   test.is( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
   test.is( Object.getPrototypeOf( it ) === it.iterator );
 
-  test.case = 'paths on up';
+  test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
-  test.case = 'paths on down';
+  test.description = 'paths on down';
   test.identical( gotDownPaths, expectedDownPaths );
-  test.case = 'indices on up';
+  test.description = 'indices on up';
   test.identical( gotUpIndinces, expectedUpIndinces );
-  test.case = 'indices on down';
+  test.description = 'indices on down';
   test.identical( gotDownIndices, expectedDownIndices );
 
   function handleUp1( e, k, it )
@@ -218,6 +218,172 @@ function lookRecursive( test )
   function handleDown1( e, k, it )
   {
     gotDownPaths.push( it.path );
+  }
+
+}
+
+//
+
+function lookContainerType( test )
+{
+
+  try
+  {
+
+    var gotUpPaths = [];
+    var gotDownPaths = [];
+
+    let type = Object.create( null );
+    type.name = 'ContainerForTest';
+    type._while = _while;
+    type._elementGet = _elementGet;
+    type._elementSet = _elementSet;
+    type._is = _is;
+
+    _.container.typeDeclare( type );
+
+    /* */
+
+    test.description = 'basic';
+    clean();
+    var expectedUpPaths = [ '/', '/0', '/1', '/2' ];
+    var expectedDownPaths = [ '/0', '/1', '/2', '/' ];
+    var src1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+    var it = _.look
+    ({
+      src : src1,
+      onUp : handleUp1,
+      onDown : handleDown1,
+      recursive : Infinity,
+    });
+    test.description = 'paths on up';
+    test.identical( gotUpPaths, expectedUpPaths );
+    test.description = 'paths on down';
+    test.identical( gotDownPaths, expectedDownPaths );
+
+    /* */
+
+    test.description = '2 levels';
+    clean();
+    var expectedUpPaths = [ '/', '/a', '/a/0', '/a/1', '/a/2', '/b' ];
+    var expectedDownPaths = [ '/a/0', '/a/1', '/a/2', '/a', '/b', '/' ];
+    var a = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+    var src2 = { a : a, b : 'bb' }
+    var it = _.look
+    ({
+      src : src2,
+      onUp : handleUp1,
+      onDown : handleDown1,
+      recursive : Infinity,
+    });
+    test.description = 'paths on up';
+    test.identical( gotUpPaths, expectedUpPaths );
+    test.description = 'paths on down';
+    test.identical( gotDownPaths, expectedDownPaths );
+
+    /* */
+
+    test.description = 'object';
+    clean();
+    var expectedUpPaths = [ '/', '/0', '/1', '/2' ];
+    var expectedDownPaths = [ '/0', '/1', '/2', '/' ];
+    var a1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+    var a2 = new objectMake();
+    _.mapExtend( a2, a1 );
+    var it = _.look
+    ({
+      src : a2,
+      onUp : handleUp1,
+      onDown : handleDown1,
+      recursive : Infinity,
+    });
+    test.description = 'paths on up';
+    test.identical( gotUpPaths, expectedUpPaths );
+    test.description = 'paths on down';
+    test.identical( gotDownPaths, expectedDownPaths );
+
+    /* */
+
+    _.container.typeUndeclare( 'ContainerForTest' );
+
+    /* */
+
+    test.description = 'undeclared type';
+    clean();
+    var expectedUpPaths = [ '/', '/eSet', '/eGet', '/elements', '/elements/0', '/elements/1', '/elements/2', '/field1' ];
+    var expectedDownPaths = [ '/eSet', '/eGet', '/elements/0', '/elements/1', '/elements/2', '/elements', '/field1', '/' ];
+    var src1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+    var it = _.look
+    ({
+      src : src1,
+      onUp : handleUp1,
+      onDown : handleDown1,
+      recursive : Infinity,
+    });
+    test.description = 'paths on up';
+    test.identical( gotUpPaths, expectedUpPaths );
+    test.description = 'paths on down';
+    test.identical( gotDownPaths, expectedDownPaths );
+
+    /* */
+
+  }
+  catch( err )
+  {
+    _.container.typeUndeclare( 'ContainerForTest' );
+    throw err;
+  }
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+  }
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+  }
+
+  function objectMake()
+  {
+  }
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotDownPaths = [];
+  }
+
+  function _is( src )
+  {
+    return !!src.eGet;
+  }
+
+  function _elementSet( container, key, val )
+  {
+    return container.eSet( key, val );
+  }
+
+  function _elementGet( container, key )
+  {
+    return container.eGet( key );
+  }
+
+  function _while( container, onEach )
+  {
+    for( let k = 0 ; k < container.elements.length ; k++ )
+    onEach( container.elements[ k ], k, container );
+  }
+
+  function eSet( k, v )
+  {
+    this.elements[ k ] = v;
+  }
+
+  function eGet( k )
+  {
+    debugger;
+    return this.elements[ k ];
   }
 
 }
@@ -1727,10 +1893,66 @@ function optionOnSrcChanged( test )
   var b = new Obj({ name : 'b', elements : [ a1, a2 ] });
   var c = new Obj({ name : 'c', elements : [ b ] });
 
-  var expUps = [ '/', '/0', '/0/0', '/0/1' ];
-  var expDws = [ '/', '/0', '/0/0', '/0/1' ];
-  var expUpNames = [ 'c', 'b', 'a1', 'a2' ];
-  var expDwNames = [ 'a1', 'a2', 'b', 'c' ];
+  var expUps =
+  [
+    '/',
+    '/str',
+    '/num',
+    '/name',
+    '/elements',
+    '/elements/0',
+    '/elements/0/str',
+    '/elements/0/num',
+    '/elements/0/name',
+    '/elements/0/elements',
+    '/elements/0/elements/0',
+    '/elements/0/elements/1'
+  ];
+  var expDws =
+  [
+    '/',
+    '/str',
+    '/num',
+    '/name',
+    '/elements',
+    '/elements/0',
+    '/elements/0/str',
+    '/elements/0/num',
+    '/elements/0/name',
+    '/elements/0/elements',
+    '/elements/0/elements/0',
+    '/elements/0/elements/1'
+  ]
+  var expUpNames =
+  [
+    'c',
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    'b',
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    'a1',
+    'a2'
+  ]
+  var expDwNames =
+  [
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    'a1',
+    'a2',
+    undefined,
+    'b',
+    undefined,
+    'c'
+  ]
 
   var got = _.look({ src : c, onUp, onDown, onSrcChanged });
   test.identical( ups, expUps );
@@ -1775,7 +1997,8 @@ function optionOnSrcChanged( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = 'Obj';
+        // it.iterable = 'Obj';
+        it.iterable = _.looker.containerNameToIdMap.map;
         it.ascendAct = function objAscend( src )
         {
           return this._longAscend( src.elements );
@@ -2648,6 +2871,8 @@ var Self =
 
     look,
     lookRecursive,
+    lookContainerType,
+
     fieldPaths,
     callbacksComplex,
     relook,

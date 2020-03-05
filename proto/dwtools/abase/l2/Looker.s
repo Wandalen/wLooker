@@ -238,16 +238,23 @@ function choose( e, k )
   if( !it.fast )
   _.assert( it.level >= 0 );
 
+  if( _global_.debugger )
+  debugger;
+
   if( e === undefined )
   {
-    if( _.setIs( it.src ) )
-    e = [ ... it.src ][ k ];
-    else if( _.hashMapIs( it.src ) )
-    e = it.src.get( k );
-    else if( it.src )
-    e = it.src[ k ];
+    if( it.down )
+    e = _.container.elementGet( it.src, k, it.down.type || false );
     else
-    e = undefined;
+    e = _.container.elementGet( it.src, k );
+    // if( _.setIs( it.src ) )
+    // e = [ ... it.src ][ k ];
+    // else if( _.hashMapIs( it.src ) )
+    // e = it.src.get( k );
+    // else if( it.src )
+    // e = it.src[ k ];
+    // else
+    // e = undefined;
   }
 
   /*
@@ -269,16 +276,6 @@ function choose( e, k )
     let hasUp = _.strIs( k2 ) && _.strHasAny( k2, it.upToken );
     if( hasUp )
     k2 = '"' + k2 + '"';
-
-    // if( _.strEnds( it.path, it.upToken ) )
-    // {
-    //   // it.path = it.path + k2;
-    //   it.path = it.onPathJoin( it.path, it.defaultUpToken, k2 );
-    // }
-    // else
-    // {
-    //   it.path = it.onPathJoin( it.path, it.defaultUpToken, k2 );
-    // }
 
     it.index = it.down.childrenCounter;
     it.path = it.onPathJoin( it.path, it.upToken, it.defaultUpToken, k2 );
@@ -691,6 +688,30 @@ function _setAscend( src )
 
 //
 
+function _customAscend( src )
+{
+  let it = this;
+  // let type = _.container.typeOf( src );
+  let type = it.type;
+
+  _.assert( arguments.length === 1 );
+
+  type._while( src, ( e, k ) =>
+  {
+    let eit = it.iterationMake().choose( e, k );
+
+    eit.look();
+
+    if( !it.canSibling() )
+    return;
+
+    return true;
+  });
+
+}
+
+//
+
 function _termianlAscend( src )
 {
   let it = this;
@@ -731,32 +752,32 @@ function iterableEval()
   it.iterable = null;
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  // _.assert( it.iterable === null ); // xxx : uncomment later, maybe?
 
-  if( _.arrayLike( it.src ) )
+  let type = _.container.typeOf( it.src );
+  if( type )
+  {
+    it.iterable = _.looker.containerNameToIdMap.custom;
+    it.type = type;
+  }
+  else if( _.arrayLike( it.src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.long;
-    // it.iterable = 'long-like';
   }
   else if( _.mapLike( it.src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.map;
-    // it.iterable = 'map-like';
   }
   else if( _.hashMapLike( it.src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.hashMap;
-    // it.iterable = 'hash-map-like';
   }
   else if( _.setLike( it.src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.set;
-    // it.iterable = 'set-like';
   }
   else
   {
     it.iterable = 0;
-    // it.iterable = false;
   }
 
   _.assert( it.iterable >= 0 );
@@ -774,27 +795,6 @@ function ascendEval()
   it.ascendAct = _.looker.containerIdToAscendMap[ it.iterable ];
 
   _.assert( _.routineIs( it.ascendAct ) );
-
-  // if( it.iterable === 'long-like' )
-  // {
-  //   it.ascendAct = it._longAscend;
-  // }
-  // else if( it.iterable === 'map-like' )
-  // {
-  //   it.ascendAct = it._mapAscend;
-  // }
-  // else if( it.iterable === 'hash-map-like' )
-  // {
-  //   it.ascendAct = it._hashMapAscend;
-  // }
-  // else if( it.iterable === 'set-like' )
-  // {
-  //   it.ascendAct = it._setAscend;
-  // }
-  // else
-  // {
-  //   it.ascendAct = it._termianlAscend;
-  // }
 
 }
 
@@ -1039,6 +1039,7 @@ Iteration.level = 0,
 Iteration.path = '/';
 Iteration.key = null;
 Iteration.index = null;
+Iteration.type = null;
 Iteration.src = null;
 Iteration.srcToIterate = null;
 Iteration.continue = true;
@@ -1228,7 +1229,8 @@ let containerNameToIdMap =
   'map' : 2,
   'hashMap' : 3,
   'set' : 4,
-  'last' : 4,
+  'custom' : 5,
+  'last' : 5,
 }
 
 let containerIdToNameMap =
@@ -1237,6 +1239,7 @@ let containerIdToNameMap =
   2 : 'map',
   3 : 'hashMap',
   4 : 'set',
+  5 : 'custom',
 }
 
 let containerIdToAscendMap =
@@ -1246,28 +1249,8 @@ let containerIdToAscendMap =
   2 : _mapAscend,
   3 : _hashMapAscend,
   4 : _setAscend,
+  5 : _customAscend,
 }
-
-  // if( _.arrayLike( it.src ) )
-  // {
-  //   it.iterable = 'long-like';
-  // }
-  // else if( _.mapLike( it.src ) )
-  // {
-  //   it.iterable = 'map-like';
-  // }
-  // else if( _.hashMapLike( it.src ) )
-  // {
-  //   it.iterable = 'hash-map-like';
-  // }
-  // else if( _.setLike( it.src ) )
-  // {
-  //   it.iterable = 'set-like';
-  // }
-  // else
-  // {
-  //   it.iterable = false;
-  // }
 
 let LookerExtension =
 {

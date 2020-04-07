@@ -8,12 +8,8 @@
 */
 
 /**
- * @file Looker.s.
- */
-
-/**
  * Collection of light-weight routines to traverse complex data structure.
- * @namespace "Tools.looker"
+ * @namespace Tools.Looker
  * @extends Tools
  * @memberof module:Tools/base/Looker
  */

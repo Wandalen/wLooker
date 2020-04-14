@@ -10,7 +10,12 @@
 /**
  * Collection of light-weight routines to traverse complex data structure.
  * @namespace Tools.Looker
- * @extends Tools
+ * @module Tools/base/Looker
+ */
+
+/**
+ * Collection of light-weight routines to traverse complex data structure.
+ * @namespace Tools.looker
  * @module Tools/base/Looker
  */
 
@@ -594,6 +599,18 @@ function onAscend()
 
 //
 
+function _termianlAscend( src )
+{
+  let it = this;
+
+  _.assert( arguments.length === 1 );
+
+  it.onTerminal( src );
+
+}
+
+//
+
 function _longAscend( src )
 {
   let it = this;
@@ -688,7 +705,6 @@ function _setAscend( src )
 function _customAscend( src )
 {
   let it = this;
-  // let type = _.container.typeOf( src );
   let type = it.type;
 
   _.assert( arguments.length === 1 );
@@ -704,18 +720,6 @@ function _customAscend( src )
 
     return true;
   });
-
-}
-
-//
-
-function _termianlAscend( src )
-{
-  let it = this;
-
-  _.assert( arguments.length === 1 );
-
-  it.onTerminal( src );
 
 }
 
@@ -958,11 +962,14 @@ Looker.canVisit = canVisit;
 Looker.canAscend = canAscend;
 Looker.canSibling = canSibling;
 Looker.ascend = ascend;
+
+Looker._termianlAscend = _termianlAscend;
 Looker._longAscend = _longAscend;
 Looker._mapAscend = _mapAscend;
 Looker._hashMapAscend = _hashMapAscend;
 Looker._setAscend = _setAscend;
-Looker._termianlAscend = _termianlAscend;
+Looker._customAscend = _customAscend;
+
 Looker.srcChanged = srcChanged;
 Looker.iterableEval = iterableEval;
 Looker.ascendEval = ascendEval;
@@ -1222,6 +1229,7 @@ function lookIterationIs( it )
 
 let containerNameToIdMap =
 {
+  'terminal' : 0,
   'long' : 1,
   'map' : 2,
   'hashMap' : 3,
@@ -1232,6 +1240,7 @@ let containerNameToIdMap =
 
 let containerIdToNameMap =
 {
+  0 : 'terminal',
   1 : 'long',
   2 : 'map',
   3 : 'hashMap',

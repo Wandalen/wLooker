@@ -180,7 +180,7 @@ function iterationIs( it )
 function iterationMake()
 {
   let it = this;
-  let newIt = it.iterationMakeAct();
+  let newIt = it._iterationMakeAct();
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
@@ -190,11 +190,11 @@ function iterationMake()
 //
 
 /**
- * @function iterationMakeAct
+ * @function _iterationMakeAct
  * @namespace Tools.looker
  */
 
-function iterationMakeAct()
+function _iterationMakeAct()
 {
   let it = this;
 
@@ -240,13 +240,13 @@ function choose( e, k )
   if( !it.fast )
   _.assert( it.level >= 0 );
 
-  if( _global_.debugger )
-  debugger;
+  // if( _global_.debugger )
+  // debugger;
 
   if( e === undefined )
   {
     if( it.down )
-    e = _.container.elementGet( it.src, k, it.down.type || false );
+    e = _.container.elementGet( it.src, k, it.down.containerType || false );
     else
     e = _.container.elementGet( it.src, k );
     // if( _.setIs( it.src ) )
@@ -618,12 +618,9 @@ function _longAscend( src )
   for( let k = 0 ; k < src.length ; k++ )
   {
     let e = src[ k ];
-    let eit;
-
-    eit = it.iterationMake().choose( e, k );
+    let eit = it.iterationMake().choose( e, k );
     eit.look();
-
-    if( !it.canSibling() )
+    if( !it.canSibling() ) /* xxx : rename? */
     break;
   }
 
@@ -640,15 +637,10 @@ function _mapAscend( src )
   for( let k in src )
   {
     let e = src[ k ];
-    let eit;
-
-    eit = it.iterationMake().choose( e, k );
-
+    let eit = it.iterationMake().choose( e, k );
     eit.look();
-
     if( !it.canSibling() )
     break;
-
   }
 
 }
@@ -663,15 +655,10 @@ function _hashMapAscend( src )
 
   for( var [ k, e ] of src )
   {
-    let eit;
-
-    eit = it.iterationMake().choose( e, k );
-
+    let eit = it.iterationMake().choose( e, k );
     eit.look();
-
     if( !it.canSibling() )
     break;
-
   }
 
 }
@@ -687,15 +674,10 @@ function _setAscend( src )
   for( let e of src )
   {
     let k = e;
-    let eit;
-
-    eit = it.iterationMake().choose( e, k );
-
+    let eit = it.iterationMake().choose( e, k );
     eit.look();
-
     if( !it.canSibling() )
     break;
-
   }
 
 }
@@ -705,19 +687,16 @@ function _setAscend( src )
 function _customAscend( src )
 {
   let it = this;
-  let type = it.type;
+  let containerType = it.containerType;
 
   _.assert( arguments.length === 1 );
 
-  type._while( src, ( e, k ) =>
+  containerType._while( src, ( e, k ) =>
   {
     let eit = it.iterationMake().choose( e, k );
-
     eit.look();
-
     if( !it.canSibling() )
     return;
-
     return true;
   });
 
@@ -754,11 +733,11 @@ function iterableEval()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  let type = _.container.typeOf( it.src );
-  if( type )
+  let containerType = _.container.typeOf( it.src );
+  if( containerType )
   {
     it.iterable = _.looker.containerNameToIdMap.custom;
-    it.type = type;
+    it.containerType = containerType;
   }
   else if( _.arrayLike( it.src ) )
   {
@@ -943,7 +922,7 @@ Looker.iteratorCopy = iteratorCopy;
 
 Looker.iterationIs = iterationIs,
 Looker.iterationMake = iterationMake;
-Looker.iterationMakeAct = iterationMakeAct;
+Looker._iterationMakeAct = _iterationMakeAct;
 Looker.choose = choose;
 
 Looker.relook = relook;
@@ -980,7 +959,7 @@ Looker.revisitedEval = revisitedEval;
 /**
  * @typedef {Object} Iterator
  * @property {} iterator = null
- * @property {} iterationMakeAct = iterationMakeAct
+ * @property {} _iterationMakeAct = _iterationMakeAct
  * @property {} iterationMake = iterationMake
  * @property {} choose = choose
  * @property {} look = look
@@ -1043,7 +1022,7 @@ Iteration.level = 0,
 Iteration.path = '/';
 Iteration.key = null;
 Iteration.index = null;
-Iteration.type = null;
+Iteration.containerType = null;
 Iteration.src = null;
 Iteration.srcToIterate = null;
 Iteration.continue = true;
@@ -1070,7 +1049,7 @@ Object.freeze( Iteration );
 let IterationPreserve = Looker.IterationPreserve = Object.create( null );
 IterationPreserve.level = null;
 IterationPreserve.path = null;
-IterationPreserve.src = null;
+IterationPreserve.src = null; /* xxx : check */
 Object.freeze( IterationPreserve );
 
 //
@@ -1300,7 +1279,7 @@ _.mapSupplement( _, ToolsExtension );
 // export
 // --
 
-if( typeof module !== 'undefined' && module !== null )
+if( typeof module !== 'undefined' )
 module[ 'exports' ] = _;
 
 })();

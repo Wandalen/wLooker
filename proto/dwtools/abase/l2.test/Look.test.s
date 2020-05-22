@@ -382,7 +382,6 @@ function lookContainerType( test )
 
   function eGet( k )
   {
-    debugger;
     return this.elements[ k ];
   }
 
@@ -1498,8 +1497,8 @@ function callbacksComplex( test )
 
   function onUp( e, k, it )
   {
-    if( _.strHas( it.path, 'regexp.defined' ) )
-    debugger;
+    // if( _.strHas( it.path, 'regexp.defined' ) )
+    // debugger;
     ups.push( it.path );
   }
 
@@ -1686,14 +1685,12 @@ function relook( test )
   function onTerminal( e )
   {
     let it = this;
-    debugger;
 
     test.identical( arguments.length, 1 );
 
     if( it.path === '/a/name' )
     if( !_.arrayIs( it.src ) )
     {
-      debugger;
       it.relook( [ 'r1', 'r2', 'r3' ] );
     }
 
@@ -2186,7 +2183,6 @@ function optionOnPathJoin( test )
       result = selectorPath + defaultUpToken + _.strType( it.src ) + '::' + selectorName;
     }
 
-    debugger;
     return result;
   }
 
@@ -2216,7 +2212,6 @@ function optionAscend( test )
     c : { value : 25, date : new Date( Date.UTC( 1990, 0, 0 ) ) },
   }
 
-  debugger;
   var it = _.look
   ({
     src : src,
@@ -2224,7 +2219,6 @@ function optionAscend( test )
     onUp : onUp,
     onAscend : onAscend,
   });
-  debugger;
 
   var exp = [ 0, 1, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ];
   test.identical( upsLevel, exp );
@@ -2288,8 +2282,6 @@ function optionAscend( test )
   {
     let it = this;
     test.is( arguments.length === 0 );
-    if( it.src === 'name1' )
-    debugger;
     if( it.src === 'name1' )
     it._longAscend( [ 'r1', 'r2', 'r3' ] );
     else
@@ -2606,7 +2598,6 @@ function optionFast( test )
   function handleUp( op, e, k, it )
   {
 
-    debugger;
     if( op.fast )
     {
       test.is( wasIt === undefined || wasIt === it );
@@ -2629,7 +2620,6 @@ function optionFast( test )
   function handleDown( op, e, k, it )
   {
 
-    debugger;
     if( op.fast )
     {
       test.is( wasIt === it );
@@ -2810,7 +2800,6 @@ function optionFastCycled( test )
   function handleUp( op, e, k, it )
   {
 
-    debugger;
     if( op.fast )
     {
       test.is( wasIt === undefined || wasIt === it );

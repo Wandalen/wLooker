@@ -5,7 +5,7 @@
 if( typeof module !== 'undefined' )
 {
 
-  let _ = require( '../../../dwtools/Tools.s' );
+  let _ = require( '../../../wtools/Tools.s' );
 
   require( '../l2/Looker.s' );
 
@@ -18,7 +18,7 @@ var _global = _global_;
 var _ = _global_.wTools;
 
 /*
-cls && node builder\include\dwtools\abase\l3.test\Looker.test.s && node builder\include\dwtools\abase\l4.test\LookerExtra.test.s && node builder\include\dwtools\abase\l4.test\Replicator.test.s && node builder\include\dwtools\abase\l5.test\Selector.test.s && node builder\include\dwtools\abase\l6.test\SelectorExtra.test.s && node builder\include\dwtools\abase\l6.test\LookerComparator.test.s
+cls && node builder\include\wtools\abase\l3.test\Looker.test.s && node builder\include\wtools\abase\l4.test\LookerExtra.test.s && node builder\include\wtools\abase\l4.test\Replicator.test.s && node builder\include\wtools\abase\l5.test\Selector.test.s && node builder\include\wtools\abase\l6.test\SelectorExtra.test.s && node builder\include\wtools\abase\l6.test\LookerComparator.test.s
 */
 
 // --

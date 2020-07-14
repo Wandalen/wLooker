@@ -35,6 +35,216 @@ _.looker = _.looker || Object.create( null );
 _.assert( !!_realGlobal_ );
 
 // --
+// relations
+// --
+
+/**
+ * Default options for {@link module:Tools/base/Looker.Looker.look} routine.
+ * @typedef {Object} Defaults
+ * @property {Function} onUp
+ * @property {Function} onDown
+ * @property {Function} onTerminal
+ * @property {Function} ascend
+ * @property {Function} onIterable
+ * @property {Number} recursive = Infinity
+ * @property {Boolean} trackingVisits = 1
+ * @property {String} upToken = '/'
+ * @property {String} path = null
+ * @property {Number} level = 0
+ * @property {*} src = null
+ * @property {*} root = null
+ * @property {*} context = null
+ * @property {Object} Looker = null
+ * @property {Object} it = null
+ * @property {Boolean} iterationPreserve = null
+ * @property {*} iterationExtension = null
+ * @property {*} iteratorExtension = null
+ * @namespace Tools.looker
+ */
+
+let Defaults = Object.create( null );
+
+Defaults.onUp = onUp;
+Defaults.onDown = onDown;
+Defaults.onAscend = onAscend;
+Defaults.onTerminal = onTerminal;
+Defaults.onSrcChanged = onSrcChanged;
+Defaults.onPathJoin = onPathJoin;
+Defaults.fast = 0;
+Defaults.recursive = Infinity;
+Defaults.revisiting = 0;
+Defaults.upToken = '/';
+Defaults.defaultUpToken = null;
+Defaults.path = null;
+Defaults.level = 0;
+Defaults.src = null;
+Defaults.root = null;
+Defaults.context = null;
+Defaults.Looker = null;
+Defaults.it = null;
+Defaults.iterationPreserve = null;
+Defaults.iterationExtension = null;
+Defaults.iteratorExtension = null;
+
+//
+
+/**
+ * @typedef {Object} looker
+ * @property {Object} Looker
+ * @property {Object} Iterator
+ * @property {Object} Iteration
+ * @property {Boolean} IterationPreserve
+ * @property {} iterator
+ * @namespace Tools.looker.Defaults
+ */
+
+let Looker = Defaults.Looker = Object.create( null );
+
+Looker.constructor = function Looker(){};
+Looker.Looker = Looker;
+Looker.Iterator = null;
+Looker.Iteration = null;
+Looker.IterationPreserve = null;
+
+Looker.iteratorIs = iteratorIs;
+Looker.iteratorMake = iteratorMake;
+Looker.iteratorCopy = iteratorCopy;
+
+Looker.iterationIs = iterationIs,
+Looker.iterationMake = iterationMake;
+Looker._iterationMakeAct = _iterationMakeAct;
+Looker.choose = choose;
+
+Looker.relook = relook;
+Looker.start = start;
+Looker.look = look;
+Looker.visitUp = visitUp;
+Looker.visitUpBegin = visitUpBegin;
+Looker.visitUpEnd = visitUpEnd;
+Looker.visitDown = visitDown;
+Looker.visitDownBegin = visitDownBegin;
+Looker.visitDownEnd = visitDownEnd;
+Looker.visitPush = visitPush;
+Looker.visitPop = visitPop;
+Looker.canVisit = canVisit;
+
+Looker.canAscend = canAscend;
+Looker.canSibling = canSibling;
+Looker.ascend = ascend;
+
+Looker._termianlAscend = _termianlAscend;
+Looker._longAscend = _longAscend;
+Looker._mapAscend = _mapAscend;
+Looker._hashMapAscend = _hashMapAscend;
+Looker._setAscend = _setAscend;
+Looker._customAscend = _customAscend;
+
+Looker.srcChanged = srcChanged;
+Looker.effectiveEval = effectiveEval;
+Looker.iterableEval = iterableEval;
+Looker.ascendEval = ascendEval;
+Looker.revisitedEval = revisitedEval;
+
+//
+
+/**
+ * @typedef {Object} Iterator
+ * @property {} iterator = null
+ * @property {} _iterationMakeAct = _iterationMakeAct
+ * @property {} iterationMake = iterationMake
+ * @property {} choose = choose
+ * @property {} look = look
+ * @property {} visitUp = visitUp
+ * @property {} visitUpBegin = visitUpBegin
+ * @property {} visitUpEnd = visitUpEnd
+ * @property {} visitDown = visitDown
+ * @property {} visitDownBegin = visitDownBegin
+ * @property {} visitDownEnd = visitDownEnd
+ * @property {} canVisit = canVisit
+ * @property {} canAscend = canAscend
+ * @property {} path = null
+ * @property {} lastPath = null
+ * @property {} lastSelected = null
+ * @property {} continue = true
+ * @property {} key = null
+ * @property {} error = null
+ * @property {} visitedContainer = null
+ * @namespace Tools.looker.Defaults.Looker
+ */
+
+let Iterator = Looker.Iterator = Object.create( null );
+
+Iterator.iterator = null;
+Iterator.path = null;
+Iterator.lastPath = null;
+Iterator.lastSelected = null;
+Iterator.continue = true;
+Iterator.key = null;
+Iterator.error = null;
+Iterator.visitedContainer = null;
+
+_.mapSupplement( Iterator, Defaults );
+Object.freeze( Iterator );
+
+//
+
+/**
+ * @typedef {Object} Iteration
+ * @property {} childrenCounter = 0
+ * @property {} level = 0
+ * @property {} path = '/'
+ * @property {} key = null
+ * @property {} index = null
+ * @property {} src = null
+ * @property {} continue = true
+ * @property {} ascending = true
+ * @property {} revisited = false
+ * @property {} _ = null
+ * @property {} down = null
+ * @property {} visiting = false
+ * @property {} iterable = null
+ * @property {} visitCounted = 1
+ * @namespace Tools.looker.Defaults.Looker
+ */
+
+let Iteration = Looker.Iteration = Object.create( null );
+Iteration.childrenCounter = 0;
+Iteration.level = 0,
+Iteration.path = '/';
+Iteration.key = null;
+Iteration.index = null;
+Iteration.containerType = null;
+Iteration.src = null;
+Iteration.srcEffective = null;
+Iteration.continue = true;
+Iteration.ascending = true;
+Iteration.ascendAct = null;
+Iteration.revisited = false; /* yyy */
+Iteration._ = null;
+Iteration.down = null;
+Iteration.visiting = false;
+Iteration.iterable = null;
+Iteration.visitCounting = true;
+Object.freeze( Iteration );
+
+//
+
+/**
+ * @typedef {Object} IterationPreserve
+ * @property {} level = null
+ * @property {} path = null
+ * @property {} src = null
+ * @namespace Tools.looker.Defaults.Looker
+ */
+
+let IterationPreserve = Looker.IterationPreserve = Object.create( null );
+IterationPreserve.level = null;
+IterationPreserve.path = null;
+IterationPreserve.src = null;
+IterationPreserve.srcEffective = null;
+Object.freeze( IterationPreserve );
+
+// --
 // iterator
 // --
 
@@ -237,26 +447,14 @@ function choose( e, k )
 
   _.assert( arguments.length === 2, 'Expects two argument' );
   _.assert( _.objectIs( it.down ) );
-  if( !it.fast )
-  _.assert( it.level >= 0 );
-
-  // if( _global_.debugger )
-  // debugger;
+  _.assert( it.fast || it.level >= 0 );
 
   if( e === undefined )
   {
     if( it.down )
-    e = _.container.elementGet( it.src, k, it.down.containerType || false );
+    e = _.container.elementGet( it.srcEffective, k, it.down.containerType || false );
     else
-    e = _.container.elementGet( it.src, k );
-    // if( _.setIs( it.src ) )
-    // e = [ ... it.src ][ k ];
-    // else if( _.hashMapIs( it.src ) )
-    // e = it.src.get( k );
-    // else if( it.src )
-    // e = it.src[ k ];
-    // else
-    // e = undefined;
+    e = _.container.elementGet( it.srcEffective, k );
   }
 
   /*
@@ -594,7 +792,7 @@ function onAscend()
 {
   let it = this;
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  return it.ascendAct( it.srcToIterate );
+  return it.ascendAct( it.srcEffective );
 }
 
 //
@@ -615,13 +813,28 @@ function _longAscend( src )
 {
   let it = this;
 
-  for( let k = 0 ; k < src.length ; k++ )
+  if( _.hasMethodIterator( src ) )
   {
-    let e = src[ k ];
-    let eit = it.iterationMake().choose( e, k );
-    eit.look();
-    if( !it.canSibling() ) /* xxx : rename? */
-    break;
+    let k = 0;
+    for( let e of src )
+    {
+      let eit = it.iterationMake().choose( e, k );
+      eit.look();
+      if( !it.canSibling() )
+      break;
+      k += 1;
+    }
+  }
+  else
+  {
+    for( let k = 0 ; k < src.length ; k++ )
+    {
+      let e = src[ k ];
+      let eit = it.iterationMake().choose( e, k );
+      eit.look();
+      if( !it.canSibling() )
+      break;
+    }
   }
 
 }
@@ -710,7 +923,7 @@ function srcChanged()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  it.srcToIterate = it.src;
+  it.effectiveEval();
 
   // if( it.iterable === null ) // xxx : uncomment later, maybe?
   it.iterableEval();
@@ -721,6 +934,16 @@ function srcChanged()
   it.ascendEval();
 
   it.revisitedEval( it.src );
+
+}
+
+//
+
+function effectiveEval()
+{
+  let it = this;
+
+  it.srcEffective = it.src;
 
 }
 
@@ -843,218 +1066,6 @@ function onPathJoin( selectorPath, upToken, defaultUpToken, selectorName )
 
   return result;
 }
-
-// --
-// relations
-// --
-
-/**
- * Default options for {@link module:Tools/base/Looker.Looker.look} routine.
- * @typedef {Object} Defaults
- * @property {Function} onUp
- * @property {Function} onDown
- * @property {Function} onTerminal
- * @property {Function} ascend
- * @property {Function} onIterable
- * @property {Number} recursive = Infinity
- * @property {Boolean} trackingVisits = 1
- * @property {String} upToken = '/'
- * @property {String} path = null
- * @property {Number} level = 0
- * @property {*} src = null
- * @property {*} root = null
- * @property {*} context = null
- * @property {Object} Looker = null
- * @property {Object} it = null
- * @property {Boolean} iterationPreserve = null
- * @property {*} iterationExtension = null
- * @property {*} iteratorExtension = null
- * @namespace Tools.looker
- */
-
-let Defaults = Object.create( null );
-
-Defaults.onUp = onUp;
-Defaults.onDown = onDown;
-Defaults.onAscend = onAscend;
-Defaults.onTerminal = onTerminal;
-Defaults.onSrcChanged = onSrcChanged;
-Defaults.onPathJoin = onPathJoin;
-Defaults.fast = 0;
-Defaults.recursive = Infinity;
-Defaults.revisiting = 0;
-Defaults.upToken = '/';
-Defaults.defaultUpToken = null;
-Defaults.path = null;
-Defaults.level = 0;
-Defaults.src = null;
-Defaults.root = null;
-Defaults.context = null;
-Defaults.Looker = null;
-Defaults.it = null;
-Defaults.iterationPreserve = null;
-Defaults.iterationExtension = null;
-Defaults.iteratorExtension = null;
-
-//
-
-/**
- * @typedef {Object} looker
- * @property {Object} Looker
- * @property {Object} Iterator
- * @property {Object} Iteration
- * @property {Boolean} IterationPreserve
- * @property {} iterator
- * @namespace Tools.looker.Defaults
- */
-
-let Looker = Defaults.Looker = Object.create( null );
-
-Looker.constructor = function Looker(){};
-Looker.Looker = Looker;
-Looker.Iterator = null;
-Looker.Iteration = null;
-Looker.IterationPreserve = null;
-
-Looker.iteratorIs = iteratorIs;
-Looker.iteratorMake = iteratorMake;
-Looker.iteratorCopy = iteratorCopy;
-
-Looker.iterationIs = iterationIs,
-Looker.iterationMake = iterationMake;
-Looker._iterationMakeAct = _iterationMakeAct;
-Looker.choose = choose;
-
-Looker.relook = relook;
-Looker.start = start;
-Looker.look = look;
-Looker.visitUp = visitUp;
-Looker.visitUpBegin = visitUpBegin;
-Looker.visitUpEnd = visitUpEnd;
-Looker.visitDown = visitDown;
-Looker.visitDownBegin = visitDownBegin;
-Looker.visitDownEnd = visitDownEnd;
-Looker.visitPush = visitPush;
-Looker.visitPop = visitPop;
-Looker.canVisit = canVisit;
-
-Looker.canAscend = canAscend;
-Looker.canSibling = canSibling;
-Looker.ascend = ascend;
-
-Looker._termianlAscend = _termianlAscend;
-Looker._longAscend = _longAscend;
-Looker._mapAscend = _mapAscend;
-Looker._hashMapAscend = _hashMapAscend;
-Looker._setAscend = _setAscend;
-Looker._customAscend = _customAscend;
-
-Looker.srcChanged = srcChanged;
-Looker.iterableEval = iterableEval;
-Looker.ascendEval = ascendEval;
-Looker.revisitedEval = revisitedEval;
-
-//
-
-/**
- * @typedef {Object} Iterator
- * @property {} iterator = null
- * @property {} _iterationMakeAct = _iterationMakeAct
- * @property {} iterationMake = iterationMake
- * @property {} choose = choose
- * @property {} look = look
- * @property {} visitUp = visitUp
- * @property {} visitUpBegin = visitUpBegin
- * @property {} visitUpEnd = visitUpEnd
- * @property {} visitDown = visitDown
- * @property {} visitDownBegin = visitDownBegin
- * @property {} visitDownEnd = visitDownEnd
- * @property {} canVisit = canVisit
- * @property {} canAscend = canAscend
- * @property {} path = null
- * @property {} lastPath = null
- * @property {} lastSelected = null
- * @property {} continue = true
- * @property {} key = null
- * @property {} error = null
- * @property {} visitedContainer = null
- * @namespace Tools.looker.Defaults.Looker
- */
-
-let Iterator = Looker.Iterator = Object.create( null );
-
-Iterator.iterator = null;
-Iterator.path = null;
-Iterator.lastPath = null;
-Iterator.lastSelected = null;
-Iterator.continue = true;
-Iterator.key = null;
-Iterator.error = null;
-Iterator.visitedContainer = null;
-
-_.mapSupplement( Iterator, Defaults );
-Object.freeze( Iterator );
-
-//
-
-/**
- * @typedef {Object} Iteration
- * @property {} childrenCounter = 0
- * @property {} level = 0
- * @property {} path = '/'
- * @property {} key = null
- * @property {} index = null
- * @property {} src = null
- * @property {} continue = true
- * @property {} ascending = true
- * @property {} revisited = false
- * @property {} _ = null
- * @property {} down = null
- * @property {} visiting = false
- * @property {} iterable = null
- * @property {} visitCounted = 1
- * @namespace Tools.looker.Defaults.Looker
- */
-
-let Iteration = Looker.Iteration = Object.create( null );
-Iteration.childrenCounter = 0;
-Iteration.level = 0,
-Iteration.path = '/';
-Iteration.key = null;
-Iteration.index = null;
-Iteration.containerType = null;
-Iteration.src = null;
-Iteration.srcToIterate = null;
-Iteration.continue = true;
-Iteration.ascending = true;
-Iteration.ascendAct = null;
-Iteration.revisited = false; /* yyy */
-Iteration._ = null;
-Iteration.down = null;
-Iteration.visiting = false;
-Iteration.iterable = null;
-Iteration.visitCounting = true;
-Object.freeze( Iteration );
-
-//
-
-/**
- * @typedef {Object} IterationPreserve
- * @property {} level = null
- * @property {} path = null
- * @property {} src = null
- * @namespace Tools.looker.Defaults.Looker
- */
-
-let IterationPreserve = Looker.IterationPreserve = Object.create( null );
-IterationPreserve.level = null;
-IterationPreserve.path = null;
-IterationPreserve.src = null; /* xxx : check */
-Object.freeze( IterationPreserve );
-
-//
-
-let ErrorLooking = _.error_functor( 'ErrorLooking' ); /* xxx : cover error_functor in Err.test.s */
 
 // --
 // expose
@@ -1205,6 +1216,8 @@ function lookIterationIs( it )
 // --
 // declare
 // --
+
+let ErrorLooking = _.error_functor( 'ErrorLooking' ); /* xxx : cover error_functor in Err.test.s */
 
 let containerNameToIdMap =
 {

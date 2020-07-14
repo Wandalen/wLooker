@@ -389,6 +389,121 @@ function lookContainerType( test )
 
 //
 
+function lookWithIterator( test )
+{
+
+  let gotUpPaths, gotDownPaths;
+  let gotUpKeys, gotDownKeys;
+  let gotUpValues, gotDownValues;
+
+  /* */
+
+  test.case = 'withIterator : 1';
+  clean();
+  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
+  var it = _.look( ins1, handleUp1, handleDown1 );
+  var expectedUpPaths = [ '/', '/0', '/1' ];
+  test.identical( gotUpPaths, expectedUpPaths );
+  var expectedDownPaths = [ '/0', '/1', '/' ];
+  test.identical( gotDownPaths, expectedDownPaths );
+  var expectedUpKeys = [ null, 0, 1 ];
+  test.identical( gotUpKeys, expectedUpKeys );
+  var expectedDownKeys = [ 0, 1, null ];
+  test.identical( gotDownKeys, expectedDownKeys );
+  var expectedUpValues = [ ins1, 'a', 'b' ];
+  test.identical( gotUpValues, expectedUpValues );
+  var expectedDownValues = [ 'a', 'b', ins1 ];
+  test.identical( gotDownValues, expectedDownValues );
+
+  /* */
+
+  test.case = 'withIterator : 0';
+  clean();
+  var expectedUpPaths = [ '/' ];
+  var expectedDownPaths = [ '/' ];
+  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 0 });
+  var it = _.look( ins1, handleUp1, handleDown1 );
+  test.identical( gotUpPaths, expectedUpPaths );
+  test.identical( gotDownPaths, expectedDownPaths );
+  var expectedUpKeys = [ null ];
+  test.identical( gotUpKeys, expectedUpKeys );
+  var expectedDownKeys = [ null ];
+  test.identical( gotDownKeys, expectedDownKeys );
+  var expectedUpValues = [ ins1 ];
+  test.identical( gotUpValues, expectedUpValues );
+  var expectedDownValues = [ ins1 ];
+  test.identical( gotDownValues, expectedDownValues );
+
+  /* */
+
+  function _iterate()
+  {
+
+    let iterator = Object.create( null );
+    iterator.next = next;
+    iterator.index = 0;
+    iterator.instance = this;
+    return iterator;
+
+    function next()
+    {
+      let result = Object.create( null );
+      result.done = this.index === this.instance.elements.length;
+      if( result.done )
+      return result;
+      result.value = this.instance.elements[ this.index ];
+      this.index += 1;
+      return result;
+    }
+
+  }
+
+  /* */
+
+  function Obj1( o )
+  {
+    _.mapExtend( this, o );
+    if( o.withIterator )
+    this[ Symbol.iterator ] = _iterate;
+    return this;
+  }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotDownPaths = [];
+    gotUpKeys = [];
+    gotDownKeys = [];
+    gotUpValues = [];
+    gotDownValues = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpKeys.push( k );
+    gotUpValues.push( e );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownKeys.push( k );
+    gotDownValues.push( e );
+  }
+
+  /* */
+
+}
+
+//
+
 function fieldPaths( test )
 {
 
@@ -2861,6 +2976,7 @@ var Self =
     look,
     lookRecursive,
     lookContainerType,
+    lookWithIterator,
 
     fieldPaths,
     callbacksComplex,

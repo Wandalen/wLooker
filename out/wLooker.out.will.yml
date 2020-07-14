@@ -166,7 +166,7 @@ module:
           - ../proto/wtools/abase/l2
           - ../proto/wtools/abase/l2/Looker.s
           - ../proto/wtools/abase/l2.test
-          - ../proto/wtools/abase/l2.test/Look.test.s
+          - ../proto/wtools/abase/l2.test/Looker.test.s
           - ../proto/wtools/amid
           - ../proto/wtools/atop
     submodule:

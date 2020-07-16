@@ -14,8 +14,8 @@ if( typeof module !== 'undefined' )
 
 }
 
-var _global = _global_;
-var _ = _global_.wTools;
+let _global = _global_;
+let _ = _global_.wTools;
 
 /*
 cls && node builder\include\wtools\abase\l3.test\Looker.test.s && node builder\include\wtools\abase\l4.test\LookerExtra.test.s && node builder\include\wtools\abase\l4.test\Replicator.test.s && node builder\include\wtools\abase\l5.test\Selector.test.s && node builder\include\wtools\abase\l6.test\SelectorExtra.test.s && node builder\include\wtools\abase\l6.test\LookerComparator.test.s
@@ -2959,7 +2959,7 @@ function optionFastCycled( test )
 // declare
 // --
 
-var Self =
+let Self =
 {
 
   name : 'Tools.base.l3.Look',

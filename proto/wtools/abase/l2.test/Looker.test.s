@@ -2962,7 +2962,7 @@ function optionFastCycled( test )
 let Self =
 {
 
-  name : 'Tools.base.l3.Look',
+  name : 'Tools.l3.Look',
   silencing : 1,
   enabled : 1,
 

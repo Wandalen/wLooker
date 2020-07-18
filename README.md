@@ -1,5 +1,5 @@
 
-# module::Looker  [![Status](https://github.com/Wandalen/wLooker/workflows/Publish/badge.svg)](https://github.com/Wandalen/wLooker/actions?query=workflow%3APublish) [![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
+# module::Looker  [![Status](https://github.com/Wandalen/wLooker/workflows/publish/badge.svg)](https://github.com/Wandalen/wLooker/actions?query=workflow%3Apublish) [![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
 
 Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.
 
@@ -17,3 +17,9 @@ The diagram above displays the connections between classes Looker, [Replicator](
 npm install
 node sample/Sample.s
 ```
+
+## To add to your project
+```
+npm add 'wlooker@alpha'
+```
+

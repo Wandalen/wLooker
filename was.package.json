@@ -1,1 +1,18 @@
-{"name":"wlooker","version":"0.3.177","description":"Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.","author":"Kostiantyn Wandalen <wanalen@01.school>","license":"MIT","main":"proto/wtools/abase/l2/Looker.s","files":["proto/wtools/abase/l3","proto/wtools/Tools.s","out"],"scripts":{"test":"wtest .run 'proto/**' rapidity:-3","docgen":"wdocgen proto"},"repository":{"type":"git","url":"https://github.com/Wandalen/wLooker.git"},"bugs":{"url":"https://github.com/Wandalen/wLooker/issues"},"dependencies":{"wTools":""},"devDependencies":{"wstringer":"","wTesting":""},"keywords":["wTools"]}
+{
+  "name" : "wlooker",
+  "version" : "0.3.178",
+  "description" : "Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.",
+  "author" : "Kostiantyn Wandalen <wanalen@01.school>",
+  "license" : "MIT",
+  "main" : "proto/wtools/abase/l2/Looker.s",
+  "files" : [ "proto/wtools/abase/l3", "proto/wtools/Tools.s", "out" ],
+  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
+  "repository" : { "type" : "git", "url" : "https://github.com/Wandalen/wLooker.git" },
+  "bugs" :
+  {
+    "url" : "https://github.com/Wandalen/wLooker/issues"
+  },
+  "dependencies" : { "wTools" : "" },
+  "devDependencies" : { "wstringer" : "", "wTesting" : "" },
+  "keywords" : [ "wTools" ]
+}

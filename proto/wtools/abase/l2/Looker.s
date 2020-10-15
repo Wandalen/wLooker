@@ -1071,7 +1071,7 @@ function onPathJoin( selectorPath, upToken, defaultUpToken, selectorName )
 // expose
 // --
 
-function look_pre( routine, args )
+function look_head( routine, args )
 {
   let o;
 
@@ -1154,7 +1154,7 @@ look_body.defaults = Object.create( Defaults );
  * @namespace Tools.looker
  */
 
-let lookAll = _.routineFromPreAndBody( look_pre, look_body );
+let lookAll = _.routineUnite( look_head, look_body );
 
 var defaults = lookAll.defaults;
 defaults.recursive = Infinity;

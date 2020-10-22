@@ -1217,7 +1217,7 @@ function lookIterationIs( it )
 // declare
 // --
 
-let ErrorLooking = _.error_functor( 'ErrorLooking' ); /* xxx : cover error_functor in Err.test.s */
+let ErrorLooking = _.error.error_functor( 'ErrorLooking' ); /* xxx : cover error_functor in Err.test.s */
 
 let containerNameToIdMap =
 {

@@ -1,5 +1,5 @@
 
-# module::Looker  [![status](https://github.com/Wandalen/wLooker/workflows/publish/badge.svg)](https://github.com/Wandalen/wLooker/actions?query=workflow%3Apublish) [![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
+# module::Looker  [![status](https://github.com/Wandalen/wLooker/workflows/publish/badge.svg)](https://github.com/Wandalen/wLooker/actions?query=workflow%3Apublish) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.
 

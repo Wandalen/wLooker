@@ -472,7 +472,7 @@ function choose( e, k )
     if( k2 === null )
     k2 = e;
     if( !_.strIs( k2 ) )
-    k2 = _.strShort( k2 );
+    k2 = _.strEntityShort( k2 );
     let hasUp = _.strIs( k2 ) && _.strHasAny( k2, it.upToken );
     if( hasUp )
     k2 = '"' + k2 + '"';

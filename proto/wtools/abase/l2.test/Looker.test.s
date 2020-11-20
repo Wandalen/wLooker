@@ -53,12 +53,12 @@ function look( test )
   // var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1 });
 
   test.case = 'iteration';
-  test.is( _.Looker.iterationIs( it ) );
-  test.is( _.lookIteratorIs( Object.getPrototypeOf( it ) ) );
-  test.is( _.lookerIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
-  test.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
-  test.is( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
-  test.is( Object.getPrototypeOf( it ) === it.iterator );
+  test.true( _.Looker.iterationIs( it ) );
+  test.true( _.lookIteratorIs( Object.getPrototypeOf( it ) ) );
+  test.true( _.lookerIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
+  test.true( Object.getPrototypeOf( it ) === it.iterator );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -120,7 +120,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.is( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -147,7 +147,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.is( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -174,7 +174,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.is( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -201,7 +201,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.is( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -2396,7 +2396,7 @@ function optionAscend( test )
   function onAscend()
   {
     let it = this;
-    test.is( arguments.length === 0 );
+    test.true( arguments.length === 0 );
     if( it.src === 'name1' )
     it._longAscend( [ 'r1', 'r2', 'r3' ] );
     else
@@ -2681,7 +2681,7 @@ function optionFast( test )
     test.identical( it.root, structure );
 
     if( o.fast )
-    test.is( wasIt === it );
+    test.true( wasIt === it );
 
   }
 
@@ -2715,7 +2715,7 @@ function optionFast( test )
 
     if( op.fast )
     {
-      test.is( wasIt === undefined || wasIt === it );
+      test.true( wasIt === undefined || wasIt === it );
       wasIt = it;
     }
 
@@ -2737,7 +2737,7 @@ function optionFast( test )
 
     if( op.fast )
     {
-      test.is( wasIt === it );
+      test.true( wasIt === it );
     }
 
     gotDownKeys.push( k ); // k === it.key
@@ -2883,7 +2883,7 @@ function optionFastCycled( test )
     test.identical( it.root, structure );
 
     if( o.fast )
-    test.is( wasIt === it );
+    test.true( wasIt === it );
 
   }
 
@@ -2917,7 +2917,7 @@ function optionFastCycled( test )
 
     if( op.fast )
     {
-      test.is( wasIt === undefined || wasIt === it );
+      test.true( wasIt === undefined || wasIt === it );
       wasIt = it;
     }
 
@@ -2938,7 +2938,7 @@ function optionFastCycled( test )
 
     if( op.fast )
     {
-      test.is( wasIt === it );
+      test.true( wasIt === it );
     }
 
     gotDownKeys.push( k ); // k === it.key

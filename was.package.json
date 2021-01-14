@@ -13,6 +13,6 @@
     "url" : "https://github.com/Wandalen/wLooker/issues"
   },
   "dependencies" : { "wTools" : "" },
-  "devDependencies" : { "wstringer" : "", "wTesting" : "" },
+  "devDependencies" : { "wstringer" : "", "wTesting" : "", "eslint" : "7.1.0" },
   "keywords" : [ "wTools" ]
 }

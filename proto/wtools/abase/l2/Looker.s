@@ -1,4 +1,5 @@
-( function _Looker_s_() {
+( function _Looker_s_()
+{
 
 'use strict';
 
@@ -110,7 +111,7 @@ Looker.iteratorIs = iteratorIs;
 Looker.iteratorMake = iteratorMake;
 Looker.iteratorCopy = iteratorCopy;
 
-Looker.iterationIs = iterationIs,
+Looker.iterationIs = iterationIs;
 Looker.iterationMake = iterationMake;
 Looker._iterationMakeAct = _iterationMakeAct;
 Looker.choose = choose;
@@ -209,7 +210,7 @@ Object.freeze( Iterator );
 
 let Iteration = Looker.Iteration = Object.create( null );
 Iteration.childrenCounter = 0;
-Iteration.level = 0,
+Iteration.level = 0;
 Iteration.path = '/';
 Iteration.key = null;
 Iteration.index = null;
@@ -426,7 +427,7 @@ function _iterationMakeAct()
 
   if( it.iterationPreserve )
   for( let k in it.iterationPreserve )
-  newIt[ k ] = it[ k ];
+    newIt[ k ] = it[ k ];
 
   if( it.iterator !== it )
   newIt.down = it;
@@ -697,7 +698,8 @@ function visitPop()
     _.assert
     (
       Object.is( it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ], it.src ),
-      () => `Top-most visit ${it.path} does not match ${it.src} <> ${it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ]}`
+      () => `Top-most visit ${it.path} does not match ${it.src} <> ${
+        it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ]}`
     );
     it.iterator.visitedContainer.pop( it.src );
     it.visitCounting = false;
@@ -1022,13 +1024,13 @@ function revisitedEval( src )
 // handler
 // --
 
-function onUp( e,k,it )
+function onUp( e, k, it )
 {
 }
 
 //
 
-function onDown( e,k,it )
+function onDown( e, k, it )
 {
 }
 
@@ -1048,10 +1050,15 @@ function onSrcChanged()
 
 //
 
-function onPathJoin( selectorPath, upToken, defaultUpToken, selectorName )
+function onPathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
 {
   let it = this;
   let result;
+
+  let selectorPath = arguments[ 0 ];
+  let upToken = arguments[ 1 ];
+  let defaultUpToken = arguments[ 2 ];
+  let selectorName = arguments[ 3 ];
 
   _.assert( arguments.length === 4 );
 

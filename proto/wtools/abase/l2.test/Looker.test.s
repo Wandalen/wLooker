@@ -1,4 +1,5 @@
-( function _Looker_test_s_() {
+( function _Looker_test_s_()
+{
 
 'use strict';
 
@@ -32,11 +33,11 @@ function look( test )
   {
     a : 1,
     b : 's',
-    c : [ 1,3 ],
-    d : [ 1,{ date : new Date( Date.UTC( 1990, 0, 0 ) ) } ],
+    c : [ 1, 3 ],
+    d : [ 1, { date : new Date( Date.UTC( 1990, 0, 0 ) ) } ],
     e : function(){},
     f : new BufferRaw( 13 ),
-    g : new F32x([ 1,2,3 ]),
+    g : new F32x([ 1, 2, 3 ]),
   }
 
   var expectedUpPaths = [ '/', '/a', '/b', '/c', '/c/0', '/c/1', '/d', '/d/0', '/d/1', '/d/1/date', '/e', '/f', '/g' ];
@@ -226,12 +227,11 @@ function lookRecursive( test )
 
 function lookContainerType( test )
 {
+  var gotUpPaths = [];
+  var gotDownPaths = [];
 
   try
   {
-
-    var gotUpPaths = [];
-    var gotDownPaths = [];
 
     let type = Object.create( null );
     type.name = 'ContainerForTest';
@@ -268,7 +268,7 @@ function lookContainerType( test )
     var expectedUpPaths = [ '/', '/a', '/a/0', '/a/1', '/a/2', '/b' ];
     var expectedDownPaths = [ '/a/0', '/a/1', '/a/2', '/a', '/b', '/' ];
     var a = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
-    var src2 = { a : a, b : 'bb' }
+    var src2 = { a, b : 'bb' }
     var it = _.look
     ({
       src : src2,
@@ -392,9 +392,7 @@ function lookContainerType( test )
 function lookWithIterator( test )
 {
 
-  let gotUpPaths, gotDownPaths;
-  let gotUpKeys, gotDownKeys;
-  let gotUpValues, gotDownValues;
+  let gotUpPaths, gotDownPaths, gotUpKeys, gotDownKeys, gotUpValues, gotDownValues;
 
   /* */
 
@@ -537,7 +535,7 @@ function fieldPaths( test )
   }
   var got = _.look
   ({
-    src : src,
+    src,
     upToken : [ '/', './' ],
     onUp,
     onDown,
@@ -1650,9 +1648,9 @@ function relook( test )
 
   var it = _.look
   ({
-    src : src,
-    onUp : onUp,
-    onDown : onDown,
+    src,
+    onUp,
+    onDown,
   });
 
   var exp = [ 0, 1, 2, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ]
@@ -1712,10 +1710,10 @@ function relook( test )
 
   var it = _.look
   ({
-    src : src,
-    onUp : onUp,
-    onDown : onDown,
-    onTerminal : onTerminal,
+    src,
+    onUp,
+    onDown,
+    onTerminal,
   });
 
   var exp = [ 0, 1, 2, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ]
@@ -2221,9 +2219,9 @@ function optionOnPathJoin( test )
   var it = _.look
   ({
     src : structure,
-    onUp : onUp,
-    onDown : onDown,
-    onPathJoin : onPathJoin,
+    onUp,
+    onDown,
+    onPathJoin,
   });
   var exp =
   [
@@ -2282,10 +2280,15 @@ function optionOnPathJoin( test )
     dws.push( it.path );
   }
 
-  function onPathJoin( selectorPath, upToken, defaultUpToken, selectorName )
+  function onPathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
   {
     let it = this;
     let result;
+
+    let selectorPath = arguments[ 0 ];
+    let upToken = arguments[ 1 ];
+    let defaultUpToken = arguments[ 2 ];
+    let selectorName = arguments[ 3 ];
 
     _.assert( arguments.length === 4 );
 
@@ -2329,10 +2332,10 @@ function optionAscend( test )
 
   var it = _.look
   ({
-    src : src,
-    onDown : onDown,
-    onUp : onUp,
-    onAscend : onAscend,
+    src,
+    onDown,
+    onUp,
+    onAscend,
   });
 
   var exp = [ 0, 1, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ];
@@ -2426,19 +2429,34 @@ function optionRoot( test )
   {
     a : 1,
     b : 's',
-    c : [ 1,3 ],
+    c : [ 1, 3 ],
     d : [ 1, { date : new Date( Date.UTC( 1990, 0, 0 ) ) } ],
     e : function(){},
     f : new BufferRaw( 13 ),
-    g : new F32x([ 1,2,3 ]),
+    g : new F32x([ 1, 2, 3 ]),
   }
   var gotUpRoots = [];
   var gotDownRoots = [];
 
   test.case = 'explicit';
   clean();
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown: handleDown1, root : structure1 });
-  var expectedRoots = [ structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1 ];
+  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1, root : structure1 });
+  var expectedRoots =
+  [
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1
+  ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
@@ -2448,8 +2466,23 @@ function optionRoot( test )
 
   test.case = 'implicit';
   clean();
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown: handleDown1 });
-  var expectedRoots = [ structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1, structure1 ];
+  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1 });
+  var expectedRoots =
+  [
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1,
+    structure1
+  ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
@@ -2459,8 +2492,23 @@ function optionRoot( test )
 
   test.case = 'node as root';
   clean();
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown: handleDown1, root : structure1.c });
-  var expectedRoots = [ structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c, structure1.c ];
+  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1, root : structure1.c });
+  var expectedRoots =
+  [
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c,
+    structure1.c
+  ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
@@ -2476,8 +2524,23 @@ function optionRoot( test )
     b : 1,
     c : { d : [ 2 ] }
   };
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown: handleDown1, root : structure2 });
-  var expectedRoots = [ structure2, structure2, structure2, structure2, structure2, structure2, structure2, structure2, structure2, structure2, structure2, structure2, structure2 ];
+  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1, root : structure2 });
+  var expectedRoots =
+  [
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2,
+    structure2
+  ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
@@ -2524,15 +2587,16 @@ function optionFastPerformance( test )
   var structure = _.diagnosticStructureGenerate({ depth : 5, mapComplexity : 3, mapLength : 5, random : 0 });
   structure = structure.structure;
   var times = 10;
+  var it1, it2;
 
   var time = _.time.now();
   for( let i = times ; i > 0 ; i-- )
-  var it1 = _.look({ src : structure });
+  it1 = _.look({ src : structure });
   console.log( `The current implementation of _.look took ${_.time.spent( time )} on Njs ${process.version}`  );
 
   var time = _.time.now();
   for( let i = times ; i > 0 ; i-- )
-  var it2 = _.look({ src : structure, fast : 1 });
+  it2 = _.look({ src : structure, fast : 1 });
   console.log( `_.look with the fast option took ${_.time.spent( time )} on Njs ${process.version}`  );
 
   // Being green :)
@@ -2607,10 +2671,10 @@ function optionFast( test )
     var expectedDownKeys = [ 'a', 'b', 0, 1, 'c', null ];
     test.identical( gotDownKeys, expectedDownKeys );
     test.description = 'values on up';
-    var expectedUpValues = [ structure, structure.a, structure.b, structure.c, structure.c[0], structure.c[1] ];
+    var expectedUpValues = [ structure, structure.a, structure.b, structure.c, structure.c[ 0 ], structure.c[ 1 ] ];
     test.identical( gotUpValues, expectedUpValues );
     test.description = 'values on down';
-    var expectedDownValues = [ structure.a, structure.b, structure.c[0], structure.c[1], structure.c, structure ];
+    var expectedDownValues = [ structure.a, structure.b, structure.c[ 0 ], structure.c[ 1 ], structure.c, structure ];
     test.identical( gotDownValues, expectedDownValues );
     test.description = 'roots on up';
     var expectedRoots = [ structure, structure, structure, structure, structure, structure ];
@@ -2710,8 +2774,12 @@ function optionFast( test )
     gotDownIterable.splice( 0, gotDownIterable.length );
   }
 
-  function handleUp( op, e, k, it )
+  function handleUp( /* op, e, k, it */ )
   {
+    let op = arguments[ 0 ];
+    let e = arguments[ 1 ];
+    let k = arguments[ 2 ];
+    let it = arguments[ 3 ];
 
     if( op.fast )
     {
@@ -2732,8 +2800,13 @@ function optionFast( test )
 
   }
 
-  function handleDown( op, e, k, it )
+  function handleDown( /* op, e, k, it */ )
   {
+
+    let op = arguments[ 0 ];
+    let e = arguments[ 1 ];
+    let k = arguments[ 2 ];
+    let it = arguments[ 3 ];
 
     if( op.fast )
     {
@@ -2809,22 +2882,100 @@ function optionFastCycled( test )
     var expectedDownKeys = [ 0, 1, 'e', 'd', 0, 0, 1, 'f', 1, 'a', null ];
     test.identical( gotDownKeys, expectedDownKeys );
     test.description = 'values on up';
-    var expectedUpValues = [ structure, structure.a, structure.a[0], structure.a[0].d, structure.a[0].d.e, structure.a[0].d.e[0], structure.a[0].d.e[1], structure.a[1], structure.a[1].f, structure.a[1].f[0], structure.a[1].f[1] ];
+    var expectedUpValues =
+    [
+      structure,
+      structure.a,
+      structure.a[ 0 ],
+      structure.a[ 0 ].d,
+      structure.a[ 0 ].d.e,
+      structure.a[ 0 ].d.e[ 0 ],
+      structure.a[ 0 ].d.e[ 1 ],
+      structure.a[ 1 ],
+      structure.a[ 1 ].f,
+      structure.a[ 1 ].f[ 0 ],
+      structure.a[ 1 ].f[ 1 ]
+    ];
     test.identical( gotUpValues, expectedUpValues );
     test.description = 'values on down';
-    var expectedDownValues = [ structure.a[0].d.e[0], structure.a[0].d.e[1], structure.a[0].d.e, structure.a[0].d, structure.a[0], structure.a[1].f[0], structure.a[1].f[1], structure.a[1].f, structure.a[1], structure.a, structure ];
+    var expectedDownValues =
+    [
+      structure.a[ 0 ].d.e[ 0 ],
+      structure.a[ 0 ].d.e[ 1 ],
+      structure.a[ 0 ].d.e,
+      structure.a[ 0 ].d,
+      structure.a[ 0 ],
+      structure.a[ 1 ].f[ 0 ],
+      structure.a[ 1 ].f[ 1 ],
+      structure.a[ 1 ].f,
+      structure.a[ 1 ],
+      structure.a,
+      structure
+    ];
     test.identical( gotDownValues, expectedDownValues );
     test.description = 'roots on up';
-    var expectedRoots = [ structure, structure, structure, structure, structure, structure, structure, structure, structure, structure, structure ];
+    var expectedRoots =
+    [
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure
+    ];
     test.identical( gotUpRoots, expectedRoots );
     test.description = 'roots on down';
-    var expectedRoots = [ structure, structure, structure, structure, structure, structure, structure, structure, structure, structure, structure ];
+    var expectedRoots =
+    [
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure,
+      structure
+    ];
     test.identical( gotDownRoots, expectedRoots );
     test.description = 'recursive on up';
-    var expectedRecursive = [ Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity ];
+    var expectedRecursive =
+    [
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity
+    ];
     test.identical( gotUpRecursive, expectedRecursive );
     test.description = 'recursive on down';
-    var expectedRecursive = [ Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity ];
+    var expectedRecursive =
+    [
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity
+    ];
     test.identical( gotDownRecursive, expectedRecursive );
     test.description = 'revisited on up';
     var expectedRevisited = [ false, false, false, false, false, false, false, false, false, false, false ];
@@ -2912,8 +3063,12 @@ function optionFastCycled( test )
     gotDownIterable.splice( 0, gotDownIterable.length );
   }
 
-  function handleUp( op, e, k, it )
+  function handleUp( /* op, e, k, it */ )
   {
+    let op = arguments[ 0 ];
+    let e = arguments[ 1 ];
+    let k = arguments[ 2 ];
+    let it = arguments[ 3 ];
 
     if( op.fast )
     {
@@ -2933,8 +3088,13 @@ function optionFastCycled( test )
     gotUpIterable.push( it.iterable );
   }
 
-  function handleDown( op, e, k, it )
+  function handleDown( /* op, e, k, it */ )
   {
+
+    let op = arguments[ 0 ];
+    let e = arguments[ 1 ];
+    let k = arguments[ 2 ];
+    let it = arguments[ 3 ];
 
     if( op.fast )
     {

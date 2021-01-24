@@ -1,18 +1,35 @@
 {
-  "name" : "wlooker",
-  "version" : "0.3.207",
-  "description" : "Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.",
-  "author" : "Kostiantyn Wandalen <wanalen@01.school>",
-  "license" : "MIT",
-  "main" : "proto/wtools/abase/l2/Looker.s",
-  "files" : [ "proto/wtools/abase/l3", "proto/wtools/Tools.s", "out" ],
-  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
-  "repository" : { "type" : "git", "url" : "https://github.com/Wandalen/wLooker.git" },
-  "bugs" :
-  {
-    "url" : "https://github.com/Wandalen/wLooker/issues"
+  "name": "wlooker",
+  "version": "0.3.208",
+  "description": "Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.",
+  "author": "Kostiantyn Wandalen <wanalen@01.school>",
+  "license": "MIT",
+  "main": "proto/wtools/abase/l2/Looker.s",
+  "files": [
+    "proto/wtools/abase/l3",
+    "proto/wtools/Tools.s",
+    "out"
+  ],
+  "scripts": {
+    "test": "wtest .run 'proto/**' rapidity:-3",
+    "docgen": "wdocgen proto"
   },
-  "dependencies" : { "wTools" : "alpha" },
-  "devDependencies" : { "eslint" : "7.1.0", "wstringer" : "alpha", "wTesting" : "alpha" },
-  "keywords" : [ "wTools" ]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wandalen/wLooker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Wandalen/wLooker/issues"
+  },
+  "dependencies": {
+    "wTools": "alpha"
+  },
+  "devDependencies": {
+    "eslint": "7.1.0",
+    "wTesting": "alpha",
+    "wstringer": "alpha"
+  },
+  "keywords": [
+    "wTools"
+  ]
 }

@@ -815,7 +815,7 @@ function _longAscend( src )
 {
   let it = this;
 
-  if( _.hasMethodIterator( src ) )
+  if( _.entity.methodIteratorOf( src ) )
   {
     let k = 0;
     for( let e of src )

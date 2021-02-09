@@ -968,7 +968,7 @@ function iterableEval()
   {
     it.iterable = _.looker.containerNameToIdMap.long;
   }
-  else if( _.mapLike( it.src ) )
+  else if( _.mapLike_( it.src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.map;
   }

@@ -74,6 +74,8 @@ Defaults.onPathJoin = onPathJoin;
 Defaults.fast = 0;
 Defaults.recursive = Infinity;
 Defaults.revisiting = 0;
+Defaults.withPartible = 'array';
+Defaults.withImplicit = 'map.like';
 Defaults.upToken = '/';
 Defaults.defaultUpToken = null;
 Defaults.path = null;
@@ -134,7 +136,7 @@ Looker.canSibling = canSibling;
 Looker.ascend = ascend;
 
 Looker._termianlAscend = _termianlAscend;
-Looker._longAscend = _longAscend;
+Looker._elementalAscend = _elementalAscend;
 Looker._mapAscend = _mapAscend;
 Looker._hashMapAscend = _hashMapAscend;
 Looker._setAscend = _setAscend;
@@ -145,6 +147,8 @@ Looker.effectiveEval = effectiveEval;
 Looker.iterableEval = iterableEval;
 Looker.ascendEval = ascendEval;
 Looker.revisitedEval = revisitedEval;
+
+Looker.isPartiable = null;
 
 //
 
@@ -183,6 +187,7 @@ Iterator.continue = true;
 Iterator.key = null;
 Iterator.error = null;
 Iterator.visitedContainer = null;
+Iterator.isPartiable = null;
 
 _.mapSupplement( Iterator, Defaults );
 Object.freeze( Iterator );
@@ -216,7 +221,7 @@ Iteration.key = null;
 Iteration.index = null;
 Iteration.containerType = null;
 Iteration.src = null;
-Iteration.srcEffective = null;
+Iteration.srcEffective = null; /* xxx : replace by another mechanism with srcOriginal */
 Iteration.continue = true;
 Iteration.ascending = true;
 Iteration.ascendAct = null;
@@ -282,13 +287,23 @@ function iteratorMake( o )
   _.assert( _.objectIs( o.Looker ) );
   _.assert( o.Looker === this );
   _.assert( o.looker === undefined );
-  _.assert( 0 <= o.revisiting && o.revisiting <= 2 );
+  // _.assert( 0 <= o.revisiting && o.revisiting <= 2 );
+  // _.assert
+  // (
+  //   _.longHas( [ 'partible', 'vector', 'long', 'array', '' ], o.withPartible ),
+  //   'Unexpected value of option::withPartible'
+  // );
+  // _.assert
+  // (
+  //   _.longHas( [ 'composite.like', 'map.like', '' ], o.withImplicit ),
+  //   'Unexpected value of option::withImplicit'
+  // );
 
   /* */
 
   let iterator = Object.create( o.Looker );
   Object.assign( iterator, this.Iterator );
-  Object.assign( iterator, o );
+  Object.assign( iterator, o ); /* xxx : try to retype o */
   if( o.iteratorExtension )
   Object.assign( iterator, o.iteratorExtension );
   Object.preventExtensions( iterator );
@@ -296,6 +311,7 @@ function iteratorMake( o )
   delete iterator.it;
 
   iterator.iterator = iterator;
+  iterator.isPartiable = _.looker.elementalTypeToIsElementalFunctionMap[ o.withPartible ];
 
   if( iterator.revisiting < 2 )
   {
@@ -524,9 +540,6 @@ function look()
   if( !it.fast )
   _.assert( it.level >= 0 );
   _.assert( arguments.length === 0, 'Expects no arguments' );
-
-  // if( it.path === '/children/function_declaration::0/statement_block::bodyNode/function_declaration::parent' )
-  // debugger;
 
   it.visiting = it.canVisit();
   if( !it.visiting )
@@ -811,7 +824,7 @@ function _termianlAscend( src )
 
 //
 
-function _longAscend( src )
+function _elementalAscend( src )
 {
   let it = this;
 
@@ -958,27 +971,30 @@ function iterableEval()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  let containerType = _.container.typeOf( it.src );
+  _.debugger;
+  let containerType = _.container.typeOf( it.srcEffective );
   if( containerType )
   {
     it.iterable = _.looker.containerNameToIdMap.custom;
     it.containerType = containerType;
   }
-  else if( _.arrayLike( it.src ) )
-  {
-    it.iterable = _.looker.containerNameToIdMap.long;
-  }
-  else if( _.mapLike_( it.src ) )
+  else if( _.mapLike( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.map;
   }
-  else if( _.hashMapLike( it.src ) )
+  else if( _.hashMapLike( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.hashMap;
   }
-  else if( _.setLike( it.src ) )
+  else if( _.setLike( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.set;
+  }
+  // else if( _.arrayLike( it.srcEffective ) )
+  // else if( _.iterableIs_( it.srcEffective ) )
+  else if( it.isPartiable( it.srcEffective ) )
+  {
+    it.iterable = _.looker.containerNameToIdMap.long;
   }
   else
   {
@@ -1018,6 +1034,43 @@ function revisitedEval( src )
     it.revisited = true;
   }
 
+}
+
+// --
+// is partible
+// --
+
+function _isPartiable( src )
+{
+  return _.partibleIs( src );
+}
+
+//
+
+function _isVector( src )
+{
+  return _.vectorIs( src );
+}
+
+//
+
+function _isLong( src )
+{
+  return _.longIs( src );
+}
+
+//
+
+function _isArray( src )
+{
+  return _.arrayIs( src );
+}
+
+//
+
+function _false( src )
+{
+  return false;
 }
 
 // --
@@ -1101,9 +1154,23 @@ function look_head( routine, args )
 
   o.Looker = o.Looker || routine.defaults.Looker;
 
+  if( _.boolLike( o.withPartible ) )
+  {
+    if( o.withPartible )
+    o.withPartible = 'partible';
+    else
+    o.withPartible = '';
+  }
+  if( _.boolLike( o.withImplicit ) )
+  {
+    if( o.withImplicit )
+    o.withImplicit = 'map.like';
+    else
+    o.withImplicit = '';
+  }
+
   if( _.boolIs( o.recursive ) )
   o.recursive = o.recursive ? Infinity : 1;
-
   if( o.iterationPreserve )
   o.iterationExtension = _.mapSupplement( o.iterationExtension, o.iterationPreserve );
   if( o.iterationPreserve )
@@ -1118,6 +1185,18 @@ function look_head( routine, args )
   _.assert( o.onUp === null || o.onUp.length === 0 || o.onUp.length === 3, 'onUp should expect exactly three arguments' );
   _.assert( o.onDown === null || o.onDown.length === 0 || o.onDown.length === 3, 'onDown should expect exactly three arguments' );
   _.assert( _.numberIsNotNan( o.recursive ), 'Expects number {- o.recursive -}' );
+
+  _.assert( 0 <= o.revisiting && o.revisiting <= 2 );
+  _.assert
+  (
+    _.longHas( [ 'partible', 'vector', 'long', 'array', '' ], o.withPartible ),
+    'Unexpected value of option::withPartible'
+  );
+  _.assert
+  (
+    _.longHas( [ 'composite.like', 'map.like', '' ], o.withImplicit ),
+    'Unexpected value of option::withImplicit'
+  );
 
   if( o.Looker === null )
   o.Looker = Looker;
@@ -1240,7 +1319,7 @@ let containerNameToIdMap =
 let containerIdToNameMap =
 {
   0 : 'terminal',
-  1 : 'long',
+  1 : 'long', /* xxx : rename to partible */
   2 : 'map',
   3 : 'hashMap',
   4 : 'set',
@@ -1250,11 +1329,20 @@ let containerIdToNameMap =
 let containerIdToAscendMap =
 {
   0 : _termianlAscend,
-  1 : _longAscend,
+  1 : _elementalAscend,
   2 : _mapAscend,
   3 : _hashMapAscend,
   4 : _setAscend,
   5 : _customAscend,
+}
+
+let elementalTypeToIsElementalFunctionMap =
+{
+  'partible' : _isPartiable,
+  'vector' : _isVector,
+  'long' : _isLong,
+  'array' : _isArray,
+  '' : _false,
 }
 
 let LookerExtension =
@@ -1266,6 +1354,7 @@ let LookerExtension =
   containerNameToIdMap,
   containerIdToNameMap,
   containerIdToAscendMap,
+  elementalTypeToIsElementalFunctionMap,
 
   look : lookAll,
   lookAll,

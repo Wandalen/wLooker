@@ -34,7 +34,7 @@ node wtools/abase/l6.test/Equaler.test.s
 function look( test )
 {
 
-  var structure1 =
+  var src =
   {
     a : 1,
     b : 's',
@@ -55,8 +55,7 @@ function look( test )
   var gotUpIndinces = [];
   var gotDownIndices = [];
 
-  var it = _.look( structure1, handleUp1, handleDown1 );
-  // var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1 });
+  var it = _.look( src, handleUp1, handleDown1 );
 
   test.case = 'iteration';
   test.true( _.Looker.iterationIs( it ) );
@@ -91,10 +90,374 @@ function look( test )
 
 //
 
+function lookWithPartibleVector( test )
+{
+
+  var src =
+  {
+    a : 1,
+    b : 's',
+    c : [ 1, 3 ],
+    d : [ 1, { date : new Date( Date.UTC( 1990, 0, 0 ) ) } ],
+    e : function(){},
+    f : new BufferRaw( 13 ),
+    g : new F32x([ 1, 2, 3 ]),
+  }
+
+  var expectedUpPaths = [ '/', '/a', '/b', '/c', '/c/0', '/c/1', '/d', '/d/0', '/d/1', '/d/1/date', '/e', '/f', '/g', '/g/0', '/g/1', '/g/2' ];
+  var expectedDownPaths = [ '/a', '/b', '/c/0', '/c/1', '/c', '/d/0', '/d/1/date', '/d/1', '/d', '/e', '/f', '/g/0', '/g/1', '/g/2', '/g', '/' ];
+  var expectedUpIndinces = [ null, 0, 1, 2, 0, 1, 3, 0, 1, 0, 4, 5, 6, 0, 1, 2 ];
+  var expectedDownIndices = [ 0, 1, 0, 1, 2, 0, 0, 1, 3, 4, 5, 0, 1, 2, 6, null ];
+
+  var gotUpPaths = [];
+  var gotDownPaths = [];
+  var gotUpIndinces = [];
+  var gotDownIndices = [];
+
+  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : 'vector' });
+
+  test.case = 'iteration';
+  test.true( _.Looker.iterationIs( it ) );
+  test.true( _.lookIteratorIs( Object.getPrototypeOf( it ) ) );
+  test.true( _.lookerIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
+  test.true( Object.getPrototypeOf( it ) === it.iterator );
+
+  test.description = 'paths on up';
+  test.identical( gotUpPaths, expectedUpPaths );
+  test.description = 'paths on down';
+  test.identical( gotDownPaths, expectedDownPaths );
+  test.description = 'indices on up';
+  test.identical( gotUpIndinces, expectedUpIndinces );
+  test.description = 'indices on down';
+  test.identical( gotDownIndices, expectedDownIndices );
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpIndinces.push( it.index );
+  }
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownIndices.push( it.index );
+  }
+
+}
+
+//
+
+function lookOptionWithPartible( test )
+{
+  let gotUpPaths = [];
+  let gotDownPaths = [];
+  let gotUpIndinces = [];
+  let gotDownIndices = [];
+
+  eachCase({ withPartible : 'partible' });
+  eachCase({ withPartible : 'vector' });
+  eachCase({ withPartible : 'long' });
+  eachCase({ withPartible : 'array' });
+  eachCase({ withPartible : true });
+  eachCase({ withPartible : 1 });
+  eachCase({ withPartible : '' });
+  eachCase({ withPartible : false });
+  eachCase({ withPartible : 0 });
+
+  function eachCase( env )
+  {
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, str`;
+    var src =
+    {
+      a : 'abc',
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, routine`;
+    var src =
+    {
+      a : function(){},
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, raw buffer`;
+    var src =
+    {
+      a : new BufferRaw( 13 ),
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, array`;
+    var src =
+    {
+      a : [ 1, 3 ],
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( _.vectorIs( src.a ) );
+    test.true( _.longIs( src.a ) );
+    test.true( _.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a', '/a/0', '/a/1' ];
+    if( !env.withPartible )
+    exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, typed buffer`;
+    var src =
+    {
+      a : new F32x([ 0, 10 ]),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( _.vectorIs( src.a ) );
+    test.true( _.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a', '/a/0', '/a/1' ];
+    if( !env.withPartible || env.withPartible === 'array' )
+    exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, vector`;
+    var src =
+    {
+      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( _.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    if( env.withPartible === 'partible' || env.withPartible === 'vector' || env.withPartible === true || env.withPartible === 1 )
+    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, partiable`;
+    var src =
+    {
+      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
+    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, partiable made`;
+    var src =
+    {
+      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1 }),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
+    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+  }
+
+  /* */
+
+  // function _iterate()
+  // {
+  //
+  //   let iterator = Object.create( null );
+  //   iterator.next = next;
+  //   iterator.index = 0;
+  //   iterator.instance = this;
+  //   return iterator;
+  //
+  //   function next()
+  //   {
+  //     let result = Object.create( null );
+  //     result.done = this.index === this.instance.elements.length;
+  //     if( result.done )
+  //     return result;
+  //     result.value = this.instance.elements[ this.index ];
+  //     this.index += 1;
+  //     return result;
+  //   }
+  //
+  // }
+  //
+  // /* */
+  //
+  // function partiableConstructor( o )
+  // {
+  //   return partiableMake( this, o );
+  // }
+  //
+  // /* */
+  //
+  // function partiableMake( dst, o )
+  // {
+  //   if( dst === null )
+  //   dst = Object.create( null );
+  //   _.mapExtend( dst, o );
+  //   if( o.withIterator )
+  //   dst[ Symbol.iterator ] = _iterate;
+  //   return dst;
+  // }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotUpIndinces = [];
+    gotDownPaths = [];
+    gotDownIndices = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpIndinces.push( it.index );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownIndices.push( it.index );
+  }
+
+  /* */
+
+}
+
+//
+
+function lookOptionWithImplicit( test )
+{
+  let gotUpPaths = [];
+  let gotDownPaths = [];
+  let gotUpIndinces = [];
+  let gotDownIndices = [];
+
+  eachCase({ withImplicit : 1 }); xxx
+
+  /* xxx : not ready */
+
+  function eachCase( env )
+  {
+
+    /* */
+
+    test.case = `withImplicit:${env.withImplicit}, str`;
+    var src =
+    {
+      a : 'abc',
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    /* */
+
+  }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotUpIndinces = [];
+    gotDownPaths = [];
+    gotDownIndices = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpIndinces.push( it.index );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownIndices.push( it.index );
+  }
+
+  /* */
+
+}
+
+//
+
 function lookRecursive( test )
 {
 
-  var structure1 =
+  var src =
   {
     a1 :
     {
@@ -119,7 +482,7 @@ function lookRecursive( test )
 
   var it = _.look
   ({
-    src : structure1,
+    src,
     onUp : handleUp1,
     onDown : handleDown1,
     recursive : 0,
@@ -146,7 +509,7 @@ function lookRecursive( test )
 
   var it = _.look
   ({
-    src : structure1,
+    src,
     onUp : handleUp1,
     onDown : handleDown1,
     recursive : 1,
@@ -173,7 +536,7 @@ function lookRecursive( test )
 
   var it = _.look
   ({
-    src : structure1,
+    src,
     onUp : handleUp1,
     onDown : handleDown1,
     recursive : 2,
@@ -200,7 +563,7 @@ function lookRecursive( test )
 
   var it = _.look
   ({
-    src : structure1,
+    src,
     onUp : handleUp1,
     onDown : handleDown1,
     recursive : Infinity,
@@ -401,10 +764,29 @@ function lookWithIterator( test )
 
   /* */
 
-  test.case = 'withIterator : 1';
+  test.case = 'withIterator : 1, default';
   clean();
   var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
   var it = _.look( ins1, handleUp1, handleDown1 );
+  var expectedUpPaths = [ '/' ];
+  test.identical( gotUpPaths, expectedUpPaths );
+  var expectedDownPaths = [ '/' ];
+  test.identical( gotDownPaths, expectedDownPaths );
+  var expectedUpKeys = [ null ];
+  test.identical( gotUpKeys, expectedUpKeys );
+  var expectedDownKeys = [ null ];
+  test.identical( gotDownKeys, expectedDownKeys );
+  var expectedUpValues = [ ins1 ];
+  test.identical( gotUpValues, expectedUpValues );
+  var expectedDownValues = [ ins1 ];
+  test.identical( gotDownValues, expectedDownValues );
+
+  /* */
+
+  test.case = 'withIterator : 1, withPartible : 1';
+  clean();
+  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
+  var it = _.look({ src : ins1, onUp : handleUp1, onDown : handleDown1, withPartible : 1 });
   var expectedUpPaths = [ '/', '/0', '/1' ];
   test.identical( gotUpPaths, expectedUpPaths );
   var expectedDownPaths = [ '/0', '/1', '/' ];
@@ -422,11 +804,11 @@ function lookWithIterator( test )
 
   test.case = 'withIterator : 0';
   clean();
-  var expectedUpPaths = [ '/' ];
-  var expectedDownPaths = [ '/' ];
   var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 0 });
   var it = _.look( ins1, handleUp1, handleDown1 );
+  var expectedUpPaths = [ '/' ];
   test.identical( gotUpPaths, expectedUpPaths );
+  var expectedDownPaths = [ '/' ];
   test.identical( gotDownPaths, expectedDownPaths );
   var expectedUpKeys = [ null ];
   test.identical( gotUpKeys, expectedUpKeys );
@@ -2116,11 +2498,11 @@ function optionOnSrcChanged( test )
         it.iterable = _.looker.containerNameToIdMap.map;
         it.ascendAct = function objAscend( src )
         {
-          return this._longAscend( src.elements );
+          return this._elementalAscend( src.elements );
         }
         // it.ascendAct = function objAscend( onIteration, src )
         // {
-        //   return this._longAscend( onIteration, src.elements );
+        //   return this._elementalAscend( onIteration, src.elements );
         // }
       }
     }
@@ -2178,11 +2560,11 @@ function optionOnUpNonContainer( test )
         it.iterable = 'Obj';
         it.ascendAct = function objAscend( src )
         {
-          return this._longAscend( src.elements );
+          return this._elementalAscend( src.elements );
         }
         // it.ascendAct = function objAscend( onIteration, src )
         // {
-        //   return this._longAscend( onIteration, src.elements );
+        //   return this._elementalAscend( onIteration, src.elements );
         // }
       }
     }
@@ -2406,7 +2788,7 @@ function optionAscend( test )
     let it = this;
     test.true( arguments.length === 0 );
     if( it.src === 'name1' )
-    it._longAscend( [ 'r1', 'r2', 'r3' ] );
+    it._elementalAscend( [ 'r1', 'r2', 'r3' ] );
     else
     it.ascendAct( it.src );
   }
@@ -2430,7 +2812,7 @@ function optionAscend( test )
 function optionRoot( test )
 {
 
-  var structure1 =
+  var src =
   {
     a : 1,
     b : 's',
@@ -2445,81 +2827,81 @@ function optionRoot( test )
 
   test.case = 'explicit';
   clean();
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1, root : structure1 });
+  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, root : src });
   var expectedRoots =
   [
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src
   ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
   test.identical( gotDownRoots, expectedRoots );
   test.description = 'get root';
-  test.identical( it.root, structure1 );
+  test.identical( it.root, src );
 
   test.case = 'implicit';
   clean();
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1 });
+  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1 });
   var expectedRoots =
   [
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1,
-    structure1
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src,
+    src
   ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
   test.identical( gotDownRoots, expectedRoots );
   test.description = 'get root';
-  test.identical( it.root, structure1 );
+  test.identical( it.root, src );
 
   test.case = 'node as root';
   clean();
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1, root : structure1.c });
+  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, root : src.c });
   var expectedRoots =
   [
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c,
-    structure1.c
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c,
+    src.c
   ];
   test.description = 'roots on up';
   test.identical( gotUpRoots, expectedRoots );
   test.description = 'roots on down';
   test.identical( gotDownRoots, expectedRoots );
   test.description = 'get root';
-  test.identical( it.root, structure1.c );
+  test.identical( it.root, src.c );
 
   test.case = 'another structure as root';
   clean();
@@ -2529,7 +2911,7 @@ function optionRoot( test )
     b : 1,
     c : { d : [ 2 ] }
   };
-  var it = _.look({ src : structure1, onUp : handleUp1, onDown : handleDown1, root : structure2 });
+  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, root : structure2 });
   var expectedRoots =
   [
     structure2,
@@ -3139,6 +3521,9 @@ let Self =
   {
 
     look,
+    lookWithPartibleVector,
+    lookOptionWithPartible,
+    lookOptionWithImplicit,
     lookRecursive,
     lookContainerType,
     lookWithIterator,

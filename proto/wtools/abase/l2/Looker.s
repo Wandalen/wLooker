@@ -148,7 +148,7 @@ Looker.iterableEval = iterableEval;
 Looker.ascendEval = ascendEval;
 Looker.revisitedEval = revisitedEval;
 
-Looker.isPartiable = null;
+Looker.isPartible = null;
 
 //
 
@@ -187,7 +187,7 @@ Iterator.continue = true;
 Iterator.key = null;
 Iterator.error = null;
 Iterator.visitedContainer = null;
-Iterator.isPartiable = null;
+Iterator.isPartible = null;
 
 _.mapSupplement( Iterator, Defaults );
 Object.freeze( Iterator );
@@ -311,7 +311,7 @@ function iteratorMake( o )
   delete iterator.it;
 
   iterator.iterator = iterator;
-  iterator.isPartiable = _.looker.elementalTypeToIsElementalFunctionMap[ o.withPartible ];
+  iterator.isPartible = _.looker.elementalTypeToIsElementalFunctionMap[ o.withPartible ];
 
   if( iterator.revisiting < 2 )
   {
@@ -992,7 +992,7 @@ function iterableEval()
   }
   // else if( _.arrayLike( it.srcEffective ) )
   // else if( _.iterableIs_( it.srcEffective ) )
-  else if( it.isPartiable( it.srcEffective ) )
+  else if( it.isPartible( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.long;
   }
@@ -1040,7 +1040,7 @@ function revisitedEval( src )
 // is partible
 // --
 
-function _isPartiable( src )
+function _isPartible( src )
 {
   return _.partibleIs( src );
 }
@@ -1338,7 +1338,7 @@ let containerIdToAscendMap =
 
 let elementalTypeToIsElementalFunctionMap =
 {
-  'partible' : _isPartiable,
+  'partible' : _isPartible,
   'vector' : _isVector,
   'long' : _isLong,
   'array' : _isArray,

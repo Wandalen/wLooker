@@ -273,7 +273,7 @@ function lookOptionWithPartible( test )
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, partiable`;
+    test.case = `withPartible:${env.withPartible}, partible`;
     var src =
     {
       a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
@@ -291,7 +291,7 @@ function lookOptionWithPartible( test )
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, partiable made`;
+    test.case = `withPartible:${env.withPartible}, partible made`;
     var src =
     {
       a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1 }),
@@ -337,14 +337,14 @@ function lookOptionWithPartible( test )
   //
   // /* */
   //
-  // function partiableConstructor( o )
+  // function partibleConstructor( o )
   // {
-  //   return partiableMake( this, o );
+  //   return partibleMake( this, o );
   // }
   //
   // /* */
   //
-  // function partiableMake( dst, o )
+  // function partibleMake( dst, o )
   // {
   //   if( dst === null )
   //   dst = Object.create( null );

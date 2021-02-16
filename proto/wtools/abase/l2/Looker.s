@@ -148,7 +148,8 @@ Looker.iterableEval = iterableEval;
 Looker.ascendEval = ascendEval;
 Looker.revisitedEval = revisitedEval;
 
-Looker.isPartible = null;
+// Looker.isPartible = null;
+// Looker.hasImplicit = null;
 
 //
 
@@ -188,6 +189,7 @@ Iterator.key = null;
 Iterator.error = null;
 Iterator.visitedContainer = null;
 Iterator.isPartible = null;
+Iterator.hasImplicit = null;
 
 _.mapSupplement( Iterator, Defaults );
 Object.freeze( Iterator );
@@ -287,17 +289,6 @@ function iteratorMake( o )
   _.assert( _.objectIs( o.Looker ) );
   _.assert( o.Looker === this );
   _.assert( o.looker === undefined );
-  // _.assert( 0 <= o.revisiting && o.revisiting <= 2 );
-  // _.assert
-  // (
-  //   _.longHas( [ 'partible', 'vector', 'long', 'array', '' ], o.withPartible ),
-  //   'Unexpected value of option::withPartible'
-  // );
-  // _.assert
-  // (
-  //   _.longHas( [ 'composite.like', 'map.like', '' ], o.withImplicit ),
-  //   'Unexpected value of option::withImplicit'
-  // );
 
   /* */
 
@@ -311,7 +302,8 @@ function iteratorMake( o )
   delete iterator.it;
 
   iterator.iterator = iterator;
-  iterator.isPartible = _.looker.elementalTypeToIsElementalFunctionMap[ o.withPartible ];
+  iterator.isPartible = _.looker.withPartibleToIsElementalFunctionMap[ o.withPartible ];
+  iterator.hasImplicit = _.looker.withImplicitToHasImplicitFunctionMap[ o.withImplicit ];
 
   if( iterator.revisiting < 2 )
   {
@@ -859,6 +851,7 @@ function _elementalAscend( src )
 function _mapAscend( src )
 {
   let it = this;
+  let canSibling = true;
 
   _.assert( arguments.length === 1 );
 
@@ -867,8 +860,27 @@ function _mapAscend( src )
     let e = src[ k ];
     let eit = it.iterationMake().choose( e, k );
     eit.look();
-    if( !it.canSibling() )
+    canSibling = it.canSibling();
+    if( !canSibling )
     break;
+  }
+
+  if( canSibling )
+  if( it.hasImplicit( src ) )
+  {
+    debugger;
+    var props = _.property.onlyImplicit( src );
+
+    for( var [ k, e ] of props )
+    {
+      debugger;
+      let eit = it.iterationMake().choose( e, k );
+      eit.look();
+      canSibling = it.canSibling();
+      if( !canSibling )
+      break;
+    }
+
   }
 
 }
@@ -978,6 +990,12 @@ function iterableEval()
     it.iterable = _.looker.containerNameToIdMap.custom;
     it.containerType = containerType;
   }
+  // else if( _.arrayLike( it.srcEffective ) )
+  // else if( _.iterableIs_( it.srcEffective ) )
+  else if( it.isPartible( it.srcEffective ) )
+  {
+    it.iterable = _.looker.containerNameToIdMap.long;
+  }
   else if( _.mapLike( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.map;
@@ -989,12 +1007,6 @@ function iterableEval()
   else if( _.setLike( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.set;
-  }
-  // else if( _.arrayLike( it.srcEffective ) )
-  // else if( _.iterableIs_( it.srcEffective ) )
-  else if( it.isPartible( it.srcEffective ) )
-  {
-    it.iterable = _.looker.containerNameToIdMap.long;
   }
   else
   {
@@ -1071,6 +1083,21 @@ function _isArray( src )
 function _false( src )
 {
   return false;
+}
+
+//
+
+function _isConstructibleLike( src )
+{
+  debugger;
+  return _.constructibleLike( src );
+}
+
+//
+
+function _isMapLike( src )
+{
+  return _.mapLikePrototyped( src );
 }
 
 // --
@@ -1194,7 +1221,7 @@ function look_head( routine, args )
   );
   _.assert
   (
-    _.longHas( [ 'composite.like', 'map.like', '' ], o.withImplicit ),
+    _.longHas( [ 'map.like', '' ], o.withImplicit ),
     'Unexpected value of option::withImplicit'
   );
 
@@ -1336,12 +1363,19 @@ let containerIdToAscendMap =
   5 : _customAscend,
 }
 
-let elementalTypeToIsElementalFunctionMap =
+let withPartibleToIsElementalFunctionMap =
 {
   'partible' : _isPartible,
   'vector' : _isVector,
   'long' : _isLong,
   'array' : _isArray,
+  '' : _false,
+}
+
+let withImplicitToHasImplicitFunctionMap =
+{
+  'constructible.like' : _isConstructibleLike,
+  'map.like' : _isMapLike,
   '' : _false,
 }
 
@@ -1354,7 +1388,8 @@ let LookerExtension =
   containerNameToIdMap,
   containerIdToNameMap,
   containerIdToAscendMap,
-  elementalTypeToIsElementalFunctionMap,
+  withPartibleToIsElementalFunctionMap,
+  withImplicitToHasImplicitFunctionMap,
 
   look : lookAll,
   lookAll,

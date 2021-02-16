@@ -386,16 +386,21 @@ function lookOptionWithPartible( test )
 
 //
 
-function lookOptionWithImplicit( test )
+function lookOptionWithImplicitBasic( test )
 {
   let gotUpPaths = [];
+  let gotUpVals = [];
   let gotDownPaths = [];
   let gotUpIndinces = [];
+  let gotDownVals = [];
   let gotDownIndices = [];
 
-  eachCase({ withImplicit : 1 }); xxx
-
-  /* xxx : not ready */
+  eachCase({ withImplicit : 1 });
+  eachCase({ withImplicit : true });
+  eachCase({ withImplicit : 'map.like' });
+  eachCase({ withImplicit : 0 });
+  eachCase({ withImplicit : false });
+  eachCase({ withImplicit : '' });
 
   function eachCase( env )
   {
@@ -403,20 +408,75 @@ function lookOptionWithImplicit( test )
     /* */
 
     test.case = `withImplicit:${env.withImplicit}, str`;
-    var src =
-    {
-      a : 'abc',
-    }
+    var src = 'anc';
     test.true( !_.partibleIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-    var exp = [ '/', '/a' ];
+    var exp = [ '/' ];
     test.identical( gotUpPaths, exp );
+    var exp = [ src ];
+    test.identical( gotUpVals, exp );
 
     /* */
+
+    test.case = `withImplicit:${env.withImplicit}, prototyped map`;
+    var prototype = Object.create( null );
+    prototype.p = 0;
+    var src = Object.create( prototype );
+    src.a = 1;
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+    if( env.withImplicit )
+    {
+      var exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
+      test.identical( gotUpVals, exp );
+    }
+    else
+    {
+      var exp = [ '/', '/a', '/p' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1, 0 ];
+      test.identical( gotUpVals, exp );
+    }
+
+    /* */
+
+    test.case = `withImplicit:${env.withImplicit}, shadowed prototyped map`;
+    var prototype = Object.create( null );
+    prototype.a = 0;
+    var src = Object.create( prototype );
+    src.a = 1;
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+    if( env.withImplicit )
+    {
+      var exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
+      test.identical( gotUpVals, exp );
+    }
+    else
+    {
+      var exp = [ '/', '/a' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1 ];
+      test.identical( gotUpVals, exp );
+    }
 
     /* */
 
@@ -427,8 +487,10 @@ function lookOptionWithImplicit( test )
   function clean()
   {
     gotUpPaths = [];
+    gotUpVals = [];
     gotUpIndinces = [];
     gotDownPaths = [];
+    gotDownVals = [];
     gotDownIndices = [];
   }
 
@@ -437,6 +499,7 @@ function lookOptionWithImplicit( test )
   function handleUp1( e, k, it )
   {
     gotUpPaths.push( it.path );
+    gotUpVals.push( it.src );
     gotUpIndinces.push( it.index );
   }
 
@@ -445,10 +508,158 @@ function lookOptionWithImplicit( test )
   function handleDown1( e, k, it )
   {
     gotDownPaths.push( it.path );
+    gotDownVals.push( it.src );
     gotDownIndices.push( it.index );
   }
 
   /* */
+
+}
+
+//
+
+function lookOptionWithImplicitGenerated( test )
+{
+  let gotUpPaths = [];
+  let gotUpVals = [];
+  let gotDownPaths = [];
+  let gotUpIndinces = [];
+  let gotDownVals = [];
+  let gotDownIndices = [];
+
+  let sets =
+  {
+    withIterator : 0,
+    pure : [ 0, 1 ],
+    withOwnConstructor : [ 0, 1 ],
+    withConstructor : [ 0, 1 ],
+    new : [ 0, 1 ],
+    withImplicit : 1,
+  };
+  let samples = _.eachSample({ sets });
+
+  for( let env of samples )
+  eachCase( env );
+
+  /* xxx : not ready */
+
+  function eachCase( env )
+  {
+
+    /* - */
+
+    if( env.new && env.withConstructor )
+    {
+      test.case = `${toStr( env )}`;
+      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+
+      clean();
+      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+      var exp =
+      [
+        '/',
+      ]
+      test.identical( gotUpPaths, exp );
+
+    }
+    else if( env.new )
+    {
+      test.case = `${toStr( env )}`;
+      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+
+      clean();
+      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+      var exp =
+      [
+        '/',
+        '/elements',
+        '/elements/0',
+        '/elements/1',
+        '/withIterator',
+        '/pure',
+        '/withOwnConstructor',
+        '/withConstructor',
+        '/new',
+        '/withImplicit'
+      ]
+      if( env.withOwnConstructor )
+      exp.push( '/constructor' );
+      if( env.withImplicit )
+      exp.push( '/Escape( Symbol( prototype ) )' );
+      test.identical( gotUpPaths, exp );
+
+    }
+    else
+    {
+      test.case = `${toStr( env )}`;
+      // if( env.withIterator === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
+      // debugger;
+      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+
+      clean();
+      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+      var exp =
+      [
+        '/',
+        '/elements',
+        '/elements/0',
+        '/elements/1',
+        '/withIterator',
+        '/pure',
+        '/withOwnConstructor',
+        '/withConstructor',
+        '/new',
+        '/withImplicit'
+      ]
+      if( env.withOwnConstructor )
+      exp.push( '/constructor' );
+      test.identical( gotUpPaths, exp );
+
+    }
+
+    /* - */
+
+  }
+
+  /* */
+
+  function toStr( src )
+  {
+    return _globals_.testing.wTools.toStrSolo( src );
+  }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotUpVals = [];
+    gotUpIndinces = [];
+    gotDownPaths = [];
+    gotDownVals = [];
+    gotDownIndices = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpVals.push( it.src );
+    gotUpIndinces.push( it.index );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownVals.push( it.src );
+    gotDownIndices.push( it.index );
+  }
 
 }
 
@@ -2618,14 +2829,14 @@ function optionOnPathJoin( test )
     '/Array::arr',
     '/Array::arr/Number::0',
     '/Array::arr/Number::1',
-    '/Object::map',
-    '/Object::map/Date::m1',
-    '/Object::map/String::m3',
+    '/Map.polluted::map',
+    '/Map.polluted::map/Date.constructible::m1',
+    '/Map.polluted::map/String::m3',
     '/Set::set',
     '/Set::set/Number::1',
     '/Set::set/Number::3',
     '/HashMap::hash',
-    '/HashMap::hash/Function::1989-12-31T00:00:00.000Z',
+    '/HashMap::hash/Routine::1989-12-31T00:00:00.000Z',
     '/HashMap::hash/String::m3'
   ]
   test.identical( ups, exp );
@@ -2636,13 +2847,13 @@ function optionOnPathJoin( test )
     '/Array::arr/Number::0',
     '/Array::arr/Number::1',
     '/Array::arr',
-    '/Object::map/Date::m1',
-    '/Object::map/String::m3',
-    '/Object::map',
+    '/Map.polluted::map/Date.constructible::m1',
+    '/Map.polluted::map/String::m3',
+    '/Map.polluted::map',
     '/Set::set/Number::1',
     '/Set::set/Number::3',
     '/Set::set',
-    '/HashMap::hash/Function::1989-12-31T00:00:00.000Z',
+    '/HashMap::hash/Routine::1989-12-31T00:00:00.000Z',
     '/HashMap::hash/String::m3',
     '/HashMap::hash',
     '/'
@@ -3523,7 +3734,8 @@ let Self =
     look,
     lookWithPartibleVector,
     lookOptionWithPartible,
-    lookOptionWithImplicit,
+    lookOptionWithImplicitBasic,
+    lookOptionWithImplicitGenerated,
     lookRecursive,
     lookContainerType,
     lookWithIterator,

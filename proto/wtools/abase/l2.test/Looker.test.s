@@ -28,6 +28,76 @@ node wtools/abase/l6.test/Equaler.test.s
 */
 
 // --
+// from Tools
+// --
+
+function entitySize( test )
+{
+  test.case = 'empty array';
+  var got = _.entitySize( [] );
+  var exp = 0;
+  test.identical( got, exp );
+
+  test.case = 'array';
+  var got = _.entitySize( [ 3, undefined, 34 ] );
+  var exp = 24;
+  test.identical( got, exp );
+
+  test.case = 'argumentsArray';
+  var got = _.entitySize( _.argumentsArray.make( [ 1, null, 4 ] ) );
+  var exp = 24;
+  test.identical( got, exp );
+
+  test.case = 'unroll';
+  var got = _.entitySize( _.unrollMake( [ 1, 2, 'str' ] ) );
+  var exp = 19;
+  test.identical( got, exp );
+
+  test.case = 'BufferTyped';
+  var got = _.entitySize( new U8x( [ 1, 2, 3, 4 ] ) );
+  test.identical( got, 4 );
+
+  test.case = 'BufferRaw';
+  var got = _.entitySize( new BufferRaw( 10 ) );
+  test.identical( got, 10 );
+
+  test.case = 'BufferView';
+  var got = _.entitySize( new BufferView( new BufferRaw( 10 ) ) );
+  test.identical( got, 10 );
+
+  test.case = 'Set';
+  var got = _.entitySize( new Set( [ 1, 2, undefined, 4 ] ) );
+  var exp = 32;
+  test.identical( got, exp );
+
+  test.case = 'map';
+  var got = _.entitySize( { a : 1, b : 2, c : 'str' } );
+  var exp = 19;
+  test.identical( got, exp );
+
+  test.case = 'HashMap';
+  var got = _.entitySize( new Map( [ [ undefined, undefined ], [ 1, 2 ], [ '', 'str' ] ] ) );
+  var exp = 19;
+  test.identical( got, exp );
+
+  test.case = 'object, some properties are non enumerable';
+  var src = Object.create( null );
+  var o =
+  {
+    'property3' :
+    {
+      enumerable : true,
+      value : 'World',
+      writable : true
+    }
+  };
+  Object.defineProperties( src, o );
+  var got = _.entitySize( src );
+  var exp = 5;
+  test.identical( got, exp );
+}
+
+// --
 // tests
 // --
 
@@ -3519,6 +3589,12 @@ let Self =
 
   tests :
   {
+
+    // from Tools
+
+    entitySize,
+
+    //
 
     look,
     lookWithPartibleVector,

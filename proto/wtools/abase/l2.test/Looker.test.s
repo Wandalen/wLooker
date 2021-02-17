@@ -2189,6 +2189,7 @@ function optionWithImplicitBasic( test )
 
   function eachCase( env )
   {
+    let exp;
 
     /* */
 
@@ -2200,11 +2201,11 @@ function optionWithImplicitBasic( test )
     test.true( !_.arrayIs( src.a ) );
     clean();
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-    var exp = [ '/' ];
+    exp = [ '/' ];
     test.identical( gotUpPaths, exp );
-    var exp = [ src ];
+    exp = [ src ];
     test.identical( gotUpVals, exp );
-    var exp = [ false ];
+    exp = [ false ];
     test.identical( gotUpIsImplicit, exp );
 
     /* */
@@ -2223,20 +2224,20 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      var exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
+      exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
       test.identical( gotUpPaths, exp );
-      var exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
+      exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
       test.identical( gotUpVals, exp );
-      var exp = [ false, false, false, true, false ];
+      exp = [ false, false, false, true, false ];
       test.identical( gotUpIsImplicit, exp );
     }
     else
     {
-      var exp = [ '/', '/a', '/p' ];
+      exp = [ '/', '/a', '/p' ];
       test.identical( gotUpPaths, exp );
-      var exp = [ src, 1, 0 ];
+      exp = [ src, 1, 0 ];
       test.identical( gotUpVals, exp );
-      var exp = [ false, false, false ];
+      exp = [ false, false, false ];
       test.identical( gotUpIsImplicit, exp );
     }
 
@@ -2256,20 +2257,20 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      var exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
+      exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
       test.identical( gotUpPaths, exp );
-      var exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
+      exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
       test.identical( gotUpVals, exp );
-      var exp = [ false, false, true, false ];
+      exp = [ false, false, true, false ];
       test.identical( gotUpIsImplicit, exp );
     }
     else
     {
-      var exp = [ '/', '/a' ];
+      exp = [ '/', '/a' ];
       test.identical( gotUpPaths, exp );
-      var exp = [ src, 1 ];
+      exp = [ src, 1 ];
       test.identical( gotUpVals, exp );
-      var exp = [ false, false ];
+      exp = [ false, false ];
       test.identical( gotUpIsImplicit, exp );
     }
 
@@ -2291,7 +2292,7 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      var exp =
+      exp =
       [
         '/',
         '/a',
@@ -2301,18 +2302,18 @@ function optionWithImplicitBasic( test )
         '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )/a'
       ]
       test.identical( gotUpPaths, exp );
-      var exp = [ src, 2, _.prototype.each( src )[ 1 ], 1, _.prototype.each( src )[ 2 ], 0 ];
+      exp = [ src, 2, _.prototype.each( src )[ 1 ], 1, _.prototype.each( src )[ 2 ], 0 ];
       test.identical( gotUpVals, exp );
-      var exp = [ false, false, true, false, true, false ];
+      exp = [ false, false, true, false, true, false ];
       test.identical( gotUpIsImplicit, exp );
     }
     else
     {
-      var exp = [ '/', '/a' ];
+      exp = [ '/', '/a' ];
       test.identical( gotUpPaths, exp );
-      var exp = [ src, 2 ];
+      exp = [ src, 2 ];
       test.identical( gotUpVals, exp );
-      var exp = [ false, false ];
+      exp = [ false, false ];
       test.identical( gotUpIsImplicit, exp );
     }
 
@@ -2379,33 +2380,31 @@ function optionWithImplicitGenerated( test )
 
   function eachCase( env )
   {
+    let exp, src, it;
 
     /* - */
 
     if( env.new && env.withConstructor )
     {
       test.case = `${toStr( env )}`;
-      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+      src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
 
       clean();
-      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+      it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
 
-      var exp =
-      [
-        '/',
-      ]
+      exp = [ '/' ]
       test.identical( gotUpPaths, exp );
 
     }
     else if( env.new )
     {
       test.case = `${toStr( env )}`;
-      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+      src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
 
       clean();
-      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+      it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
 
-      var exp =
+      exp =
       [
         '/',
         '/elements',
@@ -2430,12 +2429,12 @@ function optionWithImplicitGenerated( test )
       test.case = `${toStr( env )}`;
       // if( env.withIterator === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
       // debugger;
-      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+      src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
 
       clean();
-      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+      it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
 
-      var exp =
+      exp =
       [
         '/',
         '/elements',
@@ -3266,15 +3265,14 @@ function optionFastPerformance( test )
   var time = _.time.now();
   for( let i = times ; i > 0 ; i-- )
   it1 = _.look({ src : structure });
-  console.log( `The current implementation of _.look took ${_.time.spent( time )} on Njs ${process.version}`  );
+  console.log( `The current implementation of _.look took ${_.time.spent( time )} on Njs ${process.version}` );
 
   var time = _.time.now();
   for( let i = times ; i > 0 ; i-- )
   it2 = _.look({ src : structure, fast : 1 });
-  console.log( `_.look with the fast option took ${_.time.spent( time )} on Njs ${process.version}`  );
+  console.log( `_.look with the fast option took ${_.time.spent( time )} on Njs ${process.version}` );
 
-  // Being green :)
-  test.identical( it1.src, it2.src );
+  test.true( true );
 }
 
 optionFastPerformance.experimental = true;

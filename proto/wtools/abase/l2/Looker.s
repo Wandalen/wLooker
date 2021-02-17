@@ -326,7 +326,7 @@ function iteratorMake( o )
   if( iterator.defaultUpToken === null && !iterator.fast )
   iterator.defaultUpToken = _.strsShortest( iterator.upToken );
 
-  if(  iterator.fast )
+  if( iterator.fast )
   {
     delete iterator.childrenCounter;
     delete iterator.level;
@@ -1257,7 +1257,7 @@ function look_body( it )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.objectIs( it.Looker ) );
-  _.assert( _.prototype.isPrototypeOf( it.Looker, it ) );
+  _.assert( _.prototype.isPrototypeFor( it.Looker, it ) );
   _.assert( it.looker === undefined );
 
   it.start();
@@ -1292,7 +1292,7 @@ function lookerIs( looker )
   return false;
   if( !looker.Looker )
   return false;
-  return _.prototype.isPrototypeOf( looker, looker.Looker );
+  return _.prototype.isPrototypeFor( looker, looker.Looker );
 }
 
 //

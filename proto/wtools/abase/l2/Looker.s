@@ -302,8 +302,8 @@ function iteratorMake( o )
   if( o.iteratorExtension )
   Object.assign( iterator, o.iteratorExtension );
 
-  if( iterator.it !== undefined )
-  debugger;
+  // if( iterator.it !== undefined )
+  // debugger;
   delete iterator.it;
 
   Object.preventExtensions( iterator );

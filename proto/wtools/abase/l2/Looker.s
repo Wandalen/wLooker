@@ -224,7 +224,7 @@ Iteration.srcEffective = null; /* xxx : replace by another mechanism with srcOri
 Iteration.continue = true;
 Iteration.ascending = true;
 Iteration.ascendAct = null;
-Iteration.revisited = false; 
+Iteration.revisited = false;
 Iteration._ = null;
 Iteration.down = null;
 Iteration.visiting = false;
@@ -293,11 +293,20 @@ function iteratorMake( o )
   let iterator = Object.create( o.Looker );
   Object.assign( iterator, this.Iterator );
   Object.assign( iterator, o ); /* xxx : try to retype o */
+
+  // let iterator = o;
+  // Object.setPrototypeOf( iterator, iterator.Looker );
+  // _.mapSupplement( iterator, this.Iterator );
+  // // Object.assign( iterator, o ); /* xxx : try to retype o */
+
   if( o.iteratorExtension )
   Object.assign( iterator, o.iteratorExtension );
-  Object.preventExtensions( iterator );
 
+  if( iterator.it !== undefined )
+  debugger;
   delete iterator.it;
+
+  Object.preventExtensions( iterator );
 
   iterator.iterator = iterator;
   iterator.isPartible = _.looker.withPartibleToIsElementalFunctionMap[ o.withPartible ];
@@ -952,7 +961,6 @@ function srcChanged()
 
   it.effectiveEval();
 
-  // if( it.iterable === null ) // xxx : uncomment later, maybe?
   it.iterableEval();
 
   if( it.onSrcChanged )
@@ -1023,7 +1031,6 @@ function ascendEval()
   let it = this;
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  // _.assert( it.iterable === null ); // xxx : uncomment later, maybe?
 
   it.ascendAct = _.looker.containerIdToAscendMap[ it.iterable ];
 
@@ -1330,7 +1337,7 @@ function lookIterationIs( it )
 // declare
 // --
 
-let ErrorLooking = _.error.error_functor( 'ErrorLooking' ); /* xxx : cover error_functor in Err.test.s */
+let ErrorLooking = _.error.error_functor( 'ErrorLooking' );
 
 let containerNameToIdMap =
 {

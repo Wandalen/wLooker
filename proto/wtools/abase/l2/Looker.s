@@ -148,9 +148,6 @@ Looker.iterableEval = iterableEval;
 Looker.ascendEval = ascendEval;
 Looker.revisitedEval = revisitedEval;
 
-// Looker.isPartible = null;
-// Looker.hasImplicit = null;
-
 //
 
 /**
@@ -233,6 +230,7 @@ Iteration.down = null;
 Iteration.visiting = false;
 Iteration.iterable = null;
 Iteration.visitCounting = true;
+Iteration.isImplicit = false;
 Object.freeze( Iteration );
 
 //
@@ -401,7 +399,7 @@ function iterationMake()
   let it = this;
   let newIt = it._iterationMakeAct();
 
-  _.assert( arguments.length === 0, 'Expects no arguments' );
+  // _.assert( arguments.length === 0, 'Expects no arguments' );
 
   return newIt;
 }
@@ -430,12 +428,14 @@ function _iterationMakeAct()
   Object.assign( newIt, it.iterator.iterationExtension );
   Object.preventExtensions( newIt );
 
+  _.assert( newIt.isImplicit === false );
+
   for( let k in it.Looker.IterationPreserve )
   newIt[ k ] = it[ k ];
 
   if( it.iterationPreserve )
   for( let k in it.iterationPreserve )
-    newIt[ k ] = it[ k ];
+  newIt[ k ] = it[ k ];
 
   if( it.iterator !== it )
   newIt.down = it;
@@ -868,13 +868,13 @@ function _mapAscend( src )
   if( canSibling )
   if( it.hasImplicit( src ) )
   {
-    debugger;
     var props = _.property.onlyImplicit( src );
 
     for( var [ k, e ] of props )
     {
       debugger;
       let eit = it.iterationMake().choose( e, k );
+      eit.isImplicit = true;
       eit.look();
       canSibling = it.canSibling();
       if( !canSibling )
@@ -996,7 +996,7 @@ function iterableEval()
   {
     it.iterable = _.looker.containerNameToIdMap.long;
   }
-  else if( _.mapLike( it.srcEffective ) )
+  else if( _.auxiliary.is( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.map;
   }
@@ -1097,7 +1097,7 @@ function _isConstructibleLike( src )
 
 function _isMapLike( src )
 {
-  return _.mapLikePrototyped( src );
+  return _.auxiliary.isPrototyped( src );
 }
 
 // --
@@ -1250,7 +1250,7 @@ function look_body( it )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.objectIs( it.Looker ) );
-  _.assert( _.prototypeIsPrototypeOf( it.Looker, it ) );
+  _.assert( _.prototype.isPrototypeOf( it.Looker, it ) );
   _.assert( it.looker === undefined );
 
   it.start();
@@ -1285,7 +1285,7 @@ function lookerIs( looker )
   return false;
   if( !looker.Looker )
   return false;
-  return _.prototypeIsPrototypeOf( looker, looker.Looker );
+  return _.prototype.isPrototypeOf( looker, looker.Looker );
 }
 
 //

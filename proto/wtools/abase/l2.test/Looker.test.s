@@ -77,7 +77,7 @@ function entitySize( test )
 
   test.case = 'HashMap';
   var got = _.entitySize( new Map( [ [ undefined, undefined ], [ 1, 2 ], [ '', 'str' ] ] ) );
-  var exp = 19;
+  var exp = 35;
   test.identical( got, exp );
 
   test.case = 'object, some properties are non enumerable';
@@ -212,522 +212,6 @@ function lookWithPartibleVector( test )
   function handleDown1( e, k, it )
   {
     gotDownPaths.push( it.path );
-    gotDownIndices.push( it.index );
-  }
-
-}
-
-//
-
-function lookOptionWithPartible( test )
-{
-  let gotUpPaths = [];
-  let gotDownPaths = [];
-  let gotUpIndinces = [];
-  let gotDownIndices = [];
-
-  eachCase({ withPartible : 'partible' });
-  eachCase({ withPartible : 'vector' });
-  eachCase({ withPartible : 'long' });
-  eachCase({ withPartible : 'array' });
-  eachCase({ withPartible : true });
-  eachCase({ withPartible : 1 });
-  eachCase({ withPartible : '' });
-  eachCase({ withPartible : false });
-  eachCase({ withPartible : 0 });
-
-  function eachCase( env )
-  {
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, str`;
-    var src =
-    {
-      a : 'abc',
-    }
-    test.true( !_.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, routine`;
-    var src =
-    {
-      a : function(){},
-    }
-    test.true( !_.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, raw buffer`;
-    var src =
-    {
-      a : new BufferRaw( 13 ),
-    }
-    test.true( !_.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, array`;
-    var src =
-    {
-      a : [ 1, 3 ],
-    }
-    test.true( _.partibleIs( src.a ) );
-    test.true( _.vectorIs( src.a ) );
-    test.true( _.longIs( src.a ) );
-    test.true( _.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a', '/a/0', '/a/1' ];
-    if( !env.withPartible )
-    exp = [ '/', '/a' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, typed buffer`;
-    var src =
-    {
-      a : new F32x([ 0, 10 ]),
-    }
-    test.true( _.partibleIs( src.a ) );
-    test.true( _.vectorIs( src.a ) );
-    test.true( _.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a', '/a/0', '/a/1' ];
-    if( !env.withPartible || env.withPartible === 'array' )
-    exp = [ '/', '/a' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, vector`;
-    var src =
-    {
-      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
-    }
-    test.true( _.partibleIs( src.a ) );
-    test.true( _.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a' ];
-    if( env.withPartible === 'partible' || env.withPartible === 'vector' || env.withPartible === true || env.withPartible === 1 )
-    exp = [ '/', '/a', '/a/0', '/a/1' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, partible`;
-    var src =
-    {
-      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
-    }
-    test.true( _.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a' ];
-    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
-    exp = [ '/', '/a', '/a/0', '/a/1' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-    test.case = `withPartible:${env.withPartible}, partible made`;
-    var src =
-    {
-      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1 }),
-    }
-    test.true( _.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
-    var exp = [ '/', '/a' ];
-    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
-    exp = [ '/', '/a', '/a/0', '/a/1' ];
-    test.identical( gotUpPaths, exp );
-
-    /* */
-
-  }
-
-  /* */
-
-  // function _iterate()
-  // {
-  //
-  //   let iterator = Object.create( null );
-  //   iterator.next = next;
-  //   iterator.index = 0;
-  //   iterator.instance = this;
-  //   return iterator;
-  //
-  //   function next()
-  //   {
-  //     let result = Object.create( null );
-  //     result.done = this.index === this.instance.elements.length;
-  //     if( result.done )
-  //     return result;
-  //     result.value = this.instance.elements[ this.index ];
-  //     this.index += 1;
-  //     return result;
-  //   }
-  //
-  // }
-  //
-  // /* */
-  //
-  // function partibleConstructor( o )
-  // {
-  //   return partibleMake( this, o );
-  // }
-  //
-  // /* */
-  //
-  // function partibleMake( dst, o )
-  // {
-  //   if( dst === null )
-  //   dst = Object.create( null );
-  //   _.mapExtend( dst, o );
-  //   if( o.withIterator )
-  //   dst[ Symbol.iterator ] = _iterate;
-  //   return dst;
-  // }
-
-  /* */
-
-  function clean()
-  {
-    gotUpPaths = [];
-    gotUpIndinces = [];
-    gotDownPaths = [];
-    gotDownIndices = [];
-  }
-
-  /* */
-
-  function handleUp1( e, k, it )
-  {
-    gotUpPaths.push( it.path );
-    gotUpIndinces.push( it.index );
-  }
-
-  /* */
-
-  function handleDown1( e, k, it )
-  {
-    gotDownPaths.push( it.path );
-    gotDownIndices.push( it.index );
-  }
-
-  /* */
-
-}
-
-//
-
-function lookOptionWithImplicitBasic( test )
-{
-  let gotUpPaths = [];
-  let gotUpVals = [];
-  let gotDownPaths = [];
-  let gotUpIndinces = [];
-  let gotDownVals = [];
-  let gotDownIndices = [];
-
-  eachCase({ withImplicit : 1 });
-  eachCase({ withImplicit : true });
-  eachCase({ withImplicit : 'map.like' });
-  eachCase({ withImplicit : 0 });
-  eachCase({ withImplicit : false });
-  eachCase({ withImplicit : '' });
-
-  function eachCase( env )
-  {
-
-    /* */
-
-    test.case = `withImplicit:${env.withImplicit}, str`;
-    var src = 'anc';
-    test.true( !_.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-    var exp = [ '/' ];
-    test.identical( gotUpPaths, exp );
-    var exp = [ src ];
-    test.identical( gotUpVals, exp );
-
-    /* */
-
-    test.case = `withImplicit:${env.withImplicit}, prototyped map`;
-    var prototype = Object.create( null );
-    prototype.p = 0;
-    var src = Object.create( prototype );
-    src.a = 1;
-    test.true( !_.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-
-    if( env.withImplicit )
-    {
-      var exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
-      test.identical( gotUpPaths, exp );
-      var exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
-      test.identical( gotUpVals, exp );
-    }
-    else
-    {
-      var exp = [ '/', '/a', '/p' ];
-      test.identical( gotUpPaths, exp );
-      var exp = [ src, 1, 0 ];
-      test.identical( gotUpVals, exp );
-    }
-
-    /* */
-
-    test.case = `withImplicit:${env.withImplicit}, shadowed prototyped map`;
-    var prototype = Object.create( null );
-    prototype.a = 0;
-    var src = Object.create( prototype );
-    src.a = 1;
-    test.true( !_.partibleIs( src.a ) );
-    test.true( !_.vectorIs( src.a ) );
-    test.true( !_.longIs( src.a ) );
-    test.true( !_.arrayIs( src.a ) );
-    clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-
-    if( env.withImplicit )
-    {
-      var exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
-      test.identical( gotUpPaths, exp );
-      var exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
-      test.identical( gotUpVals, exp );
-    }
-    else
-    {
-      var exp = [ '/', '/a' ];
-      test.identical( gotUpPaths, exp );
-      var exp = [ src, 1 ];
-      test.identical( gotUpVals, exp );
-    }
-
-    /* */
-
-  }
-
-  /* */
-
-  function clean()
-  {
-    gotUpPaths = [];
-    gotUpVals = [];
-    gotUpIndinces = [];
-    gotDownPaths = [];
-    gotDownVals = [];
-    gotDownIndices = [];
-  }
-
-  /* */
-
-  function handleUp1( e, k, it )
-  {
-    gotUpPaths.push( it.path );
-    gotUpVals.push( it.src );
-    gotUpIndinces.push( it.index );
-  }
-
-  /* */
-
-  function handleDown1( e, k, it )
-  {
-    gotDownPaths.push( it.path );
-    gotDownVals.push( it.src );
-    gotDownIndices.push( it.index );
-  }
-
-  /* */
-
-}
-
-//
-
-function lookOptionWithImplicitGenerated( test )
-{
-  let gotUpPaths = [];
-  let gotUpVals = [];
-  let gotDownPaths = [];
-  let gotUpIndinces = [];
-  let gotDownVals = [];
-  let gotDownIndices = [];
-
-  let sets =
-  {
-    withIterator : 0,
-    pure : [ 0, 1 ],
-    withOwnConstructor : [ 0, 1 ],
-    withConstructor : [ 0, 1 ],
-    new : [ 0, 1 ],
-    withImplicit : 1,
-  };
-  let samples = _.eachSample({ sets });
-
-  for( let env of samples )
-  eachCase( env );
-
-  /* xxx : not ready */
-
-  function eachCase( env )
-  {
-
-    /* - */
-
-    if( env.new && env.withConstructor )
-    {
-      test.case = `${toStr( env )}`;
-      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
-
-      clean();
-      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-
-      var exp =
-      [
-        '/',
-      ]
-      test.identical( gotUpPaths, exp );
-
-    }
-    else if( env.new )
-    {
-      test.case = `${toStr( env )}`;
-      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
-
-      clean();
-      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-
-      var exp =
-      [
-        '/',
-        '/elements',
-        '/elements/0',
-        '/elements/1',
-        '/withIterator',
-        '/pure',
-        '/withOwnConstructor',
-        '/withConstructor',
-        '/new',
-        '/withImplicit'
-      ]
-      if( env.withOwnConstructor )
-      exp.push( '/constructor' );
-      if( env.withImplicit )
-      exp.push( '/Escape( Symbol( prototype ) )' );
-      test.identical( gotUpPaths, exp );
-
-    }
-    else
-    {
-      test.case = `${toStr( env )}`;
-      // if( env.withIterator === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
-      // debugger;
-      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
-
-      clean();
-      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
-
-      var exp =
-      [
-        '/',
-        '/elements',
-        '/elements/0',
-        '/elements/1',
-        '/withIterator',
-        '/pure',
-        '/withOwnConstructor',
-        '/withConstructor',
-        '/new',
-        '/withImplicit'
-      ]
-      if( env.withOwnConstructor )
-      exp.push( '/constructor' );
-      test.identical( gotUpPaths, exp );
-
-    }
-
-    /* - */
-
-  }
-
-  /* */
-
-  function toStr( src )
-  {
-    return _globals_.testing.wTools.toStrSolo( src );
-  }
-
-  /* */
-
-  function clean()
-  {
-    gotUpPaths = [];
-    gotUpVals = [];
-    gotUpIndinces = [];
-    gotDownPaths = [];
-    gotDownVals = [];
-    gotDownIndices = [];
-  }
-
-  /* */
-
-  function handleUp1( e, k, it )
-  {
-    gotUpPaths.push( it.path );
-    gotUpVals.push( it.src );
-    gotUpIndinces.push( it.index );
-  }
-
-  /* */
-
-  function handleDown1( e, k, it )
-  {
-    gotDownPaths.push( it.path );
-    gotDownVals.push( it.src );
     gotDownIndices.push( it.index );
   }
 
@@ -2493,6 +1977,526 @@ function relook( test )
 
 //
 
+function optionWithPartible( test )
+{
+  let gotUpPaths = [];
+  let gotDownPaths = [];
+  let gotUpIndinces = [];
+  let gotDownIndices = [];
+
+  eachCase({ withPartible : 'partible' });
+  eachCase({ withPartible : 'vector' });
+  eachCase({ withPartible : 'long' });
+  eachCase({ withPartible : 'array' });
+  eachCase({ withPartible : true });
+  eachCase({ withPartible : 1 });
+  eachCase({ withPartible : '' });
+  eachCase({ withPartible : false });
+  eachCase({ withPartible : 0 });
+
+  function eachCase( env )
+  {
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, str`;
+    var src =
+    {
+      a : 'abc',
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, routine`;
+    var src =
+    {
+      a : function(){},
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, raw buffer`;
+    var src =
+    {
+      a : new BufferRaw( 13 ),
+    }
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, array`;
+    var src =
+    {
+      a : [ 1, 3 ],
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( _.vectorIs( src.a ) );
+    test.true( _.longIs( src.a ) );
+    test.true( _.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a', '/a/0', '/a/1' ];
+    if( !env.withPartible )
+    exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, typed buffer`;
+    var src =
+    {
+      a : new F32x([ 0, 10 ]),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( _.vectorIs( src.a ) );
+    test.true( _.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a', '/a/0', '/a/1' ];
+    if( !env.withPartible || env.withPartible === 'array' )
+    exp = [ '/', '/a' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, vector`;
+    var src =
+    {
+      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( _.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    if( env.withPartible === 'partible' || env.withPartible === 'vector' || env.withPartible === true || env.withPartible === 1 )
+    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, partible`;
+    var src =
+    {
+      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
+    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+    test.case = `withPartible:${env.withPartible}, partible made`;
+    var src =
+    {
+      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1 }),
+    }
+    test.true( _.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var exp = [ '/', '/a' ];
+    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
+    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    test.identical( gotUpPaths, exp );
+
+    /* */
+
+  }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotUpIndinces = [];
+    gotDownPaths = [];
+    gotDownIndices = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpIndinces.push( it.index );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownIndices.push( it.index );
+  }
+
+  /* */
+
+}
+
+//
+
+function optionWithImplicitBasic( test )
+{
+  let gotUpPaths = [];
+  let gotUpVals = [];
+  let gotUpIndinces = [];
+  let gotUpIsImplicit = [];
+
+  eachCase({ withImplicit : 1 });
+  eachCase({ withImplicit : true });
+  eachCase({ withImplicit : 'map.like' });
+  eachCase({ withImplicit : 0 });
+  eachCase({ withImplicit : false });
+  eachCase({ withImplicit : '' });
+
+  function eachCase( env )
+  {
+
+    /* */
+
+    test.case = `withImplicit:${env.withImplicit}, str`;
+    var src = 'anc';
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+    var exp = [ '/' ];
+    test.identical( gotUpPaths, exp );
+    var exp = [ src ];
+    test.identical( gotUpVals, exp );
+    var exp = [ false ];
+    test.identical( gotUpIsImplicit, exp );
+
+    /* */
+
+    test.case = `withImplicit:${env.withImplicit}, prototyped map`;
+    var prototype = Object.create( null );
+    prototype.p = 0;
+    var src = Object.create( prototype );
+    src.a = 1;
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+    if( env.withImplicit )
+    {
+      var exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
+      test.identical( gotUpVals, exp );
+      var exp = [ false, false, false, true, false ];
+      test.identical( gotUpIsImplicit, exp );
+    }
+    else
+    {
+      var exp = [ '/', '/a', '/p' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1, 0 ];
+      test.identical( gotUpVals, exp );
+      var exp = [ false, false, false ];
+      test.identical( gotUpIsImplicit, exp );
+    }
+
+    /* */
+
+    test.case = `withImplicit:${env.withImplicit}, shadowed prototyped map`;
+    var prototype = Object.create( null );
+    prototype.a = 0;
+    var src = Object.create( prototype );
+    src.a = 1;
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+    if( env.withImplicit )
+    {
+      var exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
+      test.identical( gotUpVals, exp );
+      var exp = [ false, false, true, false ];
+      test.identical( gotUpIsImplicit, exp );
+    }
+    else
+    {
+      var exp = [ '/', '/a' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 1 ];
+      test.identical( gotUpVals, exp );
+      var exp = [ false, false ];
+      test.identical( gotUpIsImplicit, exp );
+    }
+
+    /* */
+
+    test.case = `withImplicit:${env.withImplicit}, deep prototyped map`;
+    var prototype1 = {};
+    prototype1.a = 0;
+    var prototype2 = Object.create( prototype1 );
+    prototype2.a = 1;
+    var src = Object.create( prototype2 );
+    src.a = 2;
+    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.vectorIs( src.a ) );
+    test.true( !_.longIs( src.a ) );
+    test.true( !_.arrayIs( src.a ) );
+    clean();
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+    if( env.withImplicit )
+    {
+      var exp =
+      [
+        '/',
+        '/a',
+        '/Escape( Symbol( prototype ) )',
+        '/Escape( Symbol( prototype ) )/a',
+        '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )',
+        '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )/a'
+      ]
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 2, _.prototype.each( src )[ 1 ], 1, _.prototype.each( src )[ 2 ], 0 ];
+      test.identical( gotUpVals, exp );
+      var exp = [ false, false, true, false, true, false ];
+      test.identical( gotUpIsImplicit, exp );
+    }
+    else
+    {
+      var exp = [ '/', '/a' ];
+      test.identical( gotUpPaths, exp );
+      var exp = [ src, 2 ];
+      test.identical( gotUpVals, exp );
+      var exp = [ false, false ];
+      test.identical( gotUpIsImplicit, exp );
+    }
+
+    /* */
+
+  }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotUpVals = [];
+    gotUpIndinces = [];
+    gotUpIsImplicit = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpVals.push( it.src );
+    gotUpIndinces.push( it.index );
+    gotUpIsImplicit.push( it.isImplicit );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+  }
+
+  /* */
+
+}
+
+//
+
+function optionWithImplicitGenerated( test )
+{
+  let gotUpPaths = [];
+  let gotUpVals = [];
+  let gotDownPaths = [];
+  let gotUpIndinces = [];
+  let gotDownVals = [];
+  let gotDownIndices = [];
+
+  let sets =
+  {
+    withIterator : 0,
+    pure : [ 0, 1 ],
+    withOwnConstructor : [ 0, 1 ],
+    withConstructor : [ 0, 1 ],
+    new : [ 0, 1 ],
+    withImplicit : 1,
+  };
+  let samples = _.eachSample({ sets });
+
+  for( let env of samples )
+  eachCase( env );
+
+  /* xxx : not ready */
+
+  function eachCase( env )
+  {
+
+    /* - */
+
+    if( env.new && env.withConstructor )
+    {
+      test.case = `${toStr( env )}`;
+      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+
+      clean();
+      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+      var exp =
+      [
+        '/',
+      ]
+      test.identical( gotUpPaths, exp );
+
+    }
+    else if( env.new )
+    {
+      test.case = `${toStr( env )}`;
+      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+
+      clean();
+      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+      var exp =
+      [
+        '/',
+        '/elements',
+        '/elements/0',
+        '/elements/1',
+        '/withIterator',
+        '/pure',
+        '/withOwnConstructor',
+        '/withConstructor',
+        '/new',
+        '/withImplicit'
+      ]
+      if( env.withOwnConstructor )
+      exp.push( '/constructor' );
+      if( env.withImplicit )
+      exp.push( '/Escape( Symbol( prototype ) )' );
+      test.identical( gotUpPaths, exp );
+
+    }
+    else
+    {
+      test.case = `${toStr( env )}`;
+      // if( env.withIterator === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
+      // debugger;
+      var src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+
+      clean();
+      var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
+
+      var exp =
+      [
+        '/',
+        '/elements',
+        '/elements/0',
+        '/elements/1',
+        '/withIterator',
+        '/pure',
+        '/withOwnConstructor',
+        '/withConstructor',
+        '/new',
+        '/withImplicit'
+      ]
+      if( env.withOwnConstructor )
+      exp.push( '/constructor' );
+      test.identical( gotUpPaths, exp );
+
+    }
+
+    /* - */
+
+  }
+
+  /* */
+
+  function toStr( src )
+  {
+    return _globals_.testing.wTools.toStrSolo( src );
+  }
+
+  /* */
+
+  function clean()
+  {
+    gotUpPaths = [];
+    gotUpVals = [];
+    gotUpIndinces = [];
+    gotDownPaths = [];
+    gotDownVals = [];
+    gotDownIndices = [];
+  }
+
+  /* */
+
+  function handleUp1( e, k, it )
+  {
+    gotUpPaths.push( it.path );
+    gotUpVals.push( it.src );
+    gotUpIndinces.push( it.index );
+  }
+
+  /* */
+
+  function handleDown1( e, k, it )
+  {
+    gotDownPaths.push( it.path );
+    gotDownVals.push( it.src );
+    gotDownIndices.push( it.index );
+  }
+
+}
+
+//
+
 function optionRevisiting( test )
 {
   let ups = [];
@@ -3809,9 +3813,6 @@ let Self =
 
     look,
     lookWithPartibleVector,
-    lookOptionWithPartible,
-    lookOptionWithImplicitBasic,
-    lookOptionWithImplicitGenerated,
     lookRecursive,
     lookContainerType,
     lookWithIterator,
@@ -3820,11 +3821,13 @@ let Self =
     callbacksComplex,
     relook,
 
+    optionWithPartible,
+    optionWithImplicitBasic,
+    optionWithImplicitGenerated,
     optionRevisiting,
     optionOnSrcChanged,
     optionOnUpNonContainer,
     optionOnPathJoin,
-
     optionAscend,
     optionRoot,
     optionFastPerformance,

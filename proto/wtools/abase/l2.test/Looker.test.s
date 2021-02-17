@@ -24,7 +24,8 @@ node wtools/abase/l4.test/LookerExtra.test.s && \
 node wtools/abase/l4.test/Replicator.test.s && \
 node wtools/abase/l5.test/Selector.test.s && \
 node wtools/abase/l6.test/SelectorExtra.test.s && \
-node wtools/abase/l6.test/Equaler.test.s
+node wtools/abase/l6.test/Equaler.test.s && \
+node wtools/abase/l7.test/ResolverExtra.test.s && \
 */
 
 // --

@@ -162,7 +162,7 @@ function look( test )
 
 //
 
-function lookWithPartibleVector( test )
+function lookWithCountableVector( test )
 {
 
   var src =
@@ -186,7 +186,7 @@ function lookWithPartibleVector( test )
   var gotUpIndinces = [];
   var gotDownIndices = [];
 
-  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : 'vector' });
+  var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : 'vector' });
 
   test.case = 'iteration';
   test.true( _.Looker.iterationIs( it ) );
@@ -550,10 +550,10 @@ function lookWithIterator( test )
 
   /* */
 
-  test.case = 'withIterator : 1, withPartible : 1';
+  test.case = 'withIterator : 1, withCountable : 1';
   clean();
   var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
-  var it = _.look({ src : ins1, onUp : handleUp1, onDown : handleDown1, withPartible : 1 });
+  var it = _.look({ src : ins1, onUp : handleUp1, onDown : handleDown1, withCountable : 1 });
   var expectedUpPaths = [ '/', '/0', '/1' ];
   test.identical( gotUpPaths, expectedUpPaths );
   var expectedDownPaths = [ '/0', '/1', '/' ];
@@ -1750,7 +1750,7 @@ function callbacksComplex( test )
   var generated = _.diagnosticStructureGenerate({ depth : 1, defaultComplexity : 5, defaultLength : 2, random : 0 });
 
   clean();
-  _.look({ src : generated.structure, onUp, onDown });
+  _.look({ src : generated.result, onUp, onDown });
   test.identical( ups, expUps );
   test.identical( dws, expDws );
 
@@ -1764,8 +1764,6 @@ function callbacksComplex( test )
 
   function onUp( e, k, it )
   {
-    // if( _.strHas( it.path, 'regexp.defined' ) )
-    // debugger;
     ups.push( it.path );
   }
 
@@ -1979,161 +1977,161 @@ function relook( test )
 
 //
 
-function optionWithPartible( test )
+function optionWithCountable( test )
 {
   let gotUpPaths = [];
   let gotDownPaths = [];
   let gotUpIndinces = [];
   let gotDownIndices = [];
 
-  eachCase({ withPartible : 'partible' });
-  eachCase({ withPartible : 'vector' });
-  eachCase({ withPartible : 'long' });
-  eachCase({ withPartible : 'array' });
-  eachCase({ withPartible : true });
-  eachCase({ withPartible : 1 });
-  eachCase({ withPartible : '' });
-  eachCase({ withPartible : false });
-  eachCase({ withPartible : 0 });
+  eachCase({ withCountable : 'countable' });
+  eachCase({ withCountable : 'vector' });
+  eachCase({ withCountable : 'long' });
+  eachCase({ withCountable : 'array' });
+  eachCase({ withCountable : true });
+  eachCase({ withCountable : 1 });
+  eachCase({ withCountable : '' });
+  eachCase({ withCountable : false });
+  eachCase({ withCountable : 0 });
 
   function eachCase( env )
   {
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, str`;
+    test.case = `withCountable:${env.withCountable}, str`;
     var src =
     {
       a : 'abc',
     }
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, routine`;
+    test.case = `withCountable:${env.withCountable}, routine`;
     var src =
     {
       a : function(){},
     }
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, raw buffer`;
+    test.case = `withCountable:${env.withCountable}, raw buffer`;
     var src =
     {
       a : new BufferRaw( 13 ),
     }
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, array`;
+    test.case = `withCountable:${env.withCountable}, array`;
     var src =
     {
       a : [ 1, 3 ],
     }
-    test.true( _.partibleIs( src.a ) );
+    test.true( _.countableIs( src.a ) );
     test.true( _.vectorIs( src.a ) );
     test.true( _.longIs( src.a ) );
     test.true( _.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a', '/a/0', '/a/1' ];
-    if( !env.withPartible )
+    if( !env.withCountable )
     exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, typed buffer`;
+    test.case = `withCountable:${env.withCountable}, typed buffer`;
     var src =
     {
       a : new F32x([ 0, 10 ]),
     }
-    test.true( _.partibleIs( src.a ) );
+    test.true( _.countableIs( src.a ) );
     test.true( _.vectorIs( src.a ) );
     test.true( _.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a', '/a/0', '/a/1' ];
-    if( !env.withPartible || env.withPartible === 'array' )
+    if( !env.withCountable || env.withCountable === 'array' )
     exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, vector`;
+    test.case = `withCountable:${env.withCountable}, vector`;
     var src =
     {
       a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
     }
-    test.true( _.partibleIs( src.a ) );
+    test.true( _.countableIs( src.a ) );
     test.true( _.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
-    if( env.withPartible === 'partible' || env.withPartible === 'vector' || env.withPartible === true || env.withPartible === 1 )
+    if( env.withCountable === 'countable' || env.withCountable === 'vector' || env.withCountable === true || env.withCountable === 1 )
     exp = [ '/', '/a', '/a/0', '/a/1' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, partible`;
+    test.case = `withCountable:${env.withCountable}, countable`;
     var src =
     {
       a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
     }
-    test.true( _.partibleIs( src.a ) );
+    test.true( _.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
-    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
+    if( env.withCountable === 'countable' || env.withCountable === true || env.withCountable === 1 )
     exp = [ '/', '/a', '/a/0', '/a/1' ];
     test.identical( gotUpPaths, exp );
 
     /* */
 
-    test.case = `withPartible:${env.withPartible}, partible made`;
+    test.case = `withCountable:${env.withCountable}, countable made`;
     var src =
     {
       a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1 }),
     }
-    test.true( _.partibleIs( src.a ) );
+    test.true( _.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
     clean();
-    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withPartible : env.withPartible });
+    var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
-    if( env.withPartible === 'partible' || env.withPartible === true || env.withPartible === 1 )
+    if( env.withCountable === 'countable' || env.withCountable === true || env.withCountable === 1 )
     exp = [ '/', '/a', '/a/0', '/a/1' ];
     test.identical( gotUpPaths, exp );
 
@@ -2195,7 +2193,7 @@ function optionWithImplicitBasic( test )
 
     test.case = `withImplicit:${env.withImplicit}, str`;
     var src = 'anc';
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
@@ -2215,7 +2213,7 @@ function optionWithImplicitBasic( test )
     prototype.p = 0;
     var src = Object.create( prototype );
     src.a = 1;
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
@@ -2248,7 +2246,7 @@ function optionWithImplicitBasic( test )
     prototype.a = 0;
     var src = Object.create( prototype );
     src.a = 1;
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
@@ -2283,7 +2281,7 @@ function optionWithImplicitBasic( test )
     prototype2.a = 1;
     var src = Object.create( prototype2 );
     src.a = 2;
-    test.true( !_.partibleIs( src.a ) );
+    test.true( !_.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
     test.true( !_.longIs( src.a ) );
     test.true( !_.arrayIs( src.a ) );
@@ -3786,21 +3784,22 @@ function optionFastCycled( test )
 
 function performance( test )
 {
-  debugger;
-
   var counter = 0;
+  var nruns = 10;
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
   var time = _.time.now();
 
-  _.look( src, ( e, k, it ) => counter += 1 ? undefined : undefined );
-
-  console.log( _.timeSpent( time ) );
-
-  test.gt( counter, 1000 );
+  debugger;
+  for( let i = 0 ; i < nruns ; i++ )
+  _.look( src, ( e, k, it ) => ( counter += 1, undefined ) );
+  console.log( _.time.spent( time ) );
+  test.identical( counter, 309516 * nruns );
+  debugger;
 }
 
 performance.experimental = 1;
-performance.timeOut = 60000;
+performance.rapidity = -1;
+performance.timeOut = 1e6;
 
 // --
 // declare
@@ -3827,7 +3826,7 @@ let Self =
     //
 
     look,
-    lookWithPartibleVector,
+    lookWithCountableVector,
     lookRecursive,
     lookContainerType,
     lookWithIterator,
@@ -3836,7 +3835,7 @@ let Self =
     callbacksComplex,
     relook,
 
-    optionWithPartible,
+    optionWithCountable,
     optionWithImplicitBasic,
     optionWithImplicitGenerated,
     optionRevisiting,

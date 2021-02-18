@@ -74,7 +74,7 @@ Defaults.onPathJoin = onPathJoin;
 Defaults.fast = 0;
 Defaults.recursive = Infinity;
 Defaults.revisiting = 0;
-Defaults.withPartible = 'array';
+Defaults.withCountable = 'array';
 Defaults.withImplicit = 'auxiliary';
 Defaults.upToken = '/';
 Defaults.defaultUpToken = null;
@@ -185,7 +185,7 @@ Iterator.continue = true;
 Iterator.key = null;
 Iterator.error = null;
 Iterator.visitedContainer = null;
-Iterator.isPartible = null;
+Iterator.isCountable = null;
 Iterator.hasImplicit = null;
 
 _.mapSupplement( Iterator, Defaults );
@@ -307,7 +307,7 @@ function iteratorMake( o )
   Object.preventExtensions( iterator );
 
   iterator.iterator = iterator;
-  iterator.isPartible = _.looker.withPartibleToIsElementalFunctionMap[ o.withPartible ];
+  iterator.isCountable = _.looker.withCountableToIsElementalFunctionMap[ o.withCountable ];
   iterator.hasImplicit = _.looker.withImplicitToHasImplicitFunctionMap[ o.withImplicit ];
 
   if( iterator.revisiting < 2 )
@@ -995,9 +995,9 @@ function iterableEval()
     it.iterable = _.looker.containerNameToIdMap.custom;
     it.containerType = containerType;
   }
-  else if( it.isPartible( it.srcEffective ) )
+  else if( it.isCountable( it.srcEffective ) )
   {
-    it.iterable = _.looker.containerNameToIdMap.partible;
+    it.iterable = _.looker.containerNameToIdMap.countable;
   }
   else if( _.auxiliary.is( it.srcEffective ) )
   {
@@ -1016,7 +1016,6 @@ function iterableEval()
     it.iterable = 0;
   }
 
-  debugger;
   _.assert( it.iterable >= 0 );
 }
 
@@ -1052,12 +1051,12 @@ function revisitedEval( src )
 }
 
 // --
-// is partible
+// is countable
 // --
 
-function _isPartible( src )
+function _isCountable( src )
 {
-  return _.partibleIs( src );
+  return _.countableIs( src );
 }
 
 //
@@ -1184,12 +1183,12 @@ function look_head( routine, args )
 
   o.Looker = o.Looker || routine.defaults.Looker;
 
-  if( _.boolLike( o.withPartible ) )
+  if( _.boolLike( o.withCountable ) )
   {
-    if( o.withPartible )
-    o.withPartible = 'partible';
+    if( o.withCountable )
+    o.withCountable = 'countable';
     else
-    o.withPartible = '';
+    o.withCountable = '';
   }
   if( _.boolLike( o.withImplicit ) )
   {
@@ -1219,8 +1218,8 @@ function look_head( routine, args )
   _.assert( 0 <= o.revisiting && o.revisiting <= 2 );
   _.assert
   (
-    _.longHas( [ 'partible', 'vector', 'long', 'array', '' ], o.withPartible ),
-    'Unexpected value of option::withPartible'
+    _.longHas( [ 'countable', 'vector', 'long', 'array', '' ], o.withCountable ),
+    'Unexpected value of option::withCountable'
   );
   _.assert
   (
@@ -1338,7 +1337,7 @@ let ErrorLooking = _.error.error_functor( 'ErrorLooking' );
 let containerNameToIdMap =
 {
   'terminal' : 0,
-  'partible' : 1,
+  'countable' : 1,
   'auxiliary' : 2,
   'hashMap' : 3,
   'set' : 4,
@@ -1349,7 +1348,7 @@ let containerNameToIdMap =
 let containerIdToNameMap =
 {
   0 : 'terminal',
-  1 : 'partible',
+  1 : 'countable',
   2 : 'auxiliary',
   3 : 'hashMap',
   4 : 'set',
@@ -1366,9 +1365,9 @@ let containerIdToAscendMap =
   5 : _customAscend,
 }
 
-let withPartibleToIsElementalFunctionMap =
+let withCountableToIsElementalFunctionMap =
 {
-  'partible' : _isPartible,
+  'countable' : _isCountable,
   'vector' : _isVector,
   'long' : _isLong,
   'array' : _isArray,
@@ -1391,7 +1390,7 @@ let LookerExtension =
   containerNameToIdMap,
   containerIdToNameMap,
   containerIdToAscendMap,
-  withPartibleToIsElementalFunctionMap,
+  withCountableToIsElementalFunctionMap,
   withImplicitToHasImplicitFunctionMap,
 
   look : lookAll,

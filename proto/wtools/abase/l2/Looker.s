@@ -443,8 +443,10 @@ function _iterationMakeAct()
   newIt[ k ] = it[ k ];
 
   if( it.iterationPreserve )
-  for( let k in it.iterationPreserve )
-  newIt[ k ] = it[ k ];
+  {
+    for( let k in it.iterationPreserve )
+    newIt[ k ] = it[ k ];
+  }
 
   if( it.iterator !== it )
   newIt.down = it;

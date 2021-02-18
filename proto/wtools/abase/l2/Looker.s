@@ -221,6 +221,7 @@ Iteration.index = null;
 Iteration.containerType = null;
 Iteration.src = null;
 Iteration.srcEffective = null; /* xxx : replace by another mechanism with srcOriginal */
+Iteration.srcOriginal = null; /* xxx : replace by another mechanism with srcOriginal */
 Iteration.continue = true;
 Iteration.ascending = true;
 Iteration.ascendAct = null;
@@ -344,6 +345,7 @@ function iteratorMake( o )
 
   /* important assert, otherwise copying options from iteration could cause problem */
   _.assert( iterator.it === undefined );
+  // _.assert( iterator.it === null );
   if( !iterator.fast )
   {
     _.assert( _.numberIs( iterator.level ) );

@@ -3782,10 +3782,36 @@ function optionFastCycled( test )
 
 //
 
-function performance( test )
+function performance1( test )
 {
   var counter = 0;
-  var nruns = 10;
+  var nruns = 10000;
+  var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 1 }).result;
+  var time = _.time.now();
+
+  debugger;
+  for( let i = 0 ; i < nruns ; i++ )
+  _.look( src, ( e, k, it ) => ( counter += 1, undefined ) );
+  console.log( _.time.spent( time ) );
+  test.identical( counter, 10680000 * nruns );
+  debugger;
+
+  /*
+  nruns:1000 time:
+  nruns:10000 time:184s
+  */
+}
+
+performance1.experimental = 1;
+performance1.rapidity = -1;
+performance1.timeOut = 1e6;
+
+//
+
+function performance2( test )
+{
+  var counter = 0;
+  var nruns = 5;
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
   var time = _.time.now();
 
@@ -3795,11 +3821,16 @@ function performance( test )
   console.log( _.time.spent( time ) );
   test.identical( counter, 309516 * nruns );
   debugger;
+
+  /*
+  nruns:5 time:
+  nruns:10 time:
+  */
 }
 
-performance.experimental = 1;
-performance.rapidity = -1;
-performance.timeOut = 1e6;
+performance2.experimental = 1;
+performance2.rapidity = -1;
+performance2.timeOut = 1e6;
 
 // --
 // declare
@@ -3848,7 +3879,8 @@ let Self =
     // optionFast,
     // optionFastCycled,
 
-    performance,
+    performance1,
+    performance2,
 
   }
 

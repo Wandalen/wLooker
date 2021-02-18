@@ -3798,8 +3798,8 @@ function performance1( test )
 
   /*
   nruns:1000 time:
-  nruns:10000 time:184s 146s 141s
-  nruns:10000 noretype time:170.5s 159.2s
+  nruns:10000 time:146s 141s
+  nruns:10000 noretype time:
   */
 }
 

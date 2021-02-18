@@ -75,7 +75,7 @@ Defaults.fast = 0;
 Defaults.recursive = Infinity;
 Defaults.revisiting = 0;
 Defaults.withPartible = 'array';
-Defaults.withImplicit = 'map.like';
+Defaults.withImplicit = 'auxiliary';
 Defaults.upToken = '/';
 Defaults.defaultUpToken = null;
 Defaults.path = null;
@@ -293,18 +293,16 @@ function iteratorMake( o )
   let iterator = Object.create( o.Looker );
   Object.assign( iterator, this.Iterator );
   Object.assign( iterator, o ); /* xxx : try to retype o */
+  if( o.iteratorExtension )
+  Object.assign( iterator, o.iteratorExtension );
+  delete iterator.it;
 
   // let iterator = o;
   // Object.setPrototypeOf( iterator, iterator.Looker );
   // _.mapSupplement( iterator, this.Iterator );
-  // // Object.assign( iterator, o ); /* xxx : try to retype o */
-
-  if( o.iteratorExtension )
-  Object.assign( iterator, o.iteratorExtension );
-
-  // if( iterator.it !== undefined )
-  // debugger;
-  delete iterator.it;
+  // if( o.iteratorExtension )
+  // Object.assign( iterator, o.iteratorExtension );
+  // iterator.it = null;
 
   Object.preventExtensions( iterator );
 
@@ -991,22 +989,19 @@ function iterableEval()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  _.debugger;
   let containerType = _.container.typeOf( it.srcEffective );
   if( containerType )
   {
     it.iterable = _.looker.containerNameToIdMap.custom;
     it.containerType = containerType;
   }
-  // else if( _.arrayLike( it.srcEffective ) )
-  // else if( _.iterableIs_( it.srcEffective ) )
   else if( it.isPartible( it.srcEffective ) )
   {
-    it.iterable = _.looker.containerNameToIdMap.long;
+    it.iterable = _.looker.containerNameToIdMap.partible;
   }
   else if( _.auxiliary.is( it.srcEffective ) )
   {
-    it.iterable = _.looker.containerNameToIdMap.map;
+    it.iterable = _.looker.containerNameToIdMap.auxiliary;
   }
   else if( _.hashMapLike( it.srcEffective ) )
   {
@@ -1021,6 +1016,7 @@ function iterableEval()
     it.iterable = 0;
   }
 
+  debugger;
   _.assert( it.iterable >= 0 );
 }
 
@@ -1184,7 +1180,7 @@ function look_head( routine, args )
   {
     o = { src : args[ 0 ], onUp : args[ 1 ], onDown : args[ 2 ] };
   }
-  else _.assert( 0, 'look expects single options map, 2 or 3 arguments' );
+  else _.assert( 0, 'look expects single options-map, 2 or 3 arguments' );
 
   o.Looker = o.Looker || routine.defaults.Looker;
 
@@ -1198,7 +1194,7 @@ function look_head( routine, args )
   if( _.boolLike( o.withImplicit ) )
   {
     if( o.withImplicit )
-    o.withImplicit = 'map.like';
+    o.withImplicit = 'auxiliary';
     else
     o.withImplicit = '';
   }
@@ -1228,7 +1224,7 @@ function look_head( routine, args )
   );
   _.assert
   (
-    _.longHas( [ 'map.like', '' ], o.withImplicit ),
+    _.longHas( [ 'auxiliary', '' ], o.withImplicit ),
     'Unexpected value of option::withImplicit'
   );
 
@@ -1342,8 +1338,8 @@ let ErrorLooking = _.error.error_functor( 'ErrorLooking' );
 let containerNameToIdMap =
 {
   'terminal' : 0,
-  'long' : 1,
-  'map' : 2,
+  'partible' : 1,
+  'auxiliary' : 2,
   'hashMap' : 3,
   'set' : 4,
   'custom' : 5,
@@ -1353,8 +1349,8 @@ let containerNameToIdMap =
 let containerIdToNameMap =
 {
   0 : 'terminal',
-  1 : 'long', /* xxx : rename to partible */
-  2 : 'map',
+  1 : 'partible',
+  2 : 'auxiliary',
   3 : 'hashMap',
   4 : 'set',
   5 : 'custom',
@@ -1382,7 +1378,7 @@ let withPartibleToIsElementalFunctionMap =
 let withImplicitToHasImplicitFunctionMap =
 {
   'constructible.like' : _isConstructibleLike,
-  'map.like' : _isMapLike,
+  'auxiliary' : _isMapLike,
   '' : _false,
 }
 

@@ -2182,7 +2182,7 @@ function optionWithImplicitBasic( test )
 
   eachCase({ withImplicit : 1 });
   eachCase({ withImplicit : true });
-  eachCase({ withImplicit : 'map.like' });
+  eachCase({ withImplicit : 'auxiliary' });
   eachCase({ withImplicit : 0 });
   eachCase({ withImplicit : false });
   eachCase({ withImplicit : '' });
@@ -2780,16 +2780,11 @@ function optionOnSrcChanged( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        // it.iterable = 'Obj';
-        it.iterable = _.looker.containerNameToIdMap.map;
+        it.iterable = _.looker.containerNameToIdMap.auxiliary;
         it.ascendAct = function objAscend( src )
         {
           return this._elementalAscend( src.elements );
         }
-        // it.ascendAct = function objAscend( onIteration, src )
-        // {
-        //   return this._elementalAscend( onIteration, src.elements );
-        // }
       }
     }
   }
@@ -3787,6 +3782,19 @@ function optionFastCycled( test )
 
 }
 
+//
+
+function performance( test )
+{
+  debugger;
+
+  var src = _.diagnosticStructureGenerate().structure;
+
+}
+
+performance.experimental = 1;
+performance.timeOut = 60000;
+
 // --
 // declare
 // --
@@ -3833,6 +3841,8 @@ let Self =
     optionFastPerformance,
     // optionFast,
     // optionFastCycled,
+
+    performance,
 
   }
 

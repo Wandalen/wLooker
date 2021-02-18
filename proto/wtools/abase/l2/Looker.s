@@ -291,19 +291,19 @@ function iteratorMake( o )
 
   /* */
 
-  // let iterator = Object.create( o.Looker );
-  // Object.assign( iterator, this.Iterator );
-  // Object.assign( iterator, o ); /* xxx : try to retype o */
-  // if( o.iteratorExtension )
-  // Object.assign( iterator, o.iteratorExtension );
-  // delete iterator.it;
-
-  let iterator = o;
-  Object.setPrototypeOf( iterator, iterator.Looker );
-  _.mapSupplement( iterator, this.Iterator );
+  let iterator = Object.create( o.Looker );
+  Object.assign( iterator, this.Iterator );
+  Object.assign( iterator, o ); /* xxx : try to retype o */
   if( o.iteratorExtension )
   Object.assign( iterator, o.iteratorExtension );
-  iterator.it = null;
+  delete iterator.it;
+
+  // let iterator = o;
+  // Object.setPrototypeOf( iterator, iterator.Looker );
+  // _.mapSupplement( iterator, this.Iterator );
+  // if( o.iteratorExtension )
+  // Object.assign( iterator, o.iteratorExtension );
+  // iterator.it = null;
 
   Object.preventExtensions( iterator );
 
@@ -344,8 +344,8 @@ function iteratorMake( o )
   }
 
   /* important assert, otherwise copying options from iteration could cause problem */
-  // _.assert( iterator.it === undefined );
-  _.assert( iterator.it === null );
+  _.assert( iterator.it === undefined );
+  // _.assert( iterator.it === null );
   if( !iterator.fast )
   {
     _.assert( _.numberIs( iterator.level ) );

@@ -572,7 +572,7 @@ function visitUp()
 
   _.assert( _.routineIs( it.onUp ) );
   let r = it.onUp.call( it, it.src, it.key, it );
-  _.assert( r === undefined );
+  _.assert( r === undefined, 'Callback should not return something' );
 
   if( it.continue === _.dont )
   it.continue = false;

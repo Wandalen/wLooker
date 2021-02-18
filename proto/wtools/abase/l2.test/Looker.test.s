@@ -3788,8 +3788,15 @@ function performance( test )
 {
   debugger;
 
-  var src = _.diagnosticStructureGenerate().structure;
+  var counter = 0;
+  var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
+  var time = _.time.now();
 
+  _.look( src, ( e, k, it ) => counter += 1 ? undefined : undefined );
+
+  console.log( _.timeSpent( time ) );
+
+  test.gt( counter, 1000 );
 }
 
 performance.experimental = 1;

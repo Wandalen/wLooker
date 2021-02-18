@@ -3793,13 +3793,13 @@ function performance1( test )
   for( let i = 0 ; i < nruns ; i++ )
   _.look( src, ( e, k, it ) => ( counter += 1, undefined ) );
   console.log( _.time.spent( time ) );
-  test.identical( counter, 10680000 * nruns );
+  test.identical( counter, 1068 * nruns );
   debugger;
 
   /*
   nruns:1000 time:
-  nruns:10000 time:184s
-  nruns:10000 noretype time:170.5s 
+  nruns:10000 time:184s 146s 141s
+  nruns:10000 noretype time:170.5s 159.2s
   */
 }
 

@@ -3791,7 +3791,7 @@ function performance1( test )
 
   debugger;
   for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { counter += 1 } /* ( counter += 1, undefined ) */ );
+  _.look( src, ( e, k, it ) => { counter += 1; return undefined } /* ( counter += 1, undefined ) */ );
   console.log( _.time.spent( time ) );
   test.identical( counter, 1068 * nruns );
   debugger;
@@ -3818,7 +3818,7 @@ function performance2( test )
 
   debugger;
   for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { counter += 1 } /* ( counter += 1, undefined ) */ );
+  _.look( src, ( e, k, it ) => { counter += 1; return undefined } /* ( counter += 1, undefined ) */ );
   console.log( _.time.spent( time ) );
   test.identical( counter, 309516 * nruns );
   debugger;

@@ -130,12 +130,15 @@ function look( test )
   var it = _.look( src, handleUp1, handleDown1 );
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationIs( it ) );
-  test.true( _.looker.iteratorIs( Object.getPrototypeOf( it ) ) );
-  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
-  test.true( Object.getPrototypeOf( it ) === it.iterator );
+  test.true( _.Looker.iterationProper( it ) );
+  // test.true( _.Looker.iteratorProper( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
+  test.true( _.Looker.iteratorProper( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
+  test.true( _.looker.iterationIs( it ) );
+  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
+  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) === null );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) === it.Looker );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ === it.iterator );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -189,12 +192,13 @@ function lookWithCountableVector( test )
   var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : 'vector' });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationIs( it ) );
-  test.true( _.looker.iteratorIs( Object.getPrototypeOf( it ) ) );
-  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
-  test.true( Object.getPrototypeOf( it ) === it.iterator );
+  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.iterationIs( it ) );
+  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
+  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) === null );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) === it.Looker );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ === it.iterator );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -256,7 +260,8 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -283,7 +288,8 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -310,7 +316,8 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -337,7 +344,8 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationIs( it ) );
+  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -345,6 +353,8 @@ function lookRecursive( test )
   test.identical( gotDownPaths, expectedDownPaths );
 
   test.close( 'recursive : Infinity' );
+
+  /* */
 
   function handleUp1( e, k, it )
   {
@@ -360,167 +370,167 @@ function lookRecursive( test )
 
 //
 
-function lookContainerType( test )
-{
-  var gotUpPaths = [];
-  var gotDownPaths = [];
-
-  try
-  {
-
-    let type = Object.create( null );
-    type.name = 'ContainerForTest';
-    type._while = _while;
-    type._elementGet = _elementGet;
-    type._elementSet = _elementSet;
-    type._is = _is;
-
-    _.container.typeDeclare( type );
-
-    /* */
-
-    test.description = 'basic';
-    clean();
-    var expectedUpPaths = [ '/', '/0', '/1', '/2' ];
-    var expectedDownPaths = [ '/0', '/1', '/2', '/' ];
-    var src1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
-    var it = _.look
-    ({
-      src : src1,
-      onUp : handleUp1,
-      onDown : handleDown1,
-      recursive : Infinity,
-    });
-    test.description = 'paths on up';
-    test.identical( gotUpPaths, expectedUpPaths );
-    test.description = 'paths on down';
-    test.identical( gotDownPaths, expectedDownPaths );
-
-    /* */
-
-    test.description = '2 levels';
-    clean();
-    var expectedUpPaths = [ '/', '/a', '/a/0', '/a/1', '/a/2', '/b' ];
-    var expectedDownPaths = [ '/a/0', '/a/1', '/a/2', '/a', '/b', '/' ];
-    var a = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
-    var src2 = { a, b : 'bb' }
-    var it = _.look
-    ({
-      src : src2,
-      onUp : handleUp1,
-      onDown : handleDown1,
-      recursive : Infinity,
-    });
-    test.description = 'paths on up';
-    test.identical( gotUpPaths, expectedUpPaths );
-    test.description = 'paths on down';
-    test.identical( gotDownPaths, expectedDownPaths );
-
-    /* */
-
-    test.description = 'object';
-    clean();
-    var expectedUpPaths = [ '/', '/0', '/1', '/2' ];
-    var expectedDownPaths = [ '/0', '/1', '/2', '/' ];
-    var a1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
-    var a2 = new objectMake();
-    _.mapExtend( a2, a1 );
-    var it = _.look
-    ({
-      src : a2,
-      onUp : handleUp1,
-      onDown : handleDown1,
-      recursive : Infinity,
-    });
-    test.description = 'paths on up';
-    test.identical( gotUpPaths, expectedUpPaths );
-    test.description = 'paths on down';
-    test.identical( gotDownPaths, expectedDownPaths );
-
-    /* */
-
-    _.container.typeUndeclare( 'ContainerForTest' );
-
-    /* */
-
-    test.description = 'undeclared type';
-    clean();
-    var expectedUpPaths = [ '/', '/eSet', '/eGet', '/elements', '/elements/0', '/elements/1', '/elements/2', '/field1' ];
-    var expectedDownPaths = [ '/eSet', '/eGet', '/elements/0', '/elements/1', '/elements/2', '/elements', '/field1', '/' ];
-    var src1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
-    var it = _.look
-    ({
-      src : src1,
-      onUp : handleUp1,
-      onDown : handleDown1,
-      recursive : Infinity,
-    });
-    test.description = 'paths on up';
-    test.identical( gotUpPaths, expectedUpPaths );
-    test.description = 'paths on down';
-    test.identical( gotDownPaths, expectedDownPaths );
-
-    /* */
-
-  }
-  catch( err )
-  {
-    _.container.typeUndeclare( 'ContainerForTest' );
-    throw err;
-  }
-
-  function handleUp1( e, k, it )
-  {
-    gotUpPaths.push( it.path );
-  }
-
-  function handleDown1( e, k, it )
-  {
-    gotDownPaths.push( it.path );
-  }
-
-  function objectMake()
-  {
-  }
-
-  function clean()
-  {
-    gotUpPaths = [];
-    gotDownPaths = [];
-  }
-
-  function _is( src )
-  {
-    return !!src.eGet;
-  }
-
-  function _elementSet( container, key, val )
-  {
-    return container.eSet( key, val );
-  }
-
-  function _elementGet( container, key )
-  {
-    return container.eGet( key );
-  }
-
-  function _while( container, onEach )
-  {
-    for( let k = 0 ; k < container.elements.length ; k++ )
-    onEach( container.elements[ k ], k, container );
-  }
-
-  function eSet( k, v )
-  {
-    this.elements[ k ] = v;
-  }
-
-  function eGet( k )
-  {
-    return this.elements[ k ];
-  }
-
-}
+// function lookContainerType( test )
+// {
+//   var gotUpPaths = [];
+//   var gotDownPaths = [];
+//
+//   try
+//   {
+//
+//     let type = Object.create( null );
+//     type.name = 'ContainerForTest';
+//     type._while = _while;
+//     type._elementGet = _elementGet;
+//     type._elementSet = _elementSet;
+//     type._is = _is;
+//
+//     _.container.typeDeclare( type );
+//
+//     /* */
+//
+//     test.description = 'basic';
+//     clean();
+//     var expectedUpPaths = [ '/', '/0', '/1', '/2' ];
+//     var expectedDownPaths = [ '/0', '/1', '/2', '/' ];
+//     var src1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+//     var it = _.look
+//     ({
+//       src : src1,
+//       onUp : handleUp1,
+//       onDown : handleDown1,
+//       recursive : Infinity,
+//     });
+//     test.description = 'paths on up';
+//     test.identical( gotUpPaths, expectedUpPaths );
+//     test.description = 'paths on down';
+//     test.identical( gotDownPaths, expectedDownPaths );
+//
+//     /* */
+//
+//     test.description = '2 levels';
+//     clean();
+//     var expectedUpPaths = [ '/', '/a', '/a/0', '/a/1', '/a/2', '/b' ];
+//     var expectedDownPaths = [ '/a/0', '/a/1', '/a/2', '/a', '/b', '/' ];
+//     var a = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+//     var src2 = { a, b : 'bb' }
+//     var it = _.look
+//     ({
+//       src : src2,
+//       onUp : handleUp1,
+//       onDown : handleDown1,
+//       recursive : Infinity,
+//     });
+//     test.description = 'paths on up';
+//     test.identical( gotUpPaths, expectedUpPaths );
+//     test.description = 'paths on down';
+//     test.identical( gotDownPaths, expectedDownPaths );
+//
+//     /* */
+//
+//     test.description = 'object';
+//     clean();
+//     var expectedUpPaths = [ '/', '/0', '/1', '/2' ];
+//     var expectedDownPaths = [ '/0', '/1', '/2', '/' ];
+//     var a1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+//     var a2 = new objectMake();
+//     _.mapExtend( a2, a1 );
+//     var it = _.look
+//     ({
+//       src : a2,
+//       onUp : handleUp1,
+//       onDown : handleDown1,
+//       recursive : Infinity,
+//     });
+//     test.description = 'paths on up';
+//     test.identical( gotUpPaths, expectedUpPaths );
+//     test.description = 'paths on down';
+//     test.identical( gotDownPaths, expectedDownPaths );
+//
+//     /* */
+//
+//     _.container.typeUndeclare( 'ContainerForTest' );
+//
+//     /* */
+//
+//     test.description = 'undeclared type';
+//     clean();
+//     var expectedUpPaths = [ '/', '/eSet', '/eGet', '/elements', '/elements/0', '/elements/1', '/elements/2', '/field1' ];
+//     var expectedDownPaths = [ '/eSet', '/eGet', '/elements/0', '/elements/1', '/elements/2', '/elements', '/field1', '/' ];
+//     var src1 = { eSet, eGet, elements : [ 1, 2, 3 ], field1 : 1 };
+//     var it = _.look
+//     ({
+//       src : src1,
+//       onUp : handleUp1,
+//       onDown : handleDown1,
+//       recursive : Infinity,
+//     });
+//     test.description = 'paths on up';
+//     test.identical( gotUpPaths, expectedUpPaths );
+//     test.description = 'paths on down';
+//     test.identical( gotDownPaths, expectedDownPaths );
+//
+//     /* */
+//
+//   }
+//   catch( err )
+//   {
+//     _.container.typeUndeclare( 'ContainerForTest' );
+//     throw err;
+//   }
+//
+//   function handleUp1( e, k, it )
+//   {
+//     gotUpPaths.push( it.path );
+//   }
+//
+//   function handleDown1( e, k, it )
+//   {
+//     gotDownPaths.push( it.path );
+//   }
+//
+//   function objectMake()
+//   {
+//   }
+//
+//   function clean()
+//   {
+//     gotUpPaths = [];
+//     gotDownPaths = [];
+//   }
+//
+//   function _is( src )
+//   {
+//     return !!src.eGet;
+//   }
+//
+//   function _elementSet( container, key, val )
+//   {
+//     return container.eSet( key, val );
+//   }
+//
+//   function _elementGet( container, key )
+//   {
+//     return container.eGet( key );
+//   }
+//
+//   function _while( container, onEach )
+//   {
+//     for( let k = 0 ; k < container.elements.length ; k++ )
+//     onEach( container.elements[ k ], k, container );
+//   }
+//
+//   function eSet( k, v )
+//   {
+//     this.elements[ k ] = v;
+//   }
+//
+//   function eGet( k )
+//   {
+//     return this.elements[ k ];
+//   }
+//
+// }
 
 //
 
@@ -1977,6 +1987,178 @@ function relook( test )
 
 //
 
+function makeCustomBasic( test )
+{
+  let its = [];
+  let cid = _.looker.containerNameToIdMap;
+
+  /* */
+
+  test.case = 'control';
+  clean();
+
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1 });
+  var exp = [ '/', '/0' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.countable, cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+
+  /* */
+
+  test.case = 'extending Looker, clonging';
+  clean();
+
+  var Looker2 = _.mapExtend( null, _.Looker );
+  Looker2.Looker = Looker2;
+  Looker2.iterableEval = iterableEval;
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var exp = [ '/' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+  its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
+
+  /* */
+
+  test.case = 'extending Looker, prototyping';
+  clean();
+
+  var Looker2 = Object.create( _.Looker );
+  Looker2.Looker = Looker2;
+  Looker2.iterableEval = iterableEval;
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var exp = [ '/' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+  its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
+
+  /* */
+
+  test.case = 'extending Looker, making';
+  clean();
+
+  var Looker2 = _.looker.make({ looker : { iterableEval } });
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var exp = [ '/' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+  its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
+
+  /* */
+
+  test.case = 'extending Iterator, cloning';
+  clean();
+
+  var Looker2 = _.mapExtend( null, _.Looker );
+  Looker2.Looker = Looker2;
+  var Iterator = Looker2.Iterator = _.mapExtend( null, Looker2.Iterator );
+  Iterator.iterableEval = iterableEval;
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var exp = [ '/' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+  its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
+
+  /* */
+
+  test.case = 'extending Iterator, prototyping';
+  clean();
+
+  var Looker2 = Object.create(_.Looker );
+  Looker2.Looker = Looker2;
+  var Iterator = Looker2.Iterator = Object.create( Looker2.Iterator );
+  Iterator.iterableEval = iterableEval;
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var exp = [ '/' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+  its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
+
+  /* */
+
+  test.case = 'extending Iterator, making';
+  clean();
+
+  var Looker2 = _.looker.make({ iterator : { iterableEval } })
+  var src = new _.Escape( 'abc' );
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var exp = [ '/' ];
+  test.identical( its.map( ( it ) => it.path ), exp );
+  var exp = [ cid.terminal ];
+  test.identical( its.map( ( it ) => it.iterable ), exp );
+  its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
+
+  /* */
+
+  function clean()
+  {
+    its = [];
+  }
+
+  function handleUp1( e, k, it )
+  {
+    its.push( _.mapExtend( null, it ) );
+  }
+
+  function iterableEval()
+  {
+    let it = this;
+    it.iterable = null;
+    if( _.aux.is( it.srcEffective ) )
+    {
+      it.iterable = _.looker.containerNameToIdMap.aux;
+    }
+    else
+    {
+      it.iterable = 0;
+    }
+  }
+
+
+}
+
+//
+
 function optionWithCountable( test )
 {
   let gotUpPaths = [];
@@ -2173,14 +2355,11 @@ function optionWithCountable( test )
 
 function optionWithImplicitBasic( test )
 {
-  let gotUpPaths = [];
-  let gotUpVals = [];
-  let gotUpIndinces = [];
-  let gotUpIsImplicit = [];
+  let its = [];
 
   eachCase({ withImplicit : 1 });
   eachCase({ withImplicit : true });
-  eachCase({ withImplicit : 'auxiliary' });
+  eachCase({ withImplicit : 'aux' });
   eachCase({ withImplicit : 0 });
   eachCase({ withImplicit : false });
   eachCase({ withImplicit : '' });
@@ -2200,11 +2379,13 @@ function optionWithImplicitBasic( test )
     clean();
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
     exp = [ '/' ];
-    test.identical( gotUpPaths, exp );
+    test.identical( its.map( ( it ) => it.path ), exp );
     exp = [ src ];
-    test.identical( gotUpVals, exp );
+    test.identical( its.map( ( it ) => it.src ), exp );
+    exp = [ null ];
+    test.identical( its.map( ( it ) => it.key ), exp );
     exp = [ false ];
-    test.identical( gotUpIsImplicit, exp );
+    test.identical( its.map( ( it ) => it.isImplicit() ), exp );
 
     /* */
 
@@ -2223,20 +2404,31 @@ function optionWithImplicitBasic( test )
     if( env.withImplicit )
     {
       exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
-      test.identical( gotUpPaths, exp );
+      test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
-      test.identical( gotUpVals, exp );
+      test.identical( its.map( ( it ) => it.src ), exp );
+      exp =
+      [
+        null,
+        'a',
+        'p',
+        new _.Escape( Symbol.for( 'prototype' ) ),
+        'p'
+      ];
+      test.identical( its.map( ( it ) => it.key ), exp );
       exp = [ false, false, false, true, false ];
-      test.identical( gotUpIsImplicit, exp );
+      test.identical( its.map( ( it ) => it.isImplicit() ), exp );
     }
     else
     {
       exp = [ '/', '/a', '/p' ];
-      test.identical( gotUpPaths, exp );
+      test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, 0 ];
-      test.identical( gotUpVals, exp );
+      test.identical( its.map( ( it ) => it.src ), exp );
+      exp = [ null, 'a', 'p' ];
+      test.identical( its.map( ( it ) => it.key ), exp );
       exp = [ false, false, false ];
-      test.identical( gotUpIsImplicit, exp );
+      test.identical( its.map( ( it ) => it.isImplicit() ), exp );
     }
 
     /* */
@@ -2256,20 +2448,30 @@ function optionWithImplicitBasic( test )
     if( env.withImplicit )
     {
       exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
-      test.identical( gotUpPaths, exp );
+      test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
-      test.identical( gotUpVals, exp );
+      test.identical( its.map( ( it ) => it.src ), exp );
+      exp =
+      [
+        null,
+        'a',
+        new _.Escape( Symbol.for( 'prototype' ) ),
+        'a'
+      ];
+      test.identical( its.map( ( it ) => it.key ), exp );
       exp = [ false, false, true, false ];
-      test.identical( gotUpIsImplicit, exp );
+      test.identical( its.map( ( it ) => it.isImplicit() ), exp );
     }
     else
     {
       exp = [ '/', '/a' ];
-      test.identical( gotUpPaths, exp );
+      test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1 ];
-      test.identical( gotUpVals, exp );
+      test.identical( its.map( ( it ) => it.src ), exp );
+      exp = [ null, 'a' ];
+      test.identical( its.map( ( it ) => it.key ), exp );
       exp = [ false, false ];
-      test.identical( gotUpIsImplicit, exp );
+      test.identical( its.map( ( it ) => it.isImplicit() ), exp );
     }
 
     /* */
@@ -2299,20 +2501,32 @@ function optionWithImplicitBasic( test )
         '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )',
         '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )/a'
       ]
-      test.identical( gotUpPaths, exp );
+      test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 2, _.prototype.each( src )[ 1 ], 1, _.prototype.each( src )[ 2 ], 0 ];
-      test.identical( gotUpVals, exp );
+      test.identical( its.map( ( it ) => it.src ), exp );
+      exp =
+      [
+        null,
+        'a',
+        new _.Escape( Symbol.for( 'prototype' ) ),
+        'a',
+        new _.Escape( Symbol.for( 'prototype' ) ),
+        'a',
+      ];
+      test.identical( its.map( ( it ) => it.key ), exp );
       exp = [ false, false, true, false, true, false ];
-      test.identical( gotUpIsImplicit, exp );
+      test.identical( its.map( ( it ) => it.isImplicit() ), exp );
     }
     else
     {
       exp = [ '/', '/a' ];
-      test.identical( gotUpPaths, exp );
+      test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 2 ];
-      test.identical( gotUpVals, exp );
+      test.identical( its.map( ( it ) => it.src ), exp );
+      exp = [ null, 'a' ];
+      test.identical( its.map( ( it ) => it.key ), exp );
       exp = [ false, false ];
-      test.identical( gotUpIsImplicit, exp );
+      test.identical( its.map( ( it ) => it.isImplicit() ), exp ); /* qqq : use such mapping as standard for the test suite */
     }
 
     /* */
@@ -2323,20 +2537,14 @@ function optionWithImplicitBasic( test )
 
   function clean()
   {
-    gotUpPaths = [];
-    gotUpVals = [];
-    gotUpIndinces = [];
-    gotUpIsImplicit = [];
+    its = [];
   }
 
   /* */
 
   function handleUp1( e, k, it )
   {
-    gotUpPaths.push( it.path );
-    gotUpVals.push( it.src );
-    gotUpIndinces.push( it.index );
-    gotUpIsImplicit.push( it.isImplicit );
+    its.push( _.mapExtend( null, it ) );
   }
 
   /* */
@@ -2778,7 +2986,7 @@ function optionOnSrcChanged( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = _.looker.containerNameToIdMap.auxiliary;
+        it.iterable = _.looker.containerNameToIdMap.aux;
         it.ascendAct = function objAscend( src )
         {
           return this._elementalAscend( src.elements );
@@ -3782,7 +3990,41 @@ function optionFastCycled( test )
 
 //
 
-function performance1( test )
+function performance1( test ) /* xxx : write similar test for other lookers */
+{
+  var counter = 0;
+  var nruns = 10;
+  var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
+  var time = _.time.now();
+
+  debugger;
+  // Config.debug = false;
+  for( let i = 0 ; i < nruns ; i++ )
+  _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
+  console.log( _.time.spent( time ) );
+  test.identical( counter, 309516 * nruns );
+  debugger;
+
+  /*
+
+  = old
+  nruns:3 time:13s
+  nruns:5 time:20s
+  nruns:10 time:43s
+
+  = after optimization1
+  nruns:10 time:11s
+
+  */
+}
+
+performance1.experimental = 1;
+performance1.rapidity = -1;
+performance1.timeOut = 1e6;
+
+//
+
+function performance2( test )
 {
   var counter = 0;
   var nruns = 1000;
@@ -3799,32 +4041,6 @@ function performance1( test )
   /*
   nruns:1000 time:14.5s
   nruns:10000 time:145s
-  */
-}
-
-performance1.experimental = 1;
-performance1.rapidity = -1;
-performance1.timeOut = 1e6;
-
-//
-
-function performance2( test )
-{
-  var counter = 0;
-  var nruns = 5;
-  var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
-  var time = _.time.now();
-
-  debugger;
-  for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
-  console.log( _.time.spent( time ) );
-  test.identical( counter, 309516 * nruns );
-  debugger;
-
-  /*
-  nruns:5 time:20s
-  nruns:10 time:43s
   */
 }
 
@@ -3859,12 +4075,13 @@ let Self =
     look,
     lookWithCountableVector,
     lookRecursive,
-    lookContainerType,
+    // lookContainerType,
     lookWithIterator,
 
     fieldPaths,
     callbacksComplex,
     relook,
+    makeCustomBasic,
 
     optionWithCountable,
     optionWithImplicitBasic,
@@ -3879,8 +4096,8 @@ let Self =
     // optionFast,
     // optionFastCycled,
 
-    performance1,
     performance2,
+    performance1,
 
   }
 

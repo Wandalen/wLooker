@@ -131,8 +131,8 @@ function look( test )
 
   test.case = 'iteration';
   test.true( _.Looker.iterationIs( it ) );
-  test.true( _.lookIteratorIs( Object.getPrototypeOf( it ) ) );
-  test.true( _.lookerIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+  test.true( _.looker.iteratorIs( Object.getPrototypeOf( it ) ) );
+  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
   test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
   test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
   test.true( Object.getPrototypeOf( it ) === it.iterator );
@@ -190,8 +190,8 @@ function lookWithCountableVector( test )
 
   test.case = 'iteration';
   test.true( _.Looker.iterationIs( it ) );
-  test.true( _.lookIteratorIs( Object.getPrototypeOf( it ) ) );
-  test.true( _.lookerIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+  test.true( _.looker.iteratorIs( Object.getPrototypeOf( it ) ) );
+  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
   test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === null );
   test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.Looker );
   test.true( Object.getPrototypeOf( it ) === it.iterator );
@@ -3785,21 +3785,20 @@ function optionFastCycled( test )
 function performance1( test )
 {
   var counter = 0;
-  var nruns = 10000;
+  var nruns = 1000;
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 1 }).result;
   var time = _.time.now();
 
   debugger;
   for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { counter += 1; return undefined } /* ( counter += 1, undefined ) */ );
+  _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
   console.log( _.time.spent( time ) );
   test.identical( counter, 1068 * nruns );
   debugger;
 
   /*
-  nruns:1000 time:
-  nruns:10000 time:146s 141s
-  nruns:10000 noretype time: 143s
+  nruns:1000 time:14.5s
+  nruns:10000 time:145s
   */
 }
 
@@ -3818,14 +3817,14 @@ function performance2( test )
 
   debugger;
   for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { counter += 1; return undefined } /* ( counter += 1, undefined ) */ );
+  _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
   console.log( _.time.spent( time ) );
   test.identical( counter, 309516 * nruns );
   debugger;
 
   /*
-  nruns:5 time:
-  nruns:10 time:
+  nruns:5 time:20s
+  nruns:10 time:43s
   */
 }
 

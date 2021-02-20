@@ -293,7 +293,7 @@ function iteratorMake( o )
 
   let iterator = Object.create( o.Looker );
   Object.assign( iterator, this.Iterator );
-  Object.assign( iterator, o ); /* xxx : try to retype o */
+  Object.assign( iterator, o ); /* xxx yyy : try to retype o */
   if( o.iteratorExtension )
   Object.assign( iterator, o.iteratorExtension );
   delete iterator.it;
@@ -303,7 +303,7 @@ function iteratorMake( o )
   // _.mapSupplement( iterator, this.Iterator );
   // if( o.iteratorExtension )
   // Object.assign( iterator, o.iteratorExtension );
-  // iterator.it = null;
+  // delete iterator.it;
 
   Object.preventExtensions( iterator );
 
@@ -345,7 +345,6 @@ function iteratorMake( o )
 
   /* important assert, otherwise copying options from iteration could cause problem */
   _.assert( iterator.it === undefined );
-  // _.assert( iterator.it === null );
   if( !iterator.fast )
   {
     _.assert( _.numberIs( iterator.level ) );
@@ -1234,15 +1233,18 @@ function look_head( routine, args )
 
   if( o.it === null || o.it === undefined )
   {
+    _.assert( _.mapIs( o ) );
     let iterator = o.Looker.iteratorMake( o );
-    o.it = iterator.iterationMake();
+    // let it = iterator.iterationMake();
+    // return it;
+    o.it = iterator.iterationMake(); /* yyy */
     return o.it;
   }
   else
   {
-
+    _.assert( _.mapIs( o ) );
+    _.assert( _.looker.iterationIs( o.it ) );
     o.it.iterator.iteratorCopy( o );
-
   }
 
   return o.it;
@@ -1279,11 +1281,11 @@ defaults.recursive = Infinity;
 //
 
 /**
- * @function lookerIs
+ * @function is
  * @namespace Tools.looker
  */
 
-function lookerIs( looker )
+function is( looker )
 {
   if( !looker )
   return false;
@@ -1295,11 +1297,11 @@ function lookerIs( looker )
 //
 
 /**
- * @function lookIteratorIs
+ * @function iteratorIs
  * @namespace Tools.looker
  */
 
-function lookIteratorIs( it )
+function iteratorIs( it )
 {
   if( !it )
   return false;
@@ -1313,11 +1315,11 @@ function lookIteratorIs( it )
 //
 
 /**
- * @function lookIterationIs
+ * @function iterationIs
  * @namespace Tools.looker
  */
 
-function lookIterationIs( it )
+function iterationIs( it )
 {
   if( !it )
   return false;
@@ -1398,9 +1400,9 @@ let LookerExtension =
   look : lookAll,
   lookAll,
 
-  lookerIs,
-  lookIteratorIs,
-  lookIterationIs,
+  is,
+  iteratorIs,
+  iterationIs,
 
 }
 
@@ -1413,9 +1415,9 @@ let ToolsExtension =
   look : lookAll,
   lookAll,
 
-  lookerIs,
-  lookIteratorIs,
-  lookIterationIs,
+  // lookerIs : is,
+  // lookIteratorIs : iteratorIs,
+  // lookIterationIs : iterationIs,
 
 }
 

@@ -625,7 +625,7 @@ function choose( e, k )
   if( k2 === null )
   k2 = e;
   if( !_.strIs( k2 ) )
-  k2 = _.strEntityShort( k2 );
+  k2 = _.entity.exportStringShortFine( k2 );
   let hasUp = _.strIs( k2 ) && _.strHasAny( k2, it.upToken );
   if( hasUp )
   k2 = '"' + k2 + '"';
@@ -740,7 +740,7 @@ function visitUp()
 
   // if( it.continue === _.dont ) /* yyy : remove */
   // it.continue = false;
-  _.assert( _.boolIs( it.continue ), () => 'Expects boolean it.continue, but got ' + _.strType( it.continue ) );
+  _.assert( _.boolIs( it.continue ), () => 'Expects boolean it.continue, but got ' + _.entity.strType( it.continue ) );
 
   it.visitUpEnd()
 

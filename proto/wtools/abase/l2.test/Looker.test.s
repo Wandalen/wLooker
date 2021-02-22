@@ -3168,11 +3168,11 @@ function optionOnPathJoin( test )
 
     if( _.strEnds( selectorPath, upToken ) )
     {
-      result = selectorPath + _.strType( it.src ) + '::' + selectorName;
+      result = selectorPath + _.entity.strType( it.src ) + '::' + selectorName;
     }
     else
     {
-      result = selectorPath + defaultUpToken + _.strType( it.src ) + '::' + selectorName;
+      result = selectorPath + defaultUpToken + _.entity.strType( it.src ) + '::' + selectorName;
     }
 
     return result;

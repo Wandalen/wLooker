@@ -2667,7 +2667,7 @@ function optionWithImplicitGenerated( test )
 
   function toStr( src )
   {
-    return _globals_.testing.wTools.toStrSolo( src );
+    return _globals_.testing.wTools.entity.exportStringSolo( src );
   }
 
   /* */

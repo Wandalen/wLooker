@@ -625,7 +625,7 @@ function choose( e, k )
   if( k2 === null )
   k2 = e;
   if( !_.strIs( k2 ) )
-  k2 = _.entity.exportStringShortFine( k2 );
+  k2 = _.entity.exportStringShort( k2 );
   let hasUp = _.strIs( k2 ) && _.strHasAny( k2, it.upToken );
   if( hasUp )
   k2 = '"' + k2 + '"';

@@ -2989,7 +2989,7 @@ function optionOnSrcChanged( test )
         it.iterable = _.looker.containerNameToIdMap.aux;
         it.ascendAct = function objAscend( src )
         {
-          return this._elementalAscend( src.elements );
+          return this._countableAscend( src.elements );
         }
       }
     }
@@ -3047,11 +3047,11 @@ function optionOnUpNonContainer( test )
         it.iterable = 'Obj';
         it.ascendAct = function objAscend( src )
         {
-          return this._elementalAscend( src.elements );
+          return this._countableAscend( src.elements );
         }
         // it.ascendAct = function objAscend( onIteration, src )
         // {
-        //   return this._elementalAscend( onIteration, src.elements );
+        //   return this._countableAscend( onIteration, src.elements );
         // }
       }
     }
@@ -3275,7 +3275,7 @@ function optionAscend( test )
     let it = this;
     test.true( arguments.length === 0 );
     if( it.src === 'name1' )
-    it._elementalAscend( [ 'r1', 'r2', 'r3' ] );
+    it._countableAscend( [ 'r1', 'r2', 'r3' ] );
     else
     it.ascendAct( it.src );
   }

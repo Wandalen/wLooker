@@ -142,7 +142,7 @@ Looker.canSibling = canSibling;
 Looker.ascend = ascend;
 
 Looker._termianlAscend = _termianlAscend;
-Looker._elementalAscend = _elementalAscend;
+Looker._countableAscend = _countableAscend;
 Looker._mapAscend = _mapAscend;
 Looker._hashMapAscend = _hashMapAscend;
 Looker._setAscend = _setAscend;
@@ -984,7 +984,7 @@ function _termianlAscend( src )
 
 //
 
-function _elementalAscend( src )
+function _countableAscend( src )
 {
   let it = this;
 
@@ -1435,6 +1435,7 @@ function make( o )
     [ o.name ] : function(){},
   }
   _.assert( CustomLooker[ o.name ].name === o.name );
+  if( !o.looker || !o.looker.constructor || o.looker.constructor === Object )
   looker.constructor = CustomLooker[ o.name ];
   if( o.looker )
   _.mapExtend( looker, o.looker );
@@ -1451,7 +1452,7 @@ function make( o )
   if( o.iterationPreserve )
   {
     _.mapExtend( iterationPreserve, o.iterationPreserve );
-    _.mapExtend( iteration, o.iterationPreserve );
+    _.mapExtend( iteration, o.iterationPreserve ); /* xxx */
   }
 
   return looker;
@@ -1499,7 +1500,7 @@ let containerIdToNameMap =
 let containerIdToAscendMap =
 {
   0 : _termianlAscend,
-  1 : _elementalAscend,
+  1 : _countableAscend,
   2 : _mapAscend,
   3 : _hashMapAscend,
   4 : _setAscend,

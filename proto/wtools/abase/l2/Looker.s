@@ -109,6 +109,7 @@ Looker.Iterator = null;
 Looker.Iteration = null;
 Looker.IterationPreserve = null;
 
+Looker.head = head;
 Looker.optionsFromArguments = optionsFromArguments;
 Looker.optionsForm = optionsForm;
 Looker.optionsToIteration = optionsToIteration;
@@ -260,6 +261,19 @@ Object.freeze( IterationPreserve );
 // --
 // options
 // --
+
+function head( routine, args )
+{
+  _.assert( arguments.length === 2 );
+  let o = Self.optionsFromArguments( args );
+  o.Looker = o.Looker || routine.defaults.Looker || Self;
+  _.routineOptionsPreservingUndefines( routine, o );
+  o.Looker.optionsForm( routine, o );
+  let it = o.Looker.optionsToIteration( o );
+  return it;
+}
+
+//
 
 function optionsFromArguments( args )
 {
@@ -1325,13 +1339,13 @@ function onPathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
 
 function look_head( routine, args )
 {
-
-  let o = Self.optionsFromArguments( args );
-  o.Looker = o.Looker || routine.defaults.Looker || Self;
-  _.routineOptionsPreservingUndefines( routine, o );
-  o.Looker.optionsForm( routine, o );
-  let it = o.Looker.optionsToIteration( o );
-  return it;
+  return Self.head( routine, args );
+  // let o = Self.optionsFromArguments( args );
+  // o.Looker = o.Looker || routine.defaults.Looker || Self;
+  // _.routineOptionsPreservingUndefines( routine, o );
+  // o.Looker.optionsForm( routine, o );
+  // let it = o.Looker.optionsToIteration( o );
+  // return it;
 }
 
 //

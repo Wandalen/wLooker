@@ -131,14 +131,13 @@ function look( test )
 
   test.case = 'iteration';
   test.true( _.Looker.iterationProper( it ) );
-  // test.true( _.Looker.iteratorProper( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
-  test.true( _.Looker.iteratorProper( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
+  test.true( _.Looker.iteratorProper( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
   test.true( _.looker.iterationIs( it ) );
-  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
-  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) === null );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) === it.Looker );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ === it.iterator );
+  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) === null );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === it.Looker );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.iterator );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -194,11 +193,11 @@ function lookWithCountableVector( test )
   test.case = 'iteration';
   test.true( _.Looker.iterationProper( it ) );
   test.true( _.looker.iterationIs( it ) );
-  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) );
-  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) ) === null );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ ) === it.Looker );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) )/* yyy2 */ === it.iterator );
+  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) === null );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === it.Looker );
+  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.iterator );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );

@@ -271,10 +271,12 @@ function iteratorMake( o )
 
   /* yyy */
   iterator.iterationPrototype = Object.create( iterator );
-  Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration );
+  Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration ); /* xxx : optimize */
   // if( iterator.iterator.iterationExtension ) /* yyy : remove */
   // Object.assign( iterator.iterationPrototype, iterator.iterator.iterationExtension );
   // Object.freeze( iterator.iterator.iterationExtension );
+  // Object.freeze( iterator.iterationPrototype );
+  Object.preventExtensions( iterator.iterationPrototype );
 
   if( iterator.fast )
   {
@@ -380,6 +382,7 @@ function _iterationMakeAct()
   // _.assert( _.objectIs( it.Looker ) );
   // _.assert( it.looker === undefined );
   // _.assert( _.numberIs( it.level ) && it.level >= 0 );
+  // _.assert( !!it.iterationPrototype );
 
   let newIt = Object.create( it.iterationPrototype );
 

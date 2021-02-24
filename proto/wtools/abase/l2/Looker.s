@@ -57,9 +57,6 @@ _.assert( !!_realGlobal_ );
  * @property {*} context = null
  * @property {Object} Looker = null
  * @property {Object} it = null
- * @property {Boolean} iterationPreserve = null
- * @property {*} iterationExtension = null
- * @property {*} iteratorExtension = null
  * @namespace Tools.looker
  */
 
@@ -84,10 +81,9 @@ Defaults.src = null;
 Defaults.root = null;
 Defaults.context = null;
 Defaults.Looker = null;
-// Defaults.it = null;
-Defaults.iterationPreserve = null; /* yyy2 */
-Defaults.iterationExtension = null;
-Defaults.iteratorExtension = null;
+// Defaults.iterationPreserve = null; /* xxx */
+// Defaults.iterationExtension = null;
+// Defaults.iteratorExtension = null;
 
 //
 
@@ -147,7 +143,6 @@ Looker._countableAscend = _countableAscend;
 Looker._mapAscend = _mapAscend;
 Looker._hashMapAscend = _hashMapAscend;
 Looker._setAscend = _setAscend;
-// Looker._customAscend = _customAscend;
 
 Looker.srcChanged = srcChanged;
 Looker.effectiveEval = effectiveEval;
@@ -226,7 +221,6 @@ Iteration.level = 0;
 Iteration.path = '/';
 Iteration.key = null;
 Iteration.index = null;
-// Iteration.containerType = null; /* yyy : remove */
 Iteration.src = null;
 Iteration.srcEffective = null; /* xxx : replace by another mechanism with originalSrc */
 Iteration.originalSrc = null;
@@ -310,11 +304,11 @@ function optionsForm( routine, o )
 
   o.Looker = o.Looker || routine.defaults.Looker;
 
-  // yyy2
-  if( o.iterationPreserve )
-  o.iterationExtension = _.mapSupplement( o.iterationExtension, o.iterationPreserve );
-  if( o.iterationPreserve )
-  o.iteratorExtension = _.mapSupplement( o.iteratorExtension, o.iterationPreserve );
+  // xxx yyy2
+  // if( o.iterationPreserve )
+  // o.iterationExtension = _.mapSupplement( o.iterationExtension, o.iterationPreserve );
+  // if( o.iterationPreserve )
+  // o.iteratorExtension = _.mapSupplement( o.iteratorExtension, o.iterationPreserve );
 
   if( _.boolLike( o.withCountable ) )
   {
@@ -411,15 +405,7 @@ function iteratorMake( o )
 
   /* */
 
-  // let iterator = Object.create( o.Looker );
-  // Object.assign( iterator, this.Iterator );
-  // Object.assign( iterator, o ); /* yyy : try to retype o */
-  // if( o.iteratorExtension )
-  // Object.assign( iterator, o.iteratorExtension );
-  // delete iterator.it;
-
   let iterator = o;
-  // Object.setPrototypeOf( iterator, iterator.Looker );
   _.mapSupplement( iterator, this.Iterator );
   _.mapSupplement( iterator, this.Iteration ); /* yyy */
   Object.setPrototypeOf( iterator, iterator.Looker );
@@ -453,9 +439,9 @@ function iteratorMake( o )
   /* yyy */
   iterator.iterationPrototype = Object.create( iterator );
   Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration );
-  if( iterator.iterator.iterationExtension ) /* xxx : remove */
-  Object.assign( iterator.iterationPrototype, iterator.iterator.iterationExtension );
-  Object.freeze( iterator.iterator.iterationExtension );
+  // if( iterator.iterator.iterationExtension ) /* xxx : remove */
+  // Object.assign( iterator.iterationPrototype, iterator.iterator.iterationExtension );
+  // Object.freeze( iterator.iterator.iterationExtension );
 
   if( iterator.fast )
   {
@@ -562,16 +548,7 @@ function _iterationMakeAct()
   // _.assert( it.looker === undefined );
   // _.assert( _.numberIs( it.level ) && it.level >= 0 );
 
-  // let newIt = Object.create( it.iterator );
-  // Object.assign( newIt, it.Looker.Iteration );
-  // if( it.iterator.iterationExtension )
-  // Object.assign( newIt, it.iterator.iterationExtension ); /* yyy : remove */
-  // Object.preventExtensions( newIt );
-
   let newIt = Object.create( it.iterationPrototype );
-  // Object.preventExtensions( newIt );
-
-  // _.assert( newIt.isImplicit === false );
 
   if( it.Looker === Self ) /* zzz : achieve such optimization automatically */
   {
@@ -586,10 +563,10 @@ function _iterationMakeAct()
     newIt[ k ] = it[ k ];
   }
 
-  /* yyy2 */
-  if( it.iterationPreserve ) /* xxx : remove */
-  for( let k in it.iterationPreserve )
-  newIt[ k ] = it[ k ];
+  // /* yyy2 */
+  // if( it.iterationPreserve ) /* xxx : remove */
+  // for( let k in it.iterationPreserve )
+  // newIt[ k ] = it[ k ];
 
   if( it.iterator !== it )
   newIt.down = it;
@@ -614,11 +591,6 @@ function choose( e, k )
 
   if( e === undefined )
   {
-    // if( it.down )
-    // e = _.container.elementGet( it.srcEffective, k, it.down.containerType || false );
-    // else
-    // e = _.container.elementGet( it.srcEffective, k );
-    // yyy
     e = _.container.elementGet( it.srcEffective, k );
   }
 
@@ -659,12 +631,9 @@ function chooseRoot( e )
   let it = this;
 
   _.assert( arguments.length === 1, 'Expects two argument' );
-  // _.assert( it.down === null );
-  // _.assert( it.fast || it.level === 0 );
 
   it.src = e;
   it.originalSrc = e;
-  // it.level = 0;
 
   return it;
 }
@@ -688,8 +657,6 @@ function relook( src )
   _.assert( arguments.length === 1 );
   _.assert( it.iterationProper( it ) );
   it.chooseRoot( src );
-  // it.src = src;
-  // it.originalSrc = src;
   it.iterable = null;
   return it.look();
 }
@@ -908,9 +875,6 @@ function canVisit()
   if( !it.recursive && it.down )
   return false;
 
-  // if( !it.withStem && it.root === it.src )
-  // return false;
-
   return true;
 }
 
@@ -1055,7 +1019,6 @@ function _mapAscend( src )
     for( var [ k, e ] of props )
     {
       let eit = it.iterationMake().choose( e, k );
-      // eit.isImplicit = true;
       eit.look();
       canSibling = it.canSibling();
       if( !canSibling )
@@ -1105,26 +1068,6 @@ function _setAscend( src )
 
 //
 
-// function _customAscend( src )
-// {
-//   let it = this;
-//   // let containerType = it.containerType;
-//
-//   _.assert( arguments.length === 1 );
-//
-//   containerType._while( src, ( e, k ) =>
-//   {
-//     let eit = it.iterationMake().choose( e, k );
-//     eit.look();
-//     if( !it.canSibling() )
-//     return;
-//     return true;
-//   });
-//
-// }
-
-//
-
 function srcChanged()
 {
   let it = this;
@@ -1163,15 +1106,6 @@ function iterableEval()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  _.debugger;
-
-  // let containerType = _.container.typeOf( it.srcEffective ); /* yyy : remove? */
-  // if( containerType )
-  // {
-  //   it.iterable = _.looker.containerNameToIdMap.custom;
-  //   it.containerType = containerType;
-  // }
-  // else
   if( it.isCountable( it.srcEffective ) )
   {
     it.iterable = _.looker.containerNameToIdMap.countable;
@@ -1340,12 +1274,6 @@ function onPathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
 function look_head( routine, args )
 {
   return Self.head( routine, args );
-  // let o = Self.optionsFromArguments( args );
-  // o.Looker = o.Looker || routine.defaults.Looker || Self;
-  // _.routineOptionsPreservingUndefines( routine, o );
-  // o.Looker.optionsForm( routine, o );
-  // let it = o.Looker.optionsToIteration( o );
-  // return it;
 }
 
 //
@@ -1495,10 +1423,8 @@ let containerNameToIdMap =
   'aux' : 2,
   'hashMap' : 3,
   'set' : 4,
-  /* xxx : introduce instance */
+  /* xxx : introduce instance? */
   'last' : 4,
-  // 'custom' : 5,
-  // 'last' : 5,
 }
 
 let containerIdToNameMap =
@@ -1508,7 +1434,6 @@ let containerIdToNameMap =
   2 : 'aux',
   3 : 'hashMap',
   4 : 'set',
-  // 5 : 'custom',
 }
 
 let containerIdToAscendMap =
@@ -1518,7 +1443,6 @@ let containerIdToAscendMap =
   2 : _mapAscend,
   3 : _hashMapAscend,
   4 : _setAscend,
-  // 5 : _customAscend,
 }
 
 let withCountableToIsElementalFunctionMap =
@@ -1567,10 +1491,6 @@ let ToolsExtension =
 
   look : lookAll,
   lookAll,
-
-  // lookerIs : is,
-  // lookIteratorIs : iteratorIs,
-  // lookIterationIs : iterationIs,
 
 }
 

@@ -161,6 +161,7 @@ function optionsForm( routine, o )
   if( _.boolIs( o.recursive ) )
   o.recursive = o.recursive ? Infinity : 1;
 
+  _.assert( _.aux.is( o ) );
   _.assert( _.objectIs( o.Looker ), 'Expects options {o.Looker}' );
   _.assert( o.Looker.Looker === o.Looker );
   _.assert( o.looker === undefined );
@@ -487,23 +488,24 @@ function isImplicit()
 // visit
 // --
 
-function relook( src )
+function reperform( src )
 {
   let it = this;
   _.assert( arguments.length === 1 );
   _.assert( it.iterationProper( it ) );
   it.chooseRoot( src );
   it.iterable = null;
-  return it.look();
+  return it.iterate();
 }
 
 //
 
-function start()
+function perform()
 {
   let it = this;
+  _.assert( it.iterationProper( it ) );
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  return it.look();
+  return it.iterate();
 }
 
 //
@@ -513,7 +515,7 @@ function start()
  * @namespace Tools.looker
  */
 
-function look()
+function iterate()
 {
   let it = this;
 
@@ -808,7 +810,7 @@ function _countableAscend( src )
     for( let e of src )
     {
       let eit = it.iterationMake().choose( e, k );
-      eit.look();
+      eit.iterate();
       if( !it.canSibling() )
       break;
       k += 1;
@@ -820,7 +822,7 @@ function _countableAscend( src )
     {
       let e = src[ k ];
       let eit = it.iterationMake().choose( e, k );
-      eit.look();
+      eit.iterate();
       if( !it.canSibling() )
       break;
     }
@@ -841,7 +843,7 @@ function _mapAscend( src )
   {
     let e = src[ k ];
     let eit = it.iterationMake().choose( e, k );
-    eit.look();
+    eit.iterate();
     canSibling = it.canSibling();
     if( !canSibling )
     break;
@@ -855,7 +857,7 @@ function _mapAscend( src )
     for( var [ k, e ] of props )
     {
       let eit = it.iterationMake().choose( e, k );
-      eit.look();
+      eit.iterate();
       canSibling = it.canSibling();
       if( !canSibling )
       break;
@@ -876,7 +878,7 @@ function _hashMapAscend( src )
   for( var [ k, e ] of src )
   {
     let eit = it.iterationMake().choose( e, k );
-    eit.look();
+    eit.iterate();
     if( !it.canSibling() )
     break;
   }
@@ -895,7 +897,7 @@ function _setAscend( src )
   {
     let k = e;
     let eit = it.iterationMake().choose( e, k );
-    eit.look();
+    eit.iterate();
     if( !it.canSibling() )
     break;
   }
@@ -1121,7 +1123,7 @@ function look_body( it )
   _.assert( _.prototype.isPrototypeFor( it.Looker, it ) );
   _.assert( it.looker === undefined );
 
-  it.start();
+  it.perform();
 
   return it;
 }
@@ -1196,32 +1198,36 @@ function iterationIs( it )
 
 //
 
-function make( o )
+function define( o )
 {
 
-  _.routineOptions( make, o );
+  _.routineOptions( define, o );
 
   if( o.parent === null )
   o.parent = _.Looker;
   if( o.name === null )
   o.name = 'CustomLooker'
 
-  let looker = Object.create( o.parent );
+  let looker = Object.create( o.parent ); /* xxx : try to use extend instead */
   looker.Looker = looker;
-  let CustomLooker =
-  {
-    [ o.name ] : function(){},
-  }
-  _.assert( CustomLooker[ o.name ].name === o.name );
+
   if( !o.looker || !o.looker.constructor || o.looker.constructor === Object )
-  looker.constructor = CustomLooker[ o.name ];
+  {
+    looker.constructor =
+    ({
+      [ o.name ] : function(){},
+    })[ o.name ];
+    _.assert( looker.constructor.name === o.name );
+    // looker.constructor = CustomLooker[ o.name ];
+    // _.assert( CustomLooker[ o.name ].name === o.name );
+  }
   if( o.looker )
   _.mapExtend( looker, o.looker );
 
+  if( o.defaultsSubtraction )
+  o.defaults = o.defaults || Object.create( null );
   if( o.defaults )
-  {
-    looker.makeAndLook = makeAndLook_functor( looker.makeAndLook, o.defaults );
-  }
+  looker.performMaking = performMaking_functor( looker.performMaking, o.defaults, o.defaultsSubtraction );
 
   let iterator = looker.Iterator = Object.assign( Object.create( null ), looker.Iterator );
   if( o.iterator )
@@ -1240,25 +1246,29 @@ function make( o )
 
   return looker;
 
-  function makeAndLook_functor( original, defaults )
+  function performMaking_functor( original, defaults, defaultsSubtraction )
   {
     _.assert( _.routineIs( original ) );
     _.assert( _.routineIs( original.head ) );
     _.assert( _.routineIs( original.body ) );
     _.assert( _.aux.is( original.defaults ) );
-    /* xxx : routineUnite should add group? */
-    let makeAndLook = _.routineUnite( original.head, original.body );
-    makeAndLook.defaults = { ... original.defaults, ... defaults };
-    return makeAndLook;
+    let performMaking = _.routineUnite( original.head, original.body );
+    performMaking.defaults = { ... original.defaults, ... defaults };
+    // if( defaultsSubtraction )
+    // debugger;
+    if( defaultsSubtraction )
+    _.mapBut_( performMaking.defaults, performMaking.defaults, defaultsSubtraction );
+    return performMaking;
   }
 }
 
-make.defaults =
+define.defaults =
 {
   name : null,
   parent : null,
-  looker : null,
   defaults : null,
+  defaultsSubtraction : null,
+  looker : null,
   iterator : null,
   iteration : null,
   iterationPreserve : null,
@@ -1286,7 +1296,7 @@ Looker.Iterator = null;
 Looker.Iteration = null;
 Looker.IterationPreserve = null;
 
-Looker.makeAndLook = lookAll;
+Looker.performMaking = lookAll;
 Looker.head = head;
 Looker.optionsFromArguments = optionsFromArguments;
 Looker.optionsForm = optionsForm;
@@ -1303,9 +1313,9 @@ Looker.choose = choose;
 Looker.chooseRoot = chooseRoot;
 Looker.isImplicit = isImplicit;
 
-Looker.relook = relook;
-Looker.start = start;
-Looker.look = look; /* xxx : rename? */
+Looker.reperform = reperform;
+Looker.perform = perform;
+Looker.iterate = iterate;
 Looker.visitUp = visitUp;
 Looker.visitUpBegin = visitUpBegin;
 Looker.visitUpEnd = visitUpEnd;
@@ -1340,7 +1350,7 @@ Looker.revisitedEval = revisitedEval;
  * @property {} _iterationMakeAct = _iterationMakeAct
  * @property {} iterationMake = iterationMake
  * @property {} choose = choose
- * @property {} look = look
+ * @property {} iterate = iterate
  * @property {} visitUp = visitUp
  * @property {} visitUpBegin = visitUpBegin
  * @property {} visitUpEnd = visitUpEnd
@@ -1447,7 +1457,6 @@ let containerNameToIdMap =
   'aux' : 2,
   'hashMap' : 3,
   'set' : 4,
-  /* xxx : introduce instance? */
   'last' : 4,
 }
 
@@ -1503,7 +1512,7 @@ let LookerExtension =
   is,
   iteratorIs,
   iterationIs,
-  make, /* qqq : cover please */
+  define, /* qqq : cover please */
 
 }
 

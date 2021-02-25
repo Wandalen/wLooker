@@ -26,7 +26,9 @@ node wtools/abase/l5.test/Selector.test.s && \
 node wtools/abase/l6.test/SelectorExtra.test.s && \
 node wtools/abase/l6.test/Equaler.test.s && \
 node wtools/abase/l6.test/Resolver.test.s && \
-node wtools/abase/l7.test/ResolverExtra.test.s
+node wtools/abase/l7.test/ResolverExtra.test.s && \
+local-tst wtools/amid/l3/introspector.test n:1 && \
+node wtools/atop/will.test/Int.test.s n:1 rapidity:-3
 */
 
 // --
@@ -1785,7 +1787,7 @@ function callbacksComplex( test )
 
 //
 
-function relook( test )
+function reperform( test )
 {
   let upsLevel = [];
   let upsSelector = [];
@@ -1951,7 +1953,7 @@ function relook( test )
     if( it.path === '/a/name' )
     if( !_.arrayIs( it.src ) )
     {
-      it.relook( [ 'r1', 'r2', 'r3' ] );
+      it.reperform( [ 'r1', 'r2', 'r3' ] );
     }
 
   }
@@ -1965,7 +1967,7 @@ function relook( test )
     if( it.path === '/a/name' )
     if( !_.arrayIs( it.src ) )
     {
-      it.relook( [ 'r1', 'r2', 'r3' ] );
+      it.reperform( [ 'r1', 'r2', 'r3' ] );
     }
 
   }
@@ -2050,7 +2052,7 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, making';
   clean();
 
-  var Looker2 = _.looker.make({ looker : { iterableEval } });
+  var Looker2 = _.looker.define({ looker : { iterableEval } });
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
@@ -2113,7 +2115,7 @@ function makeCustomBasic( test )
   test.case = 'extending Iterator, making';
   clean();
 
-  var Looker2 = _.looker.make({ iterator : { iterableEval } })
+  var Looker2 = _.looker.define({ iterator : { iterableEval } })
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
@@ -4079,7 +4081,7 @@ let Self =
 
     fieldPaths,
     callbacksComplex,
-    relook,
+    reperform,
     makeCustomBasic,
 
     optionWithCountable,

@@ -503,9 +503,36 @@ function reperform( src )
 function perform()
 {
   let it = this;
-  _.assert( it.iterationProper( it ) );
   _.assert( arguments.length === 0, 'Expects no arguments' );
-  return it.iterate();
+  it.performBegin();
+  it.iterate();
+  it.performEnd();
+  return it;
+}
+
+//
+
+function performBegin()
+{
+  let it = this;
+  // Parent.performBegin.apply( it, arguments );
+
+  _.assert( arguments.length === 0 );
+  _.assert( it.iterationProper( it ) );
+
+  return it;
+}
+
+//
+
+function performEnd()
+{
+  let it = this;
+
+  _.assert( it.iterationProper( it ) );
+
+  // Parent.performEnd.apply( it, arguments );
+  return it;
 }
 
 //
@@ -1315,6 +1342,8 @@ Looker.isImplicit = isImplicit;
 
 Looker.reperform = reperform;
 Looker.perform = perform;
+Looker.performBegin = performBegin;
+Looker.performEnd = performEnd;
 Looker.iterate = iterate;
 Looker.visitUp = visitUp;
 Looker.visitUpBegin = visitUpBegin;

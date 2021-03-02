@@ -16,7 +16,7 @@
 
 /**
  * Collection of light-weight routines to traverse complex data structure.
- * @namespace Tools.looker
+ * @class Tools.Looker
  * @module Tools/base/Looker
  */
 
@@ -57,7 +57,7 @@ _.assert( !!_realGlobal_ );
  * @property {*} context = null
  * @property {Object} Looker = null
  * @property {Object} it = null
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 let Defaults = Object.create( null );
@@ -67,7 +67,7 @@ Defaults.onDown = onDown;
 Defaults.onAscend = onAscend;
 Defaults.onTerminal = onTerminal;
 Defaults.onSrcChanged = onSrcChanged;
-Defaults.onPathJoin = onPathJoin;
+Defaults.pathJoin = pathJoin;
 Defaults.fast = 0;
 Defaults.recursive = Infinity;
 Defaults.revisiting = 0;
@@ -223,7 +223,7 @@ function iteratorProper( it )
  *
  * @param {Object} o - Options map
  * @function iteratorMake
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function iteratorMake( o )
@@ -267,13 +267,13 @@ function iteratorMake( o )
   if( iterator.root === null )
   iterator.root = iterator.src;
 
-  if( iterator.defaultUpToken === null && !iterator.fast )
+  if( iterator.defaultUpToken === null )
   iterator.defaultUpToken = _.strsShortest( iterator.upToken );
 
   /* yyy */
   iterator.iterationPrototype = Object.create( iterator );
   Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration ); /* xxx : optimize */
-  // if( iterator.iterator.iterationExtension ) /* yyy : remove */
+  // if( iterator.iterator.iterationExtension ) /* xxx : remove */
   // Object.assign( iterator.iterationPrototype, iterator.iterator.iterationExtension );
   // Object.freeze( iterator.iterator.iterationExtension );
   // Object.freeze( iterator.iterationPrototype );
@@ -285,7 +285,7 @@ function iteratorMake( o )
     delete iterator.level;
     delete iterator.path;
     delete iterator.lastPath;
-    delete iterator.lastSelected;
+    delete iterator.lastIt;
     delete iterator.upToken;
     delete iterator.defaultUpToken;
     delete iterator.context;
@@ -353,10 +353,10 @@ function iterationProper( it )
 
 /**
  * @function iterationMake
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
-function iterationMake()
+function iterationMake() /* xxx : merge with act */
 {
   let it = this;
   let newIt = it._iterationMakeAct();
@@ -370,7 +370,7 @@ function iterationMake()
 
 /**
  * @function _iterationMakeAct
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function _iterationMakeAct()
@@ -414,11 +414,63 @@ function _iterationMakeAct()
 //
 
 /**
+ * @function elementGet
+ * @class Tools.Looker
+ */
+
+function elementGet( src, k )
+{
+  let it = this;
+  let result;
+  _.assert( arguments.length === 2, 'Expects two argument' );
+  result = [ k, _.container.elementGet( src, k ) ];
+  return result;
+}
+
+//
+
+/**
  * @function choose
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function choose( e, k )
+{
+  let it = this;
+
+  [ e, k ] = it.chooseBegin( e, k );
+  _.assert( arguments.length === 2, 'Expects two argument' );
+
+  if( e === undefined )
+  {
+    // debugger;
+    [ k, e ] = it.elementGet( it.srcEffective, k );
+  }
+
+  it.chooseEnd( e, k );
+  return it;
+}
+
+//
+
+function chooseBegin( e, k )
+{
+  let it = this;
+
+  _.assert( _.objectIs( it.down ) );
+  _.assert( it.fast || it.level >= 0 );
+  _.assert( it.originalKey === null );
+
+  if( it.originalKey === null )
+  it.originalKey = k;
+  /* xxx : introduce originalKey2 for equaler */
+
+  return [ e, k ];
+}
+
+//
+
+function chooseEnd( e, k )
 {
   let it = this;
 
@@ -426,13 +478,8 @@ function choose( e, k )
   _.assert( _.objectIs( it.down ) );
   _.assert( it.fast || it.level >= 0 );
 
-  if( e === undefined )
-  {
-    e = _.container.elementGet( it.srcEffective, k );
-  }
-
   /*
-    assigning key / src should goes first
+    assigning key and src should goes first
   */
 
   it.key = k;
@@ -454,9 +501,9 @@ function choose( e, k )
   k2 = '"' + k2 + '"';
 
   it.index = it.down.childrenCounter;
-  it.path = it.onPathJoin( it.path, it.upToken, it.defaultUpToken, k2 );
+  it.path = it.pathJoin( it.path, /*it.upToken, it.defaultUpToken,*/ k2 );
   it.iterator.lastPath = it.path;
-  it.iterator.lastSelected = it;
+  it.iterator.lastIt = it;
 
   return it;
 }
@@ -539,7 +586,7 @@ function performEnd()
 
 /**
  * @function look
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function iterate()
@@ -571,7 +618,7 @@ function iterate()
 
 /**
  * @function visitUp
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function visitUp()
@@ -596,7 +643,7 @@ function visitUp()
 
 /**
  * @function visitUpBegin
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function visitUpBegin()
@@ -620,7 +667,7 @@ function visitUpBegin()
 
 /**
  * @function visitUpEnd
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function visitUpEnd()
@@ -635,7 +682,7 @@ function visitUpEnd()
 
 /**
  * @function visitDown
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function visitDown()
@@ -661,7 +708,7 @@ function visitDown()
 
 /**
  * @function visitDownBegin
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function visitDownBegin()
@@ -680,7 +727,7 @@ function visitDownBegin()
 
 /**
  * @function visitDownEnd
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function visitDownEnd()
@@ -730,7 +777,7 @@ function visitPop()
 
 /**
  * @function canVisit
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function canVisit()
@@ -747,7 +794,7 @@ function canVisit()
 
 /**
  * @function canAscend
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function canAscend()
@@ -1108,26 +1155,31 @@ function onSrcChanged()
 
 //
 
-function onPathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
+// function pathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
+function pathJoin( selectorPath, selectorName )
 {
   let it = this;
   let result;
 
-  let selectorPath = arguments[ 0 ];
-  let upToken = arguments[ 1 ];
-  let defaultUpToken = arguments[ 2 ];
-  let selectorName = arguments[ 3 ];
+  // let selectorPath = arguments[ 0 ];
+  // let upToken = arguments[ 1 ];
+  // let defaultUpToken = arguments[ 2 ];
+  // let selectorName = arguments[ 3 ];
 
-  _.assert( arguments.length === 4 );
+  _.assert( arguments.length === 2 );
 
-  if( _.strEnds( selectorPath, upToken ) )
-  {
-    result = selectorPath + selectorName;
-  }
-  else
-  {
-    result = selectorPath + defaultUpToken + selectorName;
-  }
+  selectorPath = _.strRemoveEnd( selectorPath, it.upToken );
+
+  // if( _.strEnds( selectorPath, it.upToken ) )
+  // {
+  //   result = selectorPath + selectorName;
+  // }
+  // else
+  // {
+  //   result = selectorPath + it.defaultUpToken + selectorName;
+  // }
+
+  result = selectorPath + it.defaultUpToken + selectorName;
 
   return result;
 }
@@ -1161,7 +1213,7 @@ look_body.defaults = Object.create( Defaults );
 
 /**
  * @function look
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 let lookAll = _.routineUnite( look_head, look_body );
@@ -1173,7 +1225,7 @@ defaults.recursive = Infinity;
 
 /**
  * @function is
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function is( looker )
@@ -1189,7 +1241,7 @@ function is( looker )
 
 /**
  * @function iteratorIs
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function iteratorIs( it )
@@ -1207,7 +1259,7 @@ function iteratorIs( it )
 
 /**
  * @function iterationIs
- * @namespace Tools.looker
+ * @class Tools.Looker
  */
 
 function iterationIs( it )
@@ -1254,7 +1306,7 @@ function define( o )
   if( o.defaultsSubtraction )
   o.defaults = o.defaults || Object.create( null );
   if( o.defaults )
-  looker.performMaking = performMaking_functor( looker.performMaking, o.defaults, o.defaultsSubtraction );
+  looker.exec = exec_functor( looker.exec, o.defaults, o.defaultsSubtraction );
 
   let iterator = looker.Iterator = Object.assign( Object.create( null ), looker.Iterator );
   if( o.iterator )
@@ -1273,19 +1325,19 @@ function define( o )
 
   return looker;
 
-  function performMaking_functor( original, defaults, defaultsSubtraction )
+  function exec_functor( original, defaults, defaultsSubtraction )
   {
     _.assert( _.routineIs( original ) );
     _.assert( _.routineIs( original.head ) );
     _.assert( _.routineIs( original.body ) );
     _.assert( _.aux.is( original.defaults ) );
-    let performMaking = _.routineUnite( original.head, original.body );
-    performMaking.defaults = { ... original.defaults, ... defaults };
+    let exec = _.routineUnite( original.head, original.body );
+    exec.defaults = { ... original.defaults, ... defaults };
     // if( defaultsSubtraction )
     // debugger;
     if( defaultsSubtraction )
-    _.mapBut_( performMaking.defaults, performMaking.defaults, defaultsSubtraction );
-    return performMaking;
+    _.mapBut_( exec.defaults, exec.defaults, defaultsSubtraction );
+    return exec;
   }
 }
 
@@ -1312,7 +1364,7 @@ define.defaults =
  * @property {Object} Iteration
  * @property {Boolean} IterationPreserve
  * @property {} iterator
- * @namespace Tools.looker.Defaults
+ * @class Tools.Looker.Defaults
  */
 
 let Looker = Defaults.Looker = Object.create( null );
@@ -1323,7 +1375,7 @@ Looker.Iterator = null;
 Looker.Iteration = null;
 Looker.IterationPreserve = null;
 
-Looker.performMaking = lookAll;
+Looker.exec = lookAll;
 Looker.head = head;
 Looker.optionsFromArguments = optionsFromArguments;
 Looker.optionsForm = optionsForm;
@@ -1336,7 +1388,10 @@ Looker.iteratorCopy = iteratorCopy;
 Looker.iterationProper = iterationProper;
 Looker.iterationMake = iterationMake;
 Looker._iterationMakeAct = _iterationMakeAct;
+Looker.elementGet = elementGet;
 Looker.choose = choose;
+Looker.chooseBegin = chooseBegin;
+Looker.chooseEnd = chooseEnd;
 Looker.chooseRoot = chooseRoot;
 Looker.isImplicit = isImplicit;
 
@@ -1390,12 +1445,12 @@ Looker.revisitedEval = revisitedEval;
  * @property {} canAscend = canAscend
  * @property {} path = null
  * @property {} lastPath = null
- * @property {} lastSelected = null
+ * @property {} lastIt = null
  * @property {} continue = true
  * @property {} key = null
  * @property {} error = null
  * @property {} visitedContainer = null
- * @namespace Tools.looker.Defaults.Looker
+ * @class Tools.Looker.Defaults.Looker
  */
 
 let Iterator = Looker.Iterator = Object.create( null );
@@ -1404,7 +1459,7 @@ Iterator.iterator = null;
 Iterator.iterationPrototype = null;
 Iterator.path = null;
 Iterator.lastPath = null;
-Iterator.lastSelected = null;
+Iterator.lastIt = null;
 Iterator.continue = true;
 Iterator.key = null;
 Iterator.error = null;
@@ -1433,7 +1488,7 @@ Object.freeze( Iterator );
  * @property {} visiting = false
  * @property {} iterable = null
  * @property {} visitCounted = 1
- * @namespace Tools.looker.Defaults.Looker
+ * @class Tools.Looker.Defaults.Looker
  */
 
 let Iteration = Looker.Iteration = Object.create( null );
@@ -1441,6 +1496,7 @@ Iteration.childrenCounter = 0;
 Iteration.level = 0;
 Iteration.path = '/';
 Iteration.key = null;
+Iteration.originalKey = null;
 Iteration.index = null;
 Iteration.src = null;
 Iteration.srcEffective = null; /* xxx : replace by another mechanism with originalSrc */
@@ -1463,7 +1519,7 @@ Object.freeze( Iteration );
  * @property {} level = null
  * @property {} path = null
  * @property {} src = null
- * @namespace Tools.looker.Defaults.Looker
+ * @class Tools.Looker.Defaults.Looker
  */
 
 let IterationPreserve = Looker.IterationPreserve = Object.create( null );

@@ -3096,7 +3096,7 @@ function optionOnPathJoin( test )
     src : structure,
     onUp,
     onDown,
-    onPathJoin,
+    pathJoin,
   });
   var exp =
   [
@@ -3155,26 +3155,25 @@ function optionOnPathJoin( test )
     dws.push( it.path );
   }
 
-  function onPathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
+  function pathJoin( selectorPath, selectorName )
   {
     let it = this;
     let result;
 
-    let selectorPath = arguments[ 0 ];
-    let upToken = arguments[ 1 ];
-    let defaultUpToken = arguments[ 2 ];
-    let selectorName = arguments[ 3 ];
+    _.assert( arguments.length === 2 );
 
-    _.assert( arguments.length === 4 );
+    selectorPath = _.strRemoveEnd( selectorPath, it.upToken );
 
-    if( _.strEnds( selectorPath, upToken ) )
-    {
-      result = selectorPath + _.entity.strType( it.src ) + '::' + selectorName;
-    }
-    else
-    {
-      result = selectorPath + defaultUpToken + _.entity.strType( it.src ) + '::' + selectorName;
-    }
+    // if( _.strEnds( selectorPath, upToken ) )
+    // {
+    //   result = selectorPath + _.entity.strType( it.src ) + '::' + selectorName;
+    // }
+    // else
+    // {
+    //   result = selectorPath + defaultUpToken + _.entity.strType( it.src ) + '::' + selectorName;
+    // }
+
+    result = selectorPath + it.defaultUpToken + _.entity.strType( it.src ) + '::' + selectorName;
 
     return result;
   }

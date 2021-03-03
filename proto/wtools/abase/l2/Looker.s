@@ -62,6 +62,7 @@ _.assert( !!_realGlobal_ );
 
 let Defaults = Object.create( null );
 
+/* xxx : avoid writing each field into o-map */
 Defaults.onUp = onUp;
 Defaults.onDown = onDown;
 Defaults.onAscend = onAscend;
@@ -194,7 +195,7 @@ function optionsToIteration( o )
   _.assert( _.mapIs( o ) );
   let iterator = o.Looker.iteratorMake( o );
   let it = iterator.iterationMake();
-  it.chooseRoot( it.src );
+  // it.chooseRoot( it.src ); /* xxx : move to perform? */
   _.assert( it.Looker.iterationProper( it ) );
   return it;
 }
@@ -411,7 +412,62 @@ function _iterationMakeAct()
   return newIt;
 }
 
+// --
+// perform
+// --
+
+function reperform( src )
+{
+  let it = this;
+  _.assert( arguments.length === 1 );
+  _.assert( it.iterationProper( it ) );
+  it.chooseRoot( src );
+  it.iterable = null;
+  return it.iterate();
+}
+
 //
+
+function perform()
+{
+  let it = this;
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+  it.performBegin();
+  it.iterate();
+  it.performEnd();
+  return it;
+}
+
+//
+
+function performBegin()
+{
+  let it = this;
+  // Parent.performBegin.apply( it, arguments );
+
+  _.assert( arguments.length === 0 );
+  _.assert( it.iterationProper( it ) );
+
+  it.chooseRoot( it.src );
+
+  return it;
+}
+
+//
+
+function performEnd()
+{
+  let it = this;
+
+  _.assert( it.iterationProper( it ) );
+
+  // Parent.performEnd.apply( it, arguments );
+  return it;
+}
+
+// --
+// choose
+// --
 
 /**
  * @function elementGet
@@ -442,10 +498,7 @@ function choose( e, k )
   _.assert( arguments.length === 2, 'Expects two argument' );
 
   if( e === undefined )
-  {
-    // debugger;
-    [ k, e ] = it.elementGet( it.srcEffective, k );
-  }
+  [ k, e ] = it.elementGet( it.srcEffective, k );
 
   it.chooseEnd( e, k );
   return it;
@@ -514,7 +567,7 @@ function chooseRoot( e )
 {
   let it = this;
 
-  _.assert( arguments.length === 1, 'Expects two argument' );
+  _.assert( arguments.length === 1 );
 
   it.src = e;
   it.originalSrc = e;
@@ -532,57 +585,8 @@ function isImplicit()
 }
 
 // --
-// visit
+// iterate
 // --
-
-function reperform( src )
-{
-  let it = this;
-  _.assert( arguments.length === 1 );
-  _.assert( it.iterationProper( it ) );
-  it.chooseRoot( src );
-  it.iterable = null;
-  return it.iterate();
-}
-
-//
-
-function perform()
-{
-  let it = this;
-  _.assert( arguments.length === 0, 'Expects no arguments' );
-  it.performBegin();
-  it.iterate();
-  it.performEnd();
-  return it;
-}
-
-//
-
-function performBegin()
-{
-  let it = this;
-  // Parent.performBegin.apply( it, arguments );
-
-  _.assert( arguments.length === 0 );
-  _.assert( it.iterationProper( it ) );
-
-  return it;
-}
-
-//
-
-function performEnd()
-{
-  let it = this;
-
-  _.assert( it.iterationProper( it ) );
-
-  // Parent.performEnd.apply( it, arguments );
-  return it;
-}
-
-//
 
 /**
  * @function look
@@ -680,6 +684,12 @@ function visitUpEnd()
 
 //
 
+function onUp( e, k, it )
+{
+}
+
+//
+
 /**
  * @function visitDown
  * @class Tools.Looker
@@ -733,6 +743,12 @@ function visitDownBegin()
 function visitDownEnd()
 {
   let it = this;
+}
+
+//
+
+function onDown( e, k, it )
+{
 }
 
 //
@@ -860,7 +876,112 @@ function onAscend()
   return it.ascendAct( it.srcEffective );
 }
 
+// --
+// eval
+// --
+
+function srcChanged()
+{
+  let it = this;
+
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+
+  it.effectiveEval();
+
+  it.iterableEval();
+
+  if( it.onSrcChanged )
+  it.onSrcChanged();
+
+  it.ascendEval();
+
+  it.revisitedEval( it.src );
+
+}
+
 //
+
+function onSrcChanged()
+{
+}
+
+//
+
+function effectiveEval()
+{
+  let it = this;
+
+  it.srcEffective = it.src;
+
+}
+
+//
+
+function iterableEval()
+{
+  let it = this;
+  it.iterable = null;
+
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+
+  if( it.isCountable( it.srcEffective ) )
+  {
+    it.iterable = _.looker.containerNameToIdMap.countable;
+  }
+  else if( _.aux.is( it.srcEffective ) )
+  {
+    it.iterable = _.looker.containerNameToIdMap.aux;
+  }
+  else if( _.hashMapLike( it.srcEffective ) )
+  {
+    it.iterable = _.looker.containerNameToIdMap.hashMap;
+  }
+  else if( _.setLike( it.srcEffective ) )
+  {
+    it.iterable = _.looker.containerNameToIdMap.set;
+  }
+  else
+  {
+    it.iterable = 0;
+  }
+
+  _.assert( it.iterable >= 0 );
+}
+
+//
+
+function ascendEval()
+{
+  let it = this;
+
+  _.assert( arguments.length === 0, 'Expects no arguments' );
+
+  it.ascendAct = _.looker.containerIdToAscendMap[ it.iterable ];
+
+  _.assert( _.routineIs( it.ascendAct ) );
+
+}
+
+//
+
+function revisitedEval( src )
+{
+  let it = this;
+
+  _.assert( arguments.length === 1 );
+
+  if( it.iterator.visitedContainer )
+  if( it.iterable )
+  {
+    if( it.iterator.visitedContainer.has( src ) )
+    it.revisited = true;
+  }
+
+}
+
+// --
+// ascend
+// --
 
 function _termianlAscend( src )
 {
@@ -870,6 +991,14 @@ function _termianlAscend( src )
 
   it.onTerminal( src );
 
+}
+
+//
+
+function onTerminal()
+{
+  let it = this;
+  return it;
 }
 
 //
@@ -978,103 +1107,8 @@ function _setAscend( src )
 
 }
 
-//
-
-function srcChanged()
-{
-  let it = this;
-
-  _.assert( arguments.length === 0, 'Expects no arguments' );
-
-  it.effectiveEval();
-
-  it.iterableEval();
-
-  if( it.onSrcChanged )
-  it.onSrcChanged();
-
-  it.ascendEval();
-
-  it.revisitedEval( it.src );
-
-}
-
-//
-
-function effectiveEval()
-{
-  let it = this;
-
-  it.srcEffective = it.src;
-
-}
-
-//
-
-function iterableEval()
-{
-  let it = this;
-  it.iterable = null;
-
-  _.assert( arguments.length === 0, 'Expects no arguments' );
-
-  if( it.isCountable( it.srcEffective ) )
-  {
-    it.iterable = _.looker.containerNameToIdMap.countable;
-  }
-  else if( _.aux.is( it.srcEffective ) )
-  {
-    it.iterable = _.looker.containerNameToIdMap.aux;
-  }
-  else if( _.hashMapLike( it.srcEffective ) )
-  {
-    it.iterable = _.looker.containerNameToIdMap.hashMap;
-  }
-  else if( _.setLike( it.srcEffective ) )
-  {
-    it.iterable = _.looker.containerNameToIdMap.set;
-  }
-  else
-  {
-    it.iterable = 0;
-  }
-
-  _.assert( it.iterable >= 0 );
-}
-
-//
-
-function ascendEval()
-{
-  let it = this;
-
-  _.assert( arguments.length === 0, 'Expects no arguments' );
-
-  it.ascendAct = _.looker.containerIdToAscendMap[ it.iterable ];
-
-  _.assert( _.routineIs( it.ascendAct ) );
-
-}
-
-//
-
-function revisitedEval( src )
-{
-  let it = this;
-
-  _.assert( arguments.length === 1 );
-
-  if( it.iterator.visitedContainer )
-  if( it.iterable )
-  {
-    if( it.iterator.visitedContainer.has( src ) )
-    it.revisited = true;
-  }
-
-}
-
 // --
-// is countable
+// typing
 // --
 
 function _isCountable( src )
@@ -1105,13 +1139,6 @@ function _isArray( src )
 
 //
 
-function _false( src )
-{
-  return false;
-}
-
-//
-
 function _isConstructibleLike( src )
 {
   debugger;
@@ -1125,63 +1152,41 @@ function _isAux( src )
   return _.aux.isPrototyped( src );
 }
 
+//
+
+function _false( src )
+{
+  return false;
+}
+
 // --
-// handler
+// etc
 // --
 
-function onUp( e, k, it )
-{
-}
-
-//
-
-function onDown( e, k, it )
-{
-}
-
-//
-
-function onTerminal()
-{
-  let it = this;
-  return it;
-}
-
-//
-
-function onSrcChanged()
-{
-}
-
-//
-
-// function pathJoin( /* selectorPath, upToken, defaultUpToken, selectorName */ )
 function pathJoin( selectorPath, selectorName )
 {
   let it = this;
   let result;
 
-  // let selectorPath = arguments[ 0 ];
-  // let upToken = arguments[ 1 ];
-  // let defaultUpToken = arguments[ 2 ];
-  // let selectorName = arguments[ 3 ];
-
   _.assert( arguments.length === 2 );
-
   selectorPath = _.strRemoveEnd( selectorPath, it.upToken );
-
-  // if( _.strEnds( selectorPath, it.upToken ) )
-  // {
-  //   result = selectorPath + selectorName;
-  // }
-  // else
-  // {
-  //   result = selectorPath + it.defaultUpToken + selectorName;
-  // }
-
   result = selectorPath + it.defaultUpToken + selectorName;
 
   return result;
+}
+
+//
+
+function errMake()
+{
+  let it = this;
+  /* xxx : group the error */
+  let err = _.ErrorLooking
+  (
+    ... arguments
+  );
+  debugger;
+  return err;
 }
 
 // --
@@ -1375,19 +1380,36 @@ Looker.Iterator = null;
 Looker.Iteration = null;
 Looker.IterationPreserve = null;
 
+// inter
+
+/* xxx : sort */
 Looker.exec = lookAll;
 Looker.head = head;
 Looker.optionsFromArguments = optionsFromArguments;
 Looker.optionsForm = optionsForm;
 Looker.optionsToIteration = optionsToIteration;
 
+// iterator
+
 Looker.iteratorProper = iteratorProper;
 Looker.iteratorMake = iteratorMake;
 Looker.iteratorCopy = iteratorCopy;
 
+// iteration
+
 Looker.iterationProper = iterationProper;
 Looker.iterationMake = iterationMake;
 Looker._iterationMakeAct = _iterationMakeAct;
+
+// perform
+
+Looker.reperform = reperform;
+Looker.perform = perform;
+Looker.performBegin = performBegin;
+Looker.performEnd = performEnd;
+
+// choose
+
 Looker.elementGet = elementGet;
 Looker.choose = choose;
 Looker.chooseBegin = chooseBegin;
@@ -1395,36 +1417,57 @@ Looker.chooseEnd = chooseEnd;
 Looker.chooseRoot = chooseRoot;
 Looker.isImplicit = isImplicit;
 
-Looker.reperform = reperform;
-Looker.perform = perform;
-Looker.performBegin = performBegin;
-Looker.performEnd = performEnd;
+// iterate
+
 Looker.iterate = iterate;
 Looker.visitUp = visitUp;
 Looker.visitUpBegin = visitUpBegin;
 Looker.visitUpEnd = visitUpEnd;
+Looker.onUp = onUp;
 Looker.visitDown = visitDown;
 Looker.visitDownBegin = visitDownBegin;
 Looker.visitDownEnd = visitDownEnd;
+Looker.onDown = onDown;
 Looker.visitPush = visitPush;
 Looker.visitPop = visitPop;
 Looker.canVisit = canVisit;
-
 Looker.canAscend = canAscend;
 Looker.canSibling = canSibling;
 Looker.ascend = ascend;
+Looker.onAscend = onAscend;
+
+// eval
+
+Looker.srcChanged = srcChanged;
+Looker.onSrcChanged = onSrcChanged;
+Looker.effectiveEval = effectiveEval;
+Looker.iterableEval = iterableEval;
+Looker.ascendEval = ascendEval;
+Looker.revisitedEval = revisitedEval;
+
+// ascend
 
 Looker._termianlAscend = _termianlAscend;
+Looker.onTerminal = onTerminal;
 Looker._countableAscend = _countableAscend;
 Looker._mapAscend = _mapAscend;
 Looker._hashMapAscend = _hashMapAscend;
 Looker._setAscend = _setAscend;
 
-Looker.srcChanged = srcChanged;
-Looker.effectiveEval = effectiveEval;
-Looker.iterableEval = iterableEval;
-Looker.ascendEval = ascendEval;
-Looker.revisitedEval = revisitedEval;
+// typing
+
+Looker._isCountable = _isCountable;
+Looker._isVector = _isVector;
+Looker._isLong = _isLong;
+Looker._isArray = _isArray;
+Looker._isConstructibleLike = _isConstructibleLike;
+Looker._isAux = _isAux;
+Looker._false = _false;
+
+// etc
+
+Looker.pathJoin = pathJoin;
+Looker.errMake = errMake;
 
 //
 

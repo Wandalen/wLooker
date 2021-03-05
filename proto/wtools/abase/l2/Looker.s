@@ -82,9 +82,6 @@ Defaults.src = null;
 Defaults.root = null;
 Defaults.context = null;
 Defaults.Looker = null;
-// Defaults.iterationPreserve = null; /* yyy */
-// Defaults.iterationExtension = null;
-// Defaults.iteratorExtension = null;
 
 // --
 // options
@@ -138,12 +135,6 @@ function optionsForm( routine, o )
 
   o.Looker = o.Looker || routine.defaults.Looker;
 
-  // yyy2
-  // if( o.iterationPreserve )
-  // o.iterationExtension = _.mapSupplement( o.iterationExtension, o.iterationPreserve );
-  // if( o.iterationPreserve )
-  // o.iteratorExtension = _.mapSupplement( o.iteratorExtension, o.iterationPreserve );
-
   if( _.boolLike( o.withCountable ) )
   {
     if( o.withCountable )
@@ -194,8 +185,7 @@ function optionsToIteration( o )
   _.assert( o.it === undefined );
   _.assert( _.mapIs( o ) );
   let iterator = o.Looker.iteratorMake( o );
-  let it = iterator.iterationMake();
-  // it.chooseRoot( it.src ); /* xxx : move to perform? */
+  let it = iterator.iteratorIterationMake();
   _.assert( it.Looker.iterationProper( it ) );
   return it;
 }
@@ -274,10 +264,6 @@ function iteratorMake( o )
   /* yyy */
   iterator.iterationPrototype = Object.create( iterator );
   Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration ); /* xxx : optimize */
-  // if( iterator.iterator.iterationExtension ) /* xxx : remove */
-  // Object.assign( iterator.iterationPrototype, iterator.iterator.iterationExtension );
-  // Object.freeze( iterator.iterator.iterationExtension );
-  // Object.freeze( iterator.iterationPrototype );
   Object.preventExtensions( iterator.iterationPrototype );
 
   if( iterator.fast )
@@ -309,6 +295,21 @@ function iteratorMake( o )
   }
 
   return iterator;
+}
+
+//
+
+/**
+ * @function iteratorIterationMake
+ * @class Tools.Looker
+ */
+
+function iteratorIterationMake()
+{
+  let it = this;
+  let newIt = it.iterationMake();
+  newIt.down = null;
+  return newIt;
 }
 
 //
@@ -360,23 +361,6 @@ function iterationProper( it )
 function iterationMake() /* xxx : merge with act */
 {
   let it = this;
-  let newIt = it._iterationMakeAct();
-
-  // _.assert( arguments.length === 0, 'Expects no arguments' );
-
-  return newIt;
-}
-
-//
-
-/**
- * @function _iterationMakeAct
- * @class Tools.Looker
- */
-
-function _iterationMakeAct()
-{
-  let it = this;
 
   // _.assert( arguments.length === 0, 'Expects no arguments' );
   // _.assert( it.level >= 0 );
@@ -393,7 +377,7 @@ function _iterationMakeAct()
     newIt.level = it.level;
     newIt.path = it.path;
     newIt.src = it.src;
-    newIt.srcEffective = it.srcEffective;
+    // newIt./*srcEffective*/src = it./*srcEffective*/src;
   }
   else
   {
@@ -401,12 +385,7 @@ function _iterationMakeAct()
     newIt[ k ] = it[ k ];
   }
 
-  // /* yyy2 */
-  // if( it.iterationPreserve ) /* yyy : remove */
-  // for( let k in it.iterationPreserve )
-  // newIt[ k ] = it[ k ];
-
-  if( it.iterator !== it )
+  // if( it.iterator !== it )
   newIt.down = it;
 
   return newIt;
@@ -498,7 +477,7 @@ function choose( e, k )
   _.assert( arguments.length === 2, 'Expects two argument' );
 
   if( e === undefined )
-  [ k, e ] = it.elementGet( it.srcEffective, k );
+  [ k, e ] = it.elementGet( it./*srcEffective*/src, k );
 
   it.chooseEnd( e, k );
   return it;
@@ -760,7 +739,7 @@ function visitPush()
   if( it.iterator.visitedContainer )
   if( it.visitCounting && it.iterable )
   {
-    it.iterator.visitedContainer.push( it.src );
+    it.iterator.visitedContainer.push( it.originalSrc );
     it.visitCounting = true;
   }
 
@@ -779,11 +758,11 @@ function visitPop()
     if( _.arrayIs( it.iterator.visitedContainer.original ) )
     _.assert
     (
-      Object.is( it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ], it.src ),
-      () => `Top-most visit ${it.path} does not match ${it.src} <> ${
+      Object.is( it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ], it.originalSrc ),
+      () => `Top-most visit ${it.path} does not match ${it.originalSrc} <> ${
         it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ]}`
     );
-    it.iterator.visitedContainer.pop( it.src );
+    it.iterator.visitedContainer.pop( it.originalSrc );
     it.visitCounting = false;
   }
 
@@ -872,21 +851,22 @@ function ascend()
 function onAscend()
 {
   let it = this;
-  _.assert( arguments.length === 0, 'Expects no arguments' );
-  return it.ascendAct( it.srcEffective );
+  // _.assert( arguments.length === 0, 'Expects no arguments' );
+  return it.ascendAct( it./*srcEffective*/src );
 }
 
 // --
 // eval
 // --
 
+/* xxx : overlap with choose */
 function srcChanged()
 {
   let it = this;
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  it.effectiveEval();
+  // it.effectiveEval();
 
   it.iterableEval();
 
@@ -895,7 +875,7 @@ function srcChanged()
 
   it.ascendEval();
 
-  it.revisitedEval( it.src );
+  it.revisitedEval( it.originalSrc );
 
 }
 
@@ -907,13 +887,14 @@ function onSrcChanged()
 
 //
 
-function effectiveEval()
-{
-  let it = this;
-
-  it.srcEffective = it.src;
-
-}
+// /* xxx : remove */
+// function effectiveEval()
+// {
+//   let it = this;
+//
+//   it./*srcEffective*/src = it.src;
+//
+// }
 
 //
 
@@ -924,19 +905,19 @@ function iterableEval()
 
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  if( it.isCountable( it.srcEffective ) )
+  if( it.isCountable( it./*srcEffective*/src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.countable;
   }
-  else if( _.aux.is( it.srcEffective ) )
+  else if( _.aux.is( it./*srcEffective*/src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.aux;
   }
-  else if( _.hashMapLike( it.srcEffective ) )
+  else if( _.hashMapLike( it./*srcEffective*/src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.hashMap;
   }
-  else if( _.setLike( it.srcEffective ) )
+  else if( _.setLike( it./*srcEffective*/src ) )
   {
     it.iterable = _.looker.containerNameToIdMap.set;
   }
@@ -1292,18 +1273,19 @@ function define( o )
   if( o.name === null )
   o.name = 'CustomLooker'
 
-  let looker = Object.create( o.parent ); /* xxx : try to use extend instead */
+  /* xxx : try to use extend instead */
+  let looker = Object.create( o.parent );
   looker.Looker = looker;
 
   if( !o.looker || !o.looker.constructor || o.looker.constructor === Object )
   {
-    looker.constructor =
-    ({
-      [ o.name ] : function(){},
-    })[ o.name ];
+    looker.constructor = (function()
+    {
+      return ({
+        [ o.name ] : function(){},
+      })[ o.name ];
+    })();
     _.assert( looker.constructor.name === o.name );
-    // looker.constructor = CustomLooker[ o.name ];
-    // _.assert( CustomLooker[ o.name ].name === o.name );
   }
   if( o.looker )
   _.mapExtend( looker, o.looker );
@@ -1393,13 +1375,13 @@ Looker.optionsToIteration = optionsToIteration;
 
 Looker.iteratorProper = iteratorProper;
 Looker.iteratorMake = iteratorMake;
+Looker.iteratorIterationMake = iteratorIterationMake;
 Looker.iteratorCopy = iteratorCopy;
 
 // iteration
 
 Looker.iterationProper = iterationProper;
 Looker.iterationMake = iterationMake;
-Looker._iterationMakeAct = _iterationMakeAct;
 
 // perform
 
@@ -1440,7 +1422,7 @@ Looker.onAscend = onAscend;
 
 Looker.srcChanged = srcChanged;
 Looker.onSrcChanged = onSrcChanged;
-Looker.effectiveEval = effectiveEval;
+// Looker.effectiveEval = effectiveEval;
 Looker.iterableEval = iterableEval;
 Looker.ascendEval = ascendEval;
 Looker.revisitedEval = revisitedEval;
@@ -1474,7 +1456,6 @@ Looker.errMake = errMake;
 /**
  * @typedef {Object} Iterator
  * @property {} iterator = null
- * @property {} _iterationMakeAct = _iterationMakeAct
  * @property {} iterationMake = iterationMake
  * @property {} choose = choose
  * @property {} iterate = iterate
@@ -1542,7 +1523,7 @@ Iteration.key = null;
 Iteration.originalKey = null;
 Iteration.index = null;
 Iteration.src = null;
-Iteration.srcEffective = null; /* xxx : replace by another mechanism with originalSrc */
+// Iteration./*srcEffective*/src = null; /* xxx : replace by another mechanism with originalSrc */
 Iteration.originalSrc = null;
 Iteration.continue = true;
 Iteration.ascending = true;
@@ -1569,7 +1550,7 @@ let IterationPreserve = Looker.IterationPreserve = Object.create( null );
 IterationPreserve.level = null;
 IterationPreserve.path = null;
 IterationPreserve.src = null;
-IterationPreserve.srcEffective = null;
+// IterationPreserve./*srcEffective*/src = null;
 Object.freeze( IterationPreserve );
 
 // --

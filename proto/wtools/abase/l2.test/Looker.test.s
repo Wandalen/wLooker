@@ -1981,7 +1981,7 @@ function makeCustomBasic( test )
   {
     let it = this;
     it.iterable = null;
-    if( _.aux.is( it.srcEffective ) )
+    if( _.aux.is( it./*srcEffective*/src ) )
     {
       it.iterable = _.looker.containerNameToIdMap.aux;
     }
@@ -3375,6 +3375,7 @@ function optionFast( test )
 
     test.description = 'keys on up';
     var expectedUpKeys = [ null, 'a', 'b', 'c', 0, 1 ];
+
     test.identical( gotUpKeys, expectedUpKeys );
     test.description = 'keys on down';
     var expectedDownKeys = [ 'a', 'b', 0, 1, 'c', null ];
@@ -3826,43 +3827,37 @@ function optionFastCycled( test )
 
 //
 
-function performance1( test ) /* xxx : write similar test for other lookers */
+function performance( test ) /* xxx : write similar test for other lookers */
 {
+  // Config.debug = false;
+
+  /* */
+
+  test.case = 'inner';
+
   var counter = 0;
   var nruns = 10;
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
   var time = _.time.now();
 
   debugger;
-  // Config.debug = false;
   for( let i = 0 ; i < nruns ; i++ )
   _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
-  console.log( _.time.spent( time ) );
+  console.log( `Inner : ${_.time.spent( time )}` );
   test.identical( counter, 309516 * nruns );
   debugger;
 
   /*
 
-  = old
-  nruns:3 time:13s
-  nruns:5 time:20s
+  = before
   nruns:10 time:43s
+  = after
+  nruns:10 time:8.3s
 
-  = after optimization1
-  nruns:10 time:11s
+ */
 
-  */
-}
+  test.case = 'outer';
 
-performance1.experimental = 1;
-performance1.rapidity = -1;
-performance1.timeOut = 1e6;
-
-//
-
-/* xxx : join with another performance test */
-function performance2( test )
-{
   var counter = 0;
   var nruns = 1000;
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 1 }).result;
@@ -3871,19 +3866,22 @@ function performance2( test )
   debugger;
   for( let i = 0 ; i < nruns ; i++ )
   _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
-  console.log( _.time.spent( time ) );
+  console.log( `Outer : ${_.time.spent( time )}` );
   test.identical( counter, 1068 * nruns );
   debugger;
 
   /*
+  = before
   nruns:1000 time:14.5s
-  nruns:10000 time:145s
+  = after
+  nruns:1000 time:3.3s
   */
+
 }
 
-performance2.experimental = 1;
-performance2.rapidity = -1;
-performance2.timeOut = 1e6;
+performance.experimental = 1;
+performance.rapidity = -1;
+performance.timeOut = 1e6;
 
 // --
 // declare
@@ -3932,8 +3930,7 @@ let Self =
     // optionFast,
     // optionFastCycled,
 
-    performance2,
-    performance1,
+    performance,
 
   }
 

@@ -1827,7 +1827,8 @@ function reperform( test )
 function makeCustomBasic( test )
 {
   let its = [];
-  let cid = _.looker.containerNameToIdMap;
+  let cid = _.looker.Looker.containerNameToIdMap;
+  _.assert( _.auxIs( cid ) );
 
   /* */
 
@@ -1843,11 +1844,12 @@ function makeCustomBasic( test )
 
   /* */
 
-  test.case = 'extending Looker, clonging';
+  test.case = 'extending Looker, extending';
   clean();
 
   var Looker2 = _.mapExtend( null, _.Looker );
   Looker2.Looker = Looker2;
+  Looker2.OriginalLooker = Looker2;
   Looker2.iterableEval = iterableEval;
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
@@ -1888,7 +1890,7 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, making';
   clean();
 
-  var Looker2 = _.looker.define({ looker : { iterableEval } });
+  var Looker2 = _.looker.classDefine({ looker : { iterableEval } });
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
@@ -1909,13 +1911,25 @@ function makeCustomBasic( test )
 
   var Looker2 = _.mapExtend( null, _.Looker );
   Looker2.Looker = Looker2;
+  Looker2.OriginalLooker = Looker2;
   var Iterator = Looker2.Iterator = _.mapExtend( null, Looker2.Iterator );
+  Iterator.field1 = 'field1';
   Iterator.iterableEval = iterableEval;
+  /*
+  should be never called
+  */
+  /*
+  extending iterator manually should have no effect
+  because looker should be extended by iterator once in define
+  not during each look
+  */
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
-  var exp = [ '/' ];
+  var exp = [ '/', '/0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
-  var exp = [ cid.terminal ];
+  var exp = [ undefined, undefined ];
+  test.identical( its.map( ( it ) => it.field1 ), exp );
+  var exp = [ cid.countable, cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
@@ -1932,12 +1946,15 @@ function makeCustomBasic( test )
   var Looker2 = Object.create(_.Looker );
   Looker2.Looker = Looker2;
   var Iterator = Looker2.Iterator = Object.create( Looker2.Iterator );
+  Iterator.field1 = 'field1';
   Iterator.iterableEval = iterableEval;
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
-  var exp = [ '/' ];
+  var exp = [ '/', '/0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
-  var exp = [ cid.terminal ];
+  var exp = [ undefined, undefined ];
+  test.identical( its.map( ( it ) => it.field1 ), exp );
+  var exp = [ cid.countable, cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
@@ -1951,7 +1968,7 @@ function makeCustomBasic( test )
   test.case = 'extending Iterator, making';
   clean();
 
-  var Looker2 = _.looker.define({ iterator : { iterableEval } })
+  var Looker2 = _.looker.classDefine({ iterator : { iterableEval } })
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
@@ -1981,9 +1998,9 @@ function makeCustomBasic( test )
   {
     let it = this;
     it.iterable = null;
-    if( _.aux.is( it./*srcEffective*/src ) )
+    if( _.aux.is( it.src ) )
     {
-      it.iterable = _.looker.containerNameToIdMap.aux;
+      it.iterable = _.looker.Looker.containerNameToIdMap.aux;
     }
     else
     {
@@ -2714,77 +2731,99 @@ function optionOnSrcChanged( test )
   let upNames = [];
   let dwNames = [];
 
-  var a1 = new Obj({ name : 'a1' });
-  var a2 = new Obj({ name : 'a2' });
-  var b = new Obj({ name : 'b', elements : [ a1, a2 ] });
-  var c = new Obj({ name : 'c', elements : [ b ] });
+  act({});
 
-  var expUps =
-  [
-    '/',
-    '/str',
-    '/num',
-    '/name',
-    '/elements',
-    '/elements/0',
-    '/elements/0/str',
-    '/elements/0/num',
-    '/elements/0/name',
-    '/elements/0/elements',
-    '/elements/0/elements/0',
-    '/elements/0/elements/1'
-  ];
-  var expDws =
-  [
-    '/',
-    '/str',
-    '/num',
-    '/name',
-    '/elements',
-    '/elements/0',
-    '/elements/0/str',
-    '/elements/0/num',
-    '/elements/0/name',
-    '/elements/0/elements',
-    '/elements/0/elements/0',
-    '/elements/0/elements/1'
-  ]
-  var expUpNames =
-  [
-    'c',
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    'b',
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    'a1',
-    'a2'
-  ]
-  var expDwNames =
-  [
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    'a1',
-    'a2',
-    undefined,
-    'b',
-    undefined,
-    'c'
-  ]
+  function act( env )
+  {
 
-  var got = _.look({ src : c, onUp, onDown, onSrcChanged });
-  test.identical( ups, expUps );
-  test.identical( ups, expDws );
-  test.identical( upNames, expUpNames );
-  test.identical( dwNames, expDwNames );
+    var a1 = new Obj({ name : 'a1' });
+    var a2 = new Obj({ name : 'a2' });
+    var b = new Obj({ name : 'b', elements : [ a1, a2 ] });
+    var c = new Obj({ name : 'c', elements : [ b ] });
+
+    var expUps =
+    [
+      '/',
+      '/str',
+      '/num',
+      '/name',
+      '/elements',
+      '/elements/0',
+      '/elements/0/str',
+      '/elements/0/num',
+      '/elements/0/name',
+      '/elements/0/elements',
+      '/elements/0/elements/0',
+      '/elements/0/elements/1'
+    ];
+    var expDws =
+    [
+      '/',
+      '/str',
+      '/num',
+      '/name',
+      '/elements',
+      '/elements/0',
+      '/elements/0/str',
+      '/elements/0/num',
+      '/elements/0/name',
+      '/elements/0/elements',
+      '/elements/0/elements/0',
+      '/elements/0/elements/1'
+    ]
+    var expUpNames =
+    [
+      'c',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'b',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'a1',
+      'a2'
+    ]
+    var expDwNames =
+    [
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'a1',
+      'a2',
+      undefined,
+      'b',
+      undefined,
+      'c'
+    ]
+
+    clean();
+    var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedBoth });
+    test.identical( ups, expUps );
+    test.identical( ups, expDws );
+    test.identical( upNames, expUpNames );
+    test.identical( dwNames, expDwNames );
+
+    clean();
+    var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedWithIterable });
+    test.identical( ups, expUps );
+    test.identical( ups, expDws );
+    test.identical( upNames, expUpNames );
+    test.identical( dwNames, expDwNames );
+
+    clean();
+    var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedWithAux });
+    test.identical( ups, expUps );
+    test.identical( ups, expDws );
+    test.identical( upNames, expUpNames );
+    test.identical( dwNames, expDwNames );
+
+  }
 
   /* - */
 
@@ -2797,12 +2836,15 @@ function optionOnSrcChanged( test )
 
   function clean()
   {
-    ups.splice( 0, ups.length );
-    dws.splice( 0, dws.length );
+    ups = [];
+    dws = [];
+    upNames = [];
+    dwNames = [];
   }
 
   function onUp( e, k, it )
   {
+    debugger;
     ups.push( it.path );
     upNames.push( it.src.name );
     logger.log( 'up', it.level, it.path, it.src ? it.src.name : '' );
@@ -2815,7 +2857,7 @@ function optionOnSrcChanged( test )
     logger.log( 'down', it.level, it.path, it.src ? it.src.name : '' );
   }
 
-  function onSrcChanged()
+  function onSrcChangedBoth()
   {
     let it = this;
     if( !it.iterable )
@@ -2823,10 +2865,41 @@ function optionOnSrcChanged( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = _.looker.containerNameToIdMap.aux;
-        it.ascendAct = function objAscend( src )
+        it.iterable = _.looker.Looker.containerNameToIdMap.aux;
+        it.onAscend = function objAscend()
         {
-          return this._countableAscend( src.elements );
+          this._auxAscend( this.src );
+        }
+      }
+    }
+  }
+
+  function onSrcChangedWithIterable()
+  {
+    let it = this;
+    debugger;
+    if( !it.iterable )
+    if( it.src instanceof Obj )
+    {
+      if( _.longIs( it.src.elements ) )
+      {
+        it.iterable = _.looker.Looker.containerNameToIdMap.aux;
+      }
+    }
+  }
+
+  function onSrcChangedWithAux()
+  {
+    let it = this;
+    debugger;
+    if( !it.iterable )
+    if( it.src instanceof Obj )
+    {
+      if( _.longIs( it.src.elements ) )
+      {
+        it.onAscend = function objAscend()
+        {
+          this._auxAscend( this.src );
         }
       }
     }
@@ -2881,10 +2954,10 @@ function optionOnUpNonContainer( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = 'Obj';
-        it.ascendAct = function objAscend( src )
+        // it.iterable = 'Obj';
+        it.onAscend = function objAscend()
         {
-          return this._countableAscend( src.elements );
+          return this._countableAscend( this.src.elements );
         }
         // it.ascendAct = function objAscend( onIteration, src )
         // {
@@ -3113,7 +3186,7 @@ function optionAscend( test )
     if( it.src === 'name1' )
     it._countableAscend( [ 'r1', 'r2', 'r3' ] );
     else
-    it.ascendAct( it.src );
+    it.Looker.onAscend.call( it );
   }
 
   function clean()

@@ -62,7 +62,6 @@ _.assert( !!_realGlobal_ );
 
 let Prime = Object.create( null );
 
-/* yyy : avoid writing each field into o-map */
 Prime.onUp = onUp;
 Prime.onDown = onDown;
 Prime.onAscend = onAscend;
@@ -294,7 +293,6 @@ function iteratorInit( iterator )
   iterator.iterationPrototype = Object.create( iterator );
   Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration );
   Object.preventExtensions( iterator.iterationPrototype );
-  // Object.freeze( iterator.iterationPrototype ); /* yyy */
 
   if( iterator.fast )
   {
@@ -463,9 +461,9 @@ function reperform( src )
   let it = this;
   _.assert( arguments.length === 1 );
   _.assert( it.iterationProper( it ) );
-  it.chooseRoot( src );
-  // it.iterable = null; // yyy xxx
-  return it.iterate();
+  it.src = src;
+  it.chooseRoot();
+  return it.iterate(); /* xxx : should be same as perform? */
 }
 
 //
@@ -485,13 +483,10 @@ function perform()
 function performBegin()
 {
   let it = this;
-  // Parent.performBegin.apply( it, arguments );
-
   _.assert( arguments.length === 0 );
   _.assert( it.iterationProper( it ) );
-
-  it.chooseRoot( it.src );
-
+  it.src = it.src;
+  it.chooseRoot();
   return it;
 }
 
@@ -500,10 +495,7 @@ function performBegin()
 function performEnd()
 {
   let it = this;
-
   _.assert( it.iterationProper( it ) );
-
-  // Parent.performEnd.apply( it, arguments );
   return it;
 }
 
@@ -544,7 +536,7 @@ function choose( e, k )
 
   it.chooseEnd( e, k );
 
-  it.srcChanged(); /* yyy */
+  it.srcChanged();
   it.revisitedEval( it.originalSrc );
 
   return it;
@@ -608,21 +600,16 @@ function chooseEnd( e, k )
 
 //
 
-/* xxx : remove argument? */
-function chooseRoot( e )
+function chooseRoot()
 {
   let it = this;
 
-  _.assert( arguments.length === 1 );
+  _.assert( arguments.length === 0 );
 
-  it.src = e;
-  it.originalSrc = e;
+  it.originalSrc = it.src;
 
-  it.srcChanged(); /* yyy */
-
+  it.srcChanged();
   it.revisitedEval( it.originalSrc );
-
-  /* xxx : introduce chooseCommon? */
 
   return it;
 }
@@ -631,7 +618,6 @@ function chooseRoot( e )
 // eval
 // --
 
-/* yyy : overlap with choose */
 function srcChanged()
 {
   let it = this;
@@ -642,8 +628,6 @@ function srcChanged()
 
   if( it.onSrcChanged )
   it.onSrcChanged();
-
-  // it.revisitedEval( it.originalSrc );
 
 }
 
@@ -786,10 +770,6 @@ function visitUpBegin()
   if( !it.fast )
   if( it.down )
   it.down.childrenCounter += 1;
-
-   /* yyy */
-  // if( it.continue )
-  // it.srcChanged();
 
 }
 
@@ -1243,7 +1223,7 @@ function execIt_body( it )
 
 // exec_body.defaults = Prime;
 //
-// let look = _.routineUnite( exec_head, exec_body );
+// let look = _.routine.uniteCloning_( exec_head, exec_body );
 
 //
 
@@ -1385,7 +1365,7 @@ classDefine.defaults =
 {
   name : null,
   parent : null,
-  prime : null, /* yyy : rename? */
+  prime : null,
   looker : null,
   iterator : null,
   iteration : null,
@@ -1656,7 +1636,7 @@ Iteration.path = '/';
 Iteration.key = null;
 Iteration.originalKey = null;
 Iteration.index = null;
-Iteration.originalSrc = null; /* yyy */
+Iteration.originalSrc = null;
 Iteration.continue = true;
 Iteration.ascending = true;
 Iteration.revisited = false;

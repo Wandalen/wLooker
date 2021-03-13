@@ -29,7 +29,7 @@ node wtools/abase/l6.test/Resolver.test.s && \
 node wtools/abase/l7.test/ResolverExtra.test.s && \
 node wtools/amid/l5_mapper.test/TemplateTree.test.s && \
 node wtools/amid/l5_mapper.test/TemplateTreeEnvironment.test.s && \
-local-tst wtools/amid/l3/introspector.test n:1 && \
+tst.local wtools/amid/l3/introspector.test n:1 && \
 node wtools/atop/will.test/Int.test.s n:1 rapidity:-3
 */
 

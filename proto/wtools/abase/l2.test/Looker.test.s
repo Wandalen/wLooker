@@ -2846,7 +2846,6 @@ function optionOnSrcChanged( test )
 
   function onUp( e, k, it )
   {
-    debugger;
     ups.push( it.path );
     upNames.push( it.src.name );
     logger.log( 'up', it.level, it.path, it.src ? it.src.name : '' );
@@ -2879,7 +2878,6 @@ function optionOnSrcChanged( test )
   function onSrcChangedWithIterable()
   {
     let it = this;
-    debugger;
     if( !it.iterable )
     if( it.src instanceof Obj )
     {
@@ -2893,7 +2891,6 @@ function optionOnSrcChanged( test )
   function onSrcChangedWithAux()
   {
     let it = this;
-    debugger;
     if( !it.iterable )
     if( it.src instanceof Obj )
     {
@@ -2956,15 +2953,10 @@ function optionOnUpNonContainer( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        // it.iterable = 'Obj';
         it.onAscend = function objAscend()
         {
           return this._countableAscend( this.src.elements );
         }
-        // it.ascendAct = function objAscend( onIteration, src )
-        // {
-        //   return this._countableAscend( onIteration, src.elements );
-        // }
       }
     }
 
@@ -3572,8 +3564,8 @@ function optionFast( test )
       wasIt = it;
     }
 
-    gotUpKeys.push( k ); // k === it.key
-    gotUpValues.push( e ); // e === it.src
+    gotUpKeys.push( k ); /* k === it.key */
+    gotUpValues.push( e ); /* e === it.src */
     gotUpRoots.push( it.root );
     gotUpRecursive.push( it.recursive );
     gotUpRevisited.push( it.revisited );
@@ -3598,8 +3590,8 @@ function optionFast( test )
       test.true( wasIt === it );
     }
 
-    gotDownKeys.push( k ); // k === it.key
-    gotDownValues.push( e ); // e === it.src
+    gotDownKeys.push( k ); /* k === it.key */
+    gotDownValues.push( e ); /* e === it.src */
     gotDownRoots.push( it.root );
     gotDownRecursive.push( it.recursive );
     gotDownRevisited.push( it.revisited );
@@ -3861,8 +3853,8 @@ function optionFastCycled( test )
       wasIt = it;
     }
 
-    gotUpKeys.push( k ); // k === it.key
-    gotUpValues.push( e ); // e === it.src
+    gotUpKeys.push( k ); /* k === it.key */
+    gotUpValues.push( e ); /* e === it.src */
     gotUpRoots.push( it.root );
     gotUpRecursive.push( it.recursive );
     gotUpRevisited.push( it.revisited );
@@ -3886,8 +3878,8 @@ function optionFastCycled( test )
       test.true( wasIt === it );
     }
 
-    gotDownKeys.push( k ); // k === it.key
-    gotDownValues.push( e ); // e === it.src
+    gotDownKeys.push( k ); /* k === it.key */
+    gotDownValues.push( e ); /* e === it.src */
     gotDownRoots.push( it.root );
     gotDownRecursive.push( it.recursive );
     gotDownRevisited.push( it.revisited );
@@ -3902,7 +3894,7 @@ function optionFastCycled( test )
 
 //
 
-function performance( test ) /* xxx : write similar test for other lookers */
+function performance( test ) /* xxx0 : write similar test for other lookers */
 {
   // Config.debug = false;
 
@@ -3915,12 +3907,12 @@ function performance( test ) /* xxx : write similar test for other lookers */
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
   var time = _.time.now();
 
-  debugger;
+  debugger; /* eslint-disable-line no-debugger */
   for( let i = 0 ; i < nruns ; i++ )
   _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
   console.log( `Inner : ${_.time.spent( time )}` );
   test.identical( counter, 309516 * nruns );
-  debugger;
+  debugger; /* eslint-disable-line no-debugger */
 
   /*
 
@@ -3938,12 +3930,12 @@ function performance( test ) /* xxx : write similar test for other lookers */
   var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 1 }).result;
   var time = _.time.now();
 
-  debugger;
+  debugger; /* eslint-disable-line no-debugger */
   for( let i = 0 ; i < nruns ; i++ )
   _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
   console.log( `Outer : ${_.time.spent( time )}` );
   test.identical( counter, 1068 * nruns );
-  debugger;
+  debugger; /* eslint-disable-line no-debugger */
 
   /*
   = before

@@ -62,6 +62,8 @@ _.assert( !!_realGlobal_ );
 
 let Prime = Object.create( null );
 
+Prime.src = undefined;
+Prime.root = undefined;
 Prime.onUp = onUp;
 Prime.onDown = onDown;
 Prime.onAscend = onAscend;
@@ -77,8 +79,6 @@ Prime.upToken = '/';
 Prime.defaultUpToken = null;
 Prime.path = null;
 Prime.level = 0;
-Prime.src = null;
-Prime.root = null;
 Prime.context = null;
 
 // --
@@ -91,7 +91,6 @@ function head( routine, args )
   _.assert( !!routine.defaults.Looker );
   let o = routine.defaults.Looker.optionsFromArguments( args );
   o.Looker = o.Looker || routine.defaults;
-  // _.assert( o.Looker === routine.defaults );/* xxx : uncomment? */
   _.assertMapHasOnly( o, routine.defaults );
   _.assert
   (
@@ -135,65 +134,6 @@ function optionsFromArguments( args )
 
 //
 
-/* xxx : rename, merge with iteratorMake? */
-function optionsForm( routine, o )
-{
-
-  o.Looker = o.Looker || routine.defaults;
-
-  if( _.boolLike( o.withCountable ) )
-  {
-    if( o.withCountable )
-    o.withCountable = 'countable';
-    else
-    o.withCountable = '';
-  }
-  if( _.boolLike( o.withImplicit ) )
-  {
-    if( o.withImplicit )
-    o.withImplicit = 'aux';
-    else
-    o.withImplicit = '';
-  }
-
-  if( _.boolIs( o.recursive ) )
-  o.recursive = o.recursive ? Infinity : 1;
-
-  _.assert( o.iteratorProper( o ) );
-  _.assert( _.objectIs( o.Looker ), 'Expects options {o.Looker}' );
-  _.assert( o.Looker.Looker === o.Looker, 'Default of a routine and its default Looker are not in agreement' );
-  _.assert( o.looker === undefined );
-  _.assert( arguments.length === 2, 'Expects exactly two arguments' );
-  _.assert
-  (
-    !Reflect.has( o, 'onUp' ) || o.onUp === null || o.onUp.length === 0 || o.onUp.length === 3,
-    'onUp should expect exactly three arguments'
-  );
-  _.assert
-  (
-    !Reflect.has( o, 'onDown' ) || o.onDown === null || o.onDown.length === 0 || o.onDown.length === 3,
-    'onDown should expect exactly three arguments'
-  );
-  _.assert( _.numberIsNotNan( o.recursive ), 'Expects number {- o.recursive -}' );
-  _.assert( 0 <= o.revisiting && o.revisiting <= 2 );
-  _.assert
-  (
-    _.longHas( [ 'countable', 'vector', 'long', 'array', '' ], o.withCountable ),
-    'Unexpected value of option::withCountable'
-  );
-  _.assert
-  (
-    _.longHas( [ 'aux', '' ], o.withImplicit ),
-    'Unexpected value of option::withImplicit'
-  );
-
-  if( o.Looker === null )
-  o.Looker = Looker;
-
-}
-
-//
-
 function optionsToIteration( iterator, o )
 {
   _.assert( o.it === undefined );
@@ -206,8 +146,6 @@ function optionsToIteration( iterator, o )
   Object.assign( iterator, o );
   o.Looker.iteratorInit( iterator );
   let it = iterator.iteratorIterationMake();
-  if( !it.Looker.iterationProper( it ) )
-  debugger;
   _.assert( it.Looker.iterationProper( it ) );
   return it;
 }
@@ -257,6 +195,15 @@ function iteratorRetype( iterator )
 
 function iteratorInit( iterator )
 {
+  let looker = this;
+  looker.iteratorInitBegin( iterator );
+  looker.iteratorInitEnd( iterator );
+}
+
+//
+
+function iteratorInitBegin( iterator )
+{
 
   _.assert( arguments.length === 1 );
   _.assert( !_.mapIs( iterator ) );
@@ -271,7 +218,64 @@ function iteratorInit( iterator )
 
   iterator.iterator = iterator;
 
-  iterator.optionsForm( iterator.exec, iterator );
+  return iterator;
+}
+
+//
+
+function iteratorInitEnd( iterator )
+{
+
+  /* */
+
+  if( _.boolLike( iterator.withCountable ) )
+  {
+    if( iterator.withCountable )
+    iterator.withCountable = 'countable';
+    else
+    iterator.withCountable = '';
+  }
+  if( _.boolLike( iterator.withImplicit ) )
+  {
+    if( iterator.withImplicit )
+    iterator.withImplicit = 'aux';
+    else
+    iterator.withImplicit = '';
+  }
+
+  if( _.boolIs( iterator.recursive ) )
+  iterator.recursive = iterator.recursive ? Infinity : 1;
+
+  _.assert( iterator.iteratorProper( iterator ) );
+  _.assert( iterator.Looker.Looker === iterator.Looker, 'Default of a routine and its default Looker are not in agreement' );
+  _.assert( iterator.looker === undefined );
+  _.assert
+  (
+    !Reflect.has( iterator, 'onUp' ) || iterator.onUp === null || iterator.onUp.length === 0 || iterator.onUp.length === 3,
+    'onUp should expect exactly three arguments'
+  );
+  _.assert
+  (
+    !Reflect.has( iterator, 'onDown' ) || iterator.onDown === null || iterator.onDown.length === 0 || iterator.onDown.length === 3,
+    'onDown should expect exactly three arguments'
+  );
+  _.assert( _.numberIsNotNan( iterator.recursive ), 'Expects number {- iterator.recursive -}' );
+  _.assert( 0 <= iterator.revisiting && iterator.revisiting <= 2 );
+  _.assert
+  (
+    _.longHas( [ 'countable', 'vector', 'long', 'array', '' ], iterator.withCountable ),
+    'Unexpected value of option::withCountable'
+  );
+  _.assert
+  (
+    _.longHas( [ 'aux', '' ], iterator.withImplicit ),
+    'Unexpected value of option::withImplicit'
+  );
+
+  if( iterator.Looker === null )
+  iterator.Looker = Looker;
+
+  /* */
 
   iterator.isCountable = iterator.withCountableToIsElementalFunctionMap[ iterator.withCountable ];
   iterator.hasImplicit = iterator.withImplicitToHasImplicitFunctionMap[ iterator.withImplicit ];
@@ -284,7 +288,7 @@ function iteratorInit( iterator )
     iterator.visitedContainer = _.containerAdapter.from( new Array );
   }
 
-  if( iterator.root === null )
+  if( iterator.root === undefined )
   iterator.root = iterator.src;
 
   if( iterator.defaultUpToken === null )
@@ -316,6 +320,7 @@ function iteratorInit( iterator )
   important assert, otherwise copying options from iteration could cause problem
   */
   _.assert( iterator.it === undefined );
+
   if( !iterator.fast )
   {
     _.assert( _.numberIs( iterator.level ) );
@@ -327,23 +332,6 @@ function iteratorInit( iterator )
     _.assert( iterator.iterationPrototype.constructor === iterator.Looker.constructor );
   }
 
-  return iterator;
-}
-
-//
-
-/**
- * Makes iterator for Looker.
- *
- * @param {Object} o - Options map
- * @function iteratorMake
- * @class Tools.Looker
- */
-
-function iteratorMake( o )
-{
-  let iterator = this.iteratorRetype( o );
-  this.iteratorInit( iterator );
   return iterator;
 }
 
@@ -462,8 +450,9 @@ function reperform( src )
   _.assert( arguments.length === 1 );
   _.assert( it.iterationProper( it ) );
   it.src = src;
-  it.chooseRoot();
-  return it.iterate(); /* xxx : should be same as perform? */
+  return it.perform();
+  // it.chooseRoot();
+  // return it.iterate(); /* yyy : should be same as perform? */
 }
 
 //
@@ -485,7 +474,6 @@ function performBegin()
   let it = this;
   _.assert( arguments.length === 0 );
   _.assert( it.iterationProper( it ) );
-  it.src = it.src;
   it.chooseRoot();
   return it;
 }
@@ -970,7 +958,7 @@ function ascend()
   _.assert( !!it.continue );
   _.assert( !!it.iterator.continue );
 
-  return it.onAscend(); /* xxx : remove? */
+  return it.onAscend();
 }
 
 //
@@ -980,7 +968,6 @@ function onAscend()
   let it = this;
   _.assert( !!it.containerIdToAscendMap[ it.iterable ], () => `No ascend for ${it.iterable}` );
   it.containerIdToAscendMap[ it.iterable ].call( it, it.src );
-  // return it.ascendAct( it.src ); // xxx : clean
 }
 
 // --
@@ -1183,12 +1170,12 @@ function pathJoin( selectorPath, selectorName )
 function errMake()
 {
   let it = this;
-  /* xxx : group the error */
+  /* xxx0 : group the error */
   let err = _.LookingError
   (
     ... arguments
   );
-  debugger;
+  debugger; /* eslint-disable-line no-debugger */
   return err;
 }
 
@@ -1220,10 +1207,6 @@ function execIt_body( it )
   it.perform();
   return it;
 }
-
-// exec_body.defaults = Prime;
-//
-// let look = _.routine.uniteCloning_( exec_head, exec_body );
 
 //
 
@@ -1337,8 +1320,8 @@ function classDefine( o )
   if( o.iteration )
   _.mapExtend( iteration, o.iteration );
 
-  _.assert( looker.Prime.Looker === undefined );
-  _.assert( _.routineIs( looker.iterableEval ) );
+  if( Config.debug )
+  validate();
 
   return looker;
 
@@ -1359,6 +1342,29 @@ function classDefine( o )
     _.assert( exec.body.defaults === looker );
     return exec;
   }
+
+  function validate()
+  {
+    /* qqq : add explanation for each assert */
+    _.assert( looker.Prime.Looker === undefined );
+    _.assert( _.routineIs( looker.iterableEval ) );
+    _.assert( !_.property.has( looker.Iteration, 'src' ) && looker.Iteration.src === undefined );
+    _.assert( _.property.has( looker.IterationPreserve, 'src' ) && looker.IterationPreserve.src === undefined );
+    _.assert( _.property.has( looker, 'src' ) && looker.src === undefined );
+    _.assert( !_.property.has( looker.Iteration, 'root' ) && looker.Iteration.root === undefined );
+    _.assert( _.property.has( looker, 'root' ) && looker.root === undefined );
+    if( _.property.has( looker, 'dst' ) )
+    {
+      _.assert( _.property.has( looker.Iteration, 'dst' ) && looker.Iteration.dst === undefined );
+      _.assert( _.property.has( looker, 'dst' ) && looker.dst === undefined );
+    }
+    if( _.property.has( looker, 'result' ) )
+    {
+      _.assert( _.property.has( looker.Iterator, 'result' ) && looker.Iterator.result === undefined );
+      _.assert( _.property.has( looker, 'result' ) && looker.result === undefined );
+    }
+  }
+
 }
 
 classDefine.defaults =
@@ -1426,14 +1432,13 @@ let withImplicitToHasImplicitFunctionMap =
 
 //
 
-// const Looker = Prime.Looker = Object.create( null );
 const Looker = Object.create( null );
 const Self = Looker;
 
 Looker.OriginalLooker = Looker;
-Looker.constructor = function Looker() /* xxx : implement */
+Looker.constructor = function Looker() /* xxx0 : implement */
 {
-  debugger;
+  _.assert( 0, 'not implemented' );
   let prototype = _.prototype.of( this );
   _.assert( _.object.is( prototype ) );
   _.assert( prototype.exec.defaults === prototype );
@@ -1448,10 +1453,8 @@ Looker.IterationPreserve = null;
 
 // inter
 
-// Looker.exec = look;
 Looker.head = head;
 Looker.optionsFromArguments = optionsFromArguments;
-Looker.optionsForm = optionsForm;
 Looker.optionsToIteration = optionsToIteration;
 
 // iterator
@@ -1459,7 +1462,8 @@ Looker.optionsToIteration = optionsToIteration;
 Looker.iteratorProper = iteratorProper;
 Looker.iteratorRetype = iteratorRetype;
 Looker.iteratorInit = iteratorInit;
-Looker.iteratorMake = iteratorMake;
+Looker.iteratorInitBegin = iteratorInitBegin;
+Looker.iteratorInitEnd = iteratorInitEnd;
 Looker.iteratorIterationMake = iteratorIterationMake;
 Looker.iteratorCopy = iteratorCopy;
 
@@ -1573,7 +1577,7 @@ Looker.Prime = Prime;
 
 let Iterator = Looker.Iterator = Object.create( null );
 
-Iterator.src = undefined; /* xxx yyy */
+Iterator.src = undefined;
 Iterator.iterator = null;
 Iterator.iterationPrototype = null;
 Iterator.path = null;
@@ -1585,12 +1589,6 @@ Iterator.error = null;
 Iterator.visitedContainer = null;
 Iterator.isCountable = null;
 Iterator.hasImplicit = null;
-// Iterator.onUp = onUp;
-// Iterator.onDown = onDown;
-// Iterator.onAscend = onAscend;
-// Iterator.onTerminal = onTerminal;
-// Iterator.onSrcChanged = onSrcChanged;
-// Iterator.pathJoin = pathJoin;
 Iterator.fast = 0;
 Iterator.recursive = Infinity;
 Iterator.revisiting = 0;
@@ -1600,12 +1598,10 @@ Iterator.upToken = '/';
 Iterator.defaultUpToken = null;
 Iterator.path = null;
 Iterator.level = 0;
-Iterator.src = null;
-Iterator.root = null;
+Iterator.root = undefined;
 Iterator.context = null;
 
-// _.mapSupplement( Iterator, Prime );
-_.mapExtend( Looker, Iterator ); /* xxx : use? */
+_.mapExtend( Looker, Iterator );
 Object.freeze( Iterator );
 
 //
@@ -1647,8 +1643,6 @@ Iteration.iterable = null;
 Iteration.visitCounting = true;
 Object.freeze( Iteration );
 
-_.assert( Looker.Iteration.src === undefined );
-
 //
 
 /**
@@ -1662,8 +1656,16 @@ _.assert( Looker.Iteration.src === undefined );
 let IterationPreserve = Looker.IterationPreserve = Object.create( null );
 IterationPreserve.level = null;
 IterationPreserve.path = null;
-IterationPreserve.src = null;
+IterationPreserve.src = undefined;
 Object.freeze( IterationPreserve );
+
+_.assert( !_.property.has( Looker.Iteration, 'src' ) && Looker.Iteration.src === undefined );
+_.assert( _.property.has( Looker.IterationPreserve, 'src' ) && Looker.IterationPreserve.src === undefined );
+_.assert( _.property.has( Looker, 'src' ) && Looker.src === undefined );
+_.assert( !_.property.has( Looker.Iteration, 'root' ) && Looker.Iteration.root === undefined );
+_.assert( _.property.has( Looker, 'root' ) && Looker.root === undefined );
+
+_.assertMapHasAll( Looker, Prime );
 
 //
 

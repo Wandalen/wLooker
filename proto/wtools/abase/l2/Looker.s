@@ -1436,7 +1436,7 @@ const Looker = Object.create( null );
 const Self = Looker;
 
 Looker.OriginalLooker = Looker;
-Looker.constructor = function Looker() /* xxx0 : implement */
+Looker.constructor = function Looker() /* zzz : implement */
 {
   _.assert( 0, 'not implemented' );
   let prototype = _.prototype.of( this );

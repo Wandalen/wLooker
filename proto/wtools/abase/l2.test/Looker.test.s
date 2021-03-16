@@ -2010,6 +2010,152 @@ function makeCustomBasic( test )
     }
   }
 
+}
+
+//
+
+function errMakeBasic( test )
+{
+
+  /* */
+
+  test.case = 'basic';
+  var got = _.looker.LookingError();
+  test.true( _.errIs( got ) );
+  test.true( got instanceof _.looker.LookingError );
+  test.identical( got.originalMessage, 'LookingError' );
+  test.identical( got.LookingError, true );
+  var exp =
+  {
+    'value' : true,
+    'writable' : true,
+    'enumerable' : false,
+    'configurable' : true,
+  };
+  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  test.identical( got, exp );
+
+  /* */
+
+  test.case = 'basic, new';
+  var got = new _.looker.LookingError();
+  test.true( _.errIs( got ) );
+  test.true( got instanceof _.looker.LookingError );
+  test.identical( got.originalMessage, 'LookingError' );
+  test.identical( got.LookingError, true );
+  var exp =
+  {
+    'value' : true,
+    'writable' : true,
+    'enumerable' : false,
+    'configurable' : true,
+  };
+  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  test.identical( got, exp );
+
+  /* */
+
+  test.case = 'with message';
+  var got = _.looker.LookingError( 'abc', 'def' );
+  test.true( _.errIs( got ) );
+  test.true( got instanceof _.looker.LookingError );
+  test.identical( got.originalMessage, 'abc def' );
+  test.identical( got.LookingError, true );
+  var exp =
+  {
+    'value' : true,
+    'writable' : true,
+    'enumerable' : false,
+    'configurable' : true,
+  };
+  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  test.identical( got, exp );
+
+  /* */
+
+  test.case = 'with message, new';
+  var got = new _.looker.LookingError( 'abc', 'def' );
+  test.true( _.errIs( got ) );
+  test.true( got instanceof _.looker.LookingError );
+  test.identical( got.originalMessage, 'abc def' );
+  test.identical( got.LookingError, true );
+  var exp =
+  {
+    'value' : true,
+    'writable' : true,
+    'enumerable' : false,
+    'configurable' : true,
+  };
+  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  test.identical( got, exp );
+
+  /* */
+
+  test.case = 'remake';
+  var err1 = _.looker.LookingError( 'abc' );
+  var err2 = _.looker.LookingError( err1 );
+  test.true( err1 instanceof _.looker.LookingError );
+  test.true( err2 instanceof _.looker.LookingError );
+  test.identical( err1.originalMessage, 'abc' );
+  test.identical( err2.originalMessage, 'abc' );
+  test.true( err1 === err2 );
+
+  /* */
+
+  test.case = 'remake, new';
+  var err1 = _.looker.LookingError( 'abc' );
+  var err2 = new _.looker.LookingError( err1 );
+  test.true( err1 instanceof _.looker.LookingError );
+  test.true( err2 instanceof _.looker.LookingError );
+  test.identical( err1.originalMessage, 'abc' );
+  test.identical( err2.originalMessage, 'abc' );
+  test.true( err1 !== err2 );
+
+  /* */
+
+  test.case = 'remake, extra argument, right';
+  var err1 = _.looker.LookingError( 'abc' );
+  var err2 = _.looker.LookingError( err1, 'def' );
+  test.true( err1 instanceof _.looker.LookingError );
+  test.true( err2 instanceof _.looker.LookingError );
+  test.identical( err1.originalMessage, 'abc def' );
+  test.identical( err2.originalMessage, 'abc def' );
+  test.true( err1 === err2 );
+
+  /* */
+
+  test.case = 'remake, extra argument, right, new';
+  var err1 = _.looker.LookingError( 'abc' );
+  var err2 = new _.looker.LookingError( err1, 'def' );
+  test.true( err1 instanceof _.looker.LookingError );
+  test.true( err2 instanceof _.looker.LookingError );
+  test.identical( err1.originalMessage, 'abc' );
+  test.identical( err2.originalMessage, 'abc def' );
+  test.true( err1 !== err2 );
+
+  /* */
+
+  test.case = 'remake, extra argument, left';
+  var err1 = _.looker.LookingError( 'abc' );
+  var err2 = _.looker.LookingError( 'def', err1 );
+  test.true( err1 instanceof _.looker.LookingError );
+  test.true( err2 instanceof _.looker.LookingError );
+  test.identical( err1.originalMessage, 'def abc' );
+  test.identical( err2.originalMessage, 'def abc' );
+  test.true( err1 === err2 );
+
+  /* */
+
+  test.case = 'remake, extra argument, left, new';
+  var err1 = _.looker.LookingError( 'abc' );
+  var err2 = new _.looker.LookingError( 'def', err1 );
+  test.true( err1 instanceof _.looker.LookingError );
+  test.true( err2 instanceof _.looker.LookingError );
+  test.identical( err1.originalMessage, 'abc' );
+  test.identical( err2.originalMessage, 'def abc' );
+  test.true( err1 !== err2 );
+
+  /* */
 
 }
 
@@ -3983,6 +4129,7 @@ let Self =
     callbacksComplex,
     reperform,
     makeCustomBasic,
+    errMakeBasic,
 
     optionWithCountable,
     optionWithImplicitBasic,

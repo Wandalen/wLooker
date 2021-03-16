@@ -1170,8 +1170,7 @@ function pathJoin( selectorPath, selectorName )
 function errMake()
 {
   let it = this;
-  /* xxx0 : group the error */
-  let err = _.LookingError
+  let err = _.looker.LookingError
   (
     ... arguments
   );
@@ -1296,6 +1295,8 @@ function classDefine( o )
   _.mapExtend( looker, o.looker );
   if( o.iterator )
   _.mapExtend( looker, o.iterator );
+  if( o.iterationPreserve )
+  _.mapSupplement( looker, o.iterationPreserve );
 
   looker.Looker = looker;
   looker.OriginalLooker = looker;
@@ -1703,16 +1704,24 @@ let LookerNamespaceExtension =
 
 }
 
+let ErrorExtension =
+{
+
+  LookingError,
+
+}
+
 let ToolsExtension =
 {
 
   Looker,
-  LookingError,
+  // LookingError,
   look : exec,
 
 }
 
 _.mapExtend( _.looker, LookerNamespaceExtension );
+_.mapExtend( _.error, ErrorExtension );
 _.mapExtend( _, ToolsExtension );
 
 // --

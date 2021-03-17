@@ -1044,6 +1044,8 @@ function _auxAscend( src )
   for( let k in src ) /* xxx : implement test with e === undefined */
   {
     let e = src[ k ];
+    if( k === 'path' )
+    debugger;
     let eit = it.iterationMake().choose( e, k, true );
     eit.iterate();
     canSibling = it.canSibling();

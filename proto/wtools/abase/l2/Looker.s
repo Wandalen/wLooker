@@ -35,6 +35,9 @@ _.looker = _.looker || Object.create( null );
 
 _.assert( !!_realGlobal_ );
 
+/* qqq : write nice example for readme */
+/* xxx : write nice example for readme */
+
 // --
 // relations
 // --

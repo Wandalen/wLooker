@@ -5,14 +5,10 @@
 
 if( typeof module !== 'undefined' )
 {
-
   let _ = require( '../../../wtools/Tools.s' );
-
   require( '../l2/Looker.s' );
-
-  _.include( 'wTesting' );
   _.include( 'wStringer' );
-
+  _.include( 'wTesting' );
 }
 
 let _global = _global_;

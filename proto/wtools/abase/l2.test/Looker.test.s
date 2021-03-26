@@ -11,8 +11,9 @@ if( typeof module !== 'undefined' )
   _.include( 'wTesting' );
 }
 
-let _global = _global_;
-let _ = _global_.wTools;
+const _global = _global_;
+const _ = _global_.wTools;
+const __ = _globals_.testing.wTools;
 
 /*
 node wtools/abase/l2.test/Looker.test.s && \
@@ -2665,7 +2666,7 @@ function optionWithImplicitGenerated( test )
 
   function toStr( src )
   {
-    return _globals_.testing.wTools.entity.exportStringSolo( src );
+    return __.entity.exportStringSolo( src );
   }
 
   /* */
@@ -4096,7 +4097,7 @@ performance.timeOut = 1e6;
 // declare
 // --
 
-let Self =
+const Proto =
 {
 
   name : 'Tools.l3.Look',
@@ -4146,7 +4147,7 @@ let Self =
 
 }
 
-Self = wTestSuite( Self );
+const Self = wTestSuite( Proto );
 if( typeof module !== 'undefined' && !module.parent )
 wTester.test( Self.name );
 

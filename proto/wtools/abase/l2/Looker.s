@@ -27,9 +27,9 @@ if( typeof module !== 'undefined' )
 
 }
 
-let _global = _global_;
-let _ = _global_.wTools;
-let _ObjectHasOwnProperty = Object.hasOwnProperty;
+const _global = _global_;
+const _ = _global_.wTools;
+const _ObjectHasOwnProperty = Object.hasOwnProperty;
 
 _.looker = _.looker || Object.create( null );
 
@@ -94,7 +94,7 @@ function head( routine, args )
   _.assert( !!routine.defaults.Looker );
   let o = routine.defaults.Looker.optionsFromArguments( args );
   o.Looker = o.Looker || routine.defaults;
-  _.assertMapHasOnly( o, routine.defaults );
+  _.map.assertHasOnly( o, routine.defaults );
   _.assert
   (
     _.mapKeys( routine.defaults ).length === _.mapKeys( o.Looker ).length,
@@ -1009,7 +1009,7 @@ function _countableAscend( src )
 {
   let it = this;
 
-  if( _.entity.methodIteratorOf( src ) )
+  if( _.class.methodIteratorOf( src ) )
   {
     let k = 0;
     for( let e of src ) /* xxx : implement test with e === undefined */
@@ -1680,7 +1680,7 @@ _.assert( _.property.has( Looker, 'src' ) && Looker.src === undefined );
 _.assert( !_.property.has( Looker.Iteration, 'root' ) && Looker.Iteration.root === undefined );
 _.assert( _.property.has( Looker, 'root' ) && Looker.root === undefined );
 
-_.assertMapHasAll( Looker, Prime );
+_.map.assertHasAll( Looker, Prime );
 
 //
 

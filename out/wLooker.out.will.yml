@@ -1526,6 +1526,4 @@ module:
       ../.im.will.yml:
         hash: 982439ae68b5233851964dd62bf234b4
         size: 5093
-      wLooker.out.will.yml:
-        hash: 121f4fde2a15369056334d1b39128860
-        size: 39128
+      wLooker.out.will.yml: *ref_0

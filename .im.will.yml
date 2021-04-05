@@ -82,8 +82,8 @@ path:
       raw: compiled
       content: prime
   npm.proto.entry:
-    - /pro/module/wLooker/proto/wtools/abase/l2/Looker.s
-    - /pro/module/wLooker/proto/node_modules/wlooker
+    - proto/wtools/abase/l2/Looker.s
+    - proto/node_modules/wlooker
 reflector:
   reflect.proto:
     inherit: predefined.*

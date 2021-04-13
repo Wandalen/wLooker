@@ -266,7 +266,8 @@ function iteratorInitEnd( iterator )
   _.assert( 0 <= iterator.revisiting && iterator.revisiting <= 2 );
   _.assert
   (
-    _.longHas( [ 'countable', 'vector', 'long', 'array', '' ], iterator.withCountable ),
+    // _.longHas( [ 'countable', 'vector', 'long', 'array', '' ], iterator.withCountable ),
+    this.WithCountable[ iterator.withCountable ] !== undefined,
     'Unexpected value of option::withCountable'
   );
   _.assert
@@ -280,8 +281,8 @@ function iteratorInitEnd( iterator )
 
   /* */
 
-  iterator.isCountable = iterator.withCountableToIsElementalFunctionMap[ iterator.withCountable ];
-  iterator.hasImplicit = iterator.withImplicitToHasImplicitFunctionMap[ iterator.withImplicit ];
+  iterator.isCountable = iterator.WithCountableToIsElementalFunctionMap[ iterator.withCountable ];
+  iterator.hasImplicit = iterator.WithImplicitToHasImplicitFunctionMap[ iterator.withImplicit ];
 
   if( iterator.revisiting < 2 )
   {
@@ -579,9 +580,22 @@ function chooseEnd( e, k, exists )
   let k2 = k;
   if( k2 === null )
   k2 = e;
-  if( !_.strIs( k2 ) )
-  k2 = _.entity.exportStringShallow( k2 );
-  let hasUp = _.strIs( k2 ) && _.strHasAny( k2, it.upToken );
+  if( _.numberIs( k2 ) )
+  {
+    k2 = `#${k2}`;
+  }
+  else if( _.strIs( k2 ) )
+  {
+    if( k2 === '' )
+    k2 = '""';
+  }
+  else
+  {
+    debugger;
+    k2 = _.entity.exportStringShallow( k2 );
+  }
+  _.assert( k2 );
+  let hasUp = _.strHasAny( k2, it.upToken );
   if( hasUp )
   k2 = '"' + k2 + '"';
 
@@ -647,19 +661,19 @@ function iterableEval()
 
   if( it.isCountable( it.src ) )
   {
-    it.iterable = it.containerNameToIdMap.countable;
+    it.iterable = it.ContainerNameToIdMap.countable;
   }
   else if( _.aux.is( it.src ) )
   {
-    it.iterable = it.containerNameToIdMap.aux;
+    it.iterable = it.ContainerNameToIdMap.aux;
   }
   else if( _.hashMapLike( it.src ) )
   {
-    it.iterable = it.containerNameToIdMap.hashMap;
+    it.iterable = it.ContainerNameToIdMap.hashMap;
   }
   else if( _.setLike( it.src ) )
   {
-    it.iterable = it.containerNameToIdMap.set;
+    it.iterable = it.ContainerNameToIdMap.set;
   }
   else
   {
@@ -977,8 +991,8 @@ function ascend()
 function onAscend()
 {
   let it = this;
-  _.assert( !!it.containerIdToAscendMap[ it.iterable ], () => `No ascend for ${it.iterable}` );
-  it.containerIdToAscendMap[ it.iterable ].call( it, it.src );
+  _.assert( !!it.ContainerIdToAscendMap[ it.iterable ], () => `No ascend for ${it.iterable}` );
+  it.ContainerIdToAscendMap[ it.iterable ].call( it, it.src );
 }
 
 // --
@@ -1047,8 +1061,6 @@ function _auxAscend( src )
   for( let k in src ) /* xxx : implement test with e === undefined */
   {
     let e = src[ k ];
-    // if( k === 'path' )
-    // debugger;
     let eit = it.iterationMake().choose( e, k, true );
     eit.iterate();
     canSibling = it.canSibling();
@@ -1100,13 +1112,14 @@ function _setAscend( src )
 
   _.assert( arguments.length === 1 );
 
+  let k = 0;
   for( let e of src ) /* xxx : implement test with e === undefined */
   {
-    let k = e;
     let eit = it.iterationMake().choose( e, k, true );
     eit.iterate();
     if( !it.canSibling() )
     break;
+    k += 1;
   }
 
 }
@@ -1400,7 +1413,7 @@ classDefine.defaults =
 
 let LookingError = _.error.error_functor( 'LookingError' );
 
-let containerNameToIdMap =
+let ContainerNameToIdMap =
 {
   'terminal' : 0,
   'countable' : 1,
@@ -1410,7 +1423,7 @@ let containerNameToIdMap =
   'last' : 4,
 }
 
-let containerIdToNameMap =
+let ContainerIdToNameMap =
 {
   0 : 'terminal',
   1 : 'countable',
@@ -1419,7 +1432,7 @@ let containerIdToNameMap =
   4 : 'set',
 }
 
-let containerIdToAscendMap =
+let ContainerIdToAscendMap =
 {
   0 : _termianlAscend,
   1 : _countableAscend,
@@ -1428,7 +1441,7 @@ let containerIdToAscendMap =
   4 : _setAscend,
 }
 
-let withCountableToIsElementalFunctionMap =
+let WithCountableToIsElementalFunctionMap =
 {
   'countable' : _isCountable,
   'vector' : _isVector,
@@ -1437,11 +1450,20 @@ let withCountableToIsElementalFunctionMap =
   '' : _false,
 }
 
-let withImplicitToHasImplicitFunctionMap =
+let WithImplicitToHasImplicitFunctionMap =
 {
   'constructible.like' : _isConstructibleLike,
   'aux' : _isAux,
   '' : _false,
+}
+
+let WithCountable =
+{
+  'countable' : 'countable',
+  'vector' : 'vector',
+  'long' : 'long',
+  'array' : 'array',
+  '' : '',
 }
 
 //
@@ -1556,11 +1578,12 @@ Looker.errMake = errMake;
 // feilds
 
 Looker.LookingError = LookingError;
-Looker.containerNameToIdMap = containerNameToIdMap;
-Looker.containerIdToNameMap = containerIdToNameMap;
-Looker.containerIdToAscendMap = containerIdToAscendMap;
-Looker.withCountableToIsElementalFunctionMap = withCountableToIsElementalFunctionMap;
-Looker.withImplicitToHasImplicitFunctionMap = withImplicitToHasImplicitFunctionMap;
+Looker.ContainerNameToIdMap = ContainerNameToIdMap;
+Looker.ContainerIdToNameMap = ContainerIdToNameMap;
+Looker.ContainerIdToAscendMap = ContainerIdToAscendMap;
+Looker.WithCountableToIsElementalFunctionMap = WithCountableToIsElementalFunctionMap;
+Looker.WithImplicitToHasImplicitFunctionMap = WithImplicitToHasImplicitFunctionMap;
+Looker.WithCountable = WithCountable;
 Looker.Prime = Prime;
 
 //
@@ -1640,7 +1663,6 @@ Object.freeze( Iterator );
  */
 
 let Iteration = Looker.Iteration = Object.create( null );
-// Iteration.exists = null; /* xxx : move to selector */
 Iteration.childrenCounter = 0;
 Iteration.level = 0;
 Iteration.path = '/';
@@ -1729,7 +1751,6 @@ let ToolsExtension =
 {
 
   Looker,
-  // LookingError,
   look : exec,
 
 }

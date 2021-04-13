@@ -24,7 +24,7 @@ node wtools/abase/l6.test/SelectorExtra.test.s && \
 node wtools/abase/l6.test/Equaler.test.s && \
 node wtools/abase/l6.test/Resolver.test.s && \
 node wtools/abase/l7.test/ResolverExtra.test.s && \
-node wtools/amid/l5_mapper.test/TemplateTree.test.s && \
+node wtools/amid/l5_mapper.test/TemplateTreeResolver.test.s && \
 node wtools/amid/l5_mapper.test/TemplateTreeEnvironment.test.s && \
 tst.local wtools/amid/l3/introspector.test n:1 && \
 node wtools/atop/will.test/Int.test.s n:1 rapidity:-3
@@ -119,8 +119,8 @@ function look( test )
     g : new F32x([ 1, 2, 3 ]),
   }
 
-  var expectedUpPaths = [ '/', '/a', '/b', '/c', '/c/0', '/c/1', '/d', '/d/0', '/d/1', '/d/1/date', '/e', '/f', '/g' ];
-  var expectedDownPaths = [ '/a', '/b', '/c/0', '/c/1', '/c', '/d/0', '/d/1/date', '/d/1', '/d', '/e', '/f', '/g', '/' ];
+  var expectedUpPaths = [ '/', '/a', '/b', '/c', '/c/#0', '/c/#1', '/d', '/d/#0', '/d/#1', '/d/#1/date', '/e', '/f', '/g' ];
+  var expectedDownPaths = [ '/a', '/b', '/c/#0', '/c/#1', '/c', '/d/#0', '/d/#1/date', '/d/#1', '/d', '/e', '/f', '/g', '/' ];
   var expectedUpIndinces = [ null, 0, 1, 2, 0, 1, 3, 0, 1, 0, 4, 5, 6 ];
   var expectedDownIndices = [ 0, 1, 0, 1, 2, 0, 0, 1, 3, 4, 5, 6, null ];
 
@@ -180,8 +180,8 @@ function lookWithCountableVector( test )
     g : new F32x([ 1, 2, 3 ]),
   }
 
-  var expectedUpPaths = [ '/', '/a', '/b', '/c', '/c/0', '/c/1', '/d', '/d/0', '/d/1', '/d/1/date', '/e', '/f', '/g', '/g/0', '/g/1', '/g/2' ];
-  var expectedDownPaths = [ '/a', '/b', '/c/0', '/c/1', '/c', '/d/0', '/d/1/date', '/d/1', '/d', '/e', '/f', '/g/0', '/g/1', '/g/2', '/g', '/' ];
+  var expectedUpPaths = [ '/', '/a', '/b', '/c', '/c/#0', '/c/#1', '/d', '/d/#0', '/d/#1', '/d/#1/date', '/e', '/f', '/g', '/g/#0', '/g/#1', '/g/#2' ];
+  var expectedDownPaths = [ '/a', '/b', '/c/#0', '/c/#1', '/c', '/d/#0', '/d/#1/date', '/d/#1', '/d', '/e', '/f', '/g/#0', '/g/#1', '/g/#2', '/g', '/' ];
   var expectedUpIndinces = [ null, 0, 1, 2, 0, 1, 3, 0, 1, 0, 4, 5, 6, 0, 1, 2 ];
   var expectedDownIndices = [ 0, 1, 0, 1, 2, 0, 0, 1, 3, 4, 5, 0, 1, 2, 6, null ];
 
@@ -401,9 +401,9 @@ function lookWithIterator( test )
   clean();
   var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
   var it = _.look({ src : ins1, onUp : handleUp1, onDown : handleDown1, withCountable : 1 });
-  var expectedUpPaths = [ '/', '/0', '/1' ];
+  var expectedUpPaths = [ '/', '/#0', '/#1' ];
   test.identical( gotUpPaths, expectedUpPaths );
-  var expectedDownPaths = [ '/0', '/1', '/' ];
+  var expectedDownPaths = [ '/#0', '/#1', '/' ];
   test.identical( gotDownPaths, expectedDownPaths );
   var expectedUpKeys = [ null, 0, 1 ];
   test.identical( gotUpKeys, expectedUpKeys );
@@ -503,27 +503,15 @@ function lookWithIterator( test )
 
 //
 
-function fieldPaths( test )
+function fieldPath( test )
 {
-
-  let upc = 0;
-  function onUp()
-  {
-    let it = this;
-    let expectedPaths = [ '/', '/a', '/d', '/d/b', '/d/c' ];
-    test.identical( it.path, expectedPaths[ upc ] );
-    upc += 1;
-  }
-  let downc = 0;
-  function onDown()
-  {
-    let it = this;
-    let expectedPaths = [ '/a', '/d/b', '/d/c', '/d', '/' ];
-    test.identical( it.path, expectedPaths[ downc ] );
-    downc += 1;
-  }
+  let upPaths, downPaths;
 
   /* */
+
+  test.case = 'basic map';
+
+  clean();
 
   var src =
   {
@@ -531,7 +519,7 @@ function fieldPaths( test )
     d :
     {
       b : 13,
-      c : 15,
+      5 : 15,
     }
   }
   var got = _.look
@@ -541,1085 +529,225 @@ function fieldPaths( test )
     onUp,
     onDown,
   });
-  test.identical( got, got );
-  test.identical( upc, 5 );
-  test.identical( downc, 5 );
+  var exp = [ '/', '/a', '/d', '/d/5', '/d/b' ];
+  test.identical( upPaths, exp );
+  var exp = [ '/a', '/d/5', '/d/b', '/d', '/' ];
+  test.identical( downPaths, exp );
+
+  /* */
+
+  test.case = 'basic hashmap';
+
+  clean();
+
+  var src = new HashMap();
+  src.set( 'a', 11 );
+  var d = new HashMap()
+  d.set( 'b', 13 );
+  d.set( 5, 15 );
+  src.set( 'd', d );
+  var got = _.look
+  ({
+    src,
+    upToken : [ '/', './' ],
+    onUp,
+    onDown,
+  });
+  var exp = [ '/', '/a', '/d', '/d/b', '/d/#5' ];
+  test.identical( upPaths, exp );
+  var exp = [ '/a', '/d/b', '/d/#5', '/d', '/' ];
+  test.identical( downPaths, exp );
+
+  /* */
+
+  test.case = 'basic set';
+
+  clean();
+  var src = new Set();
+  src.add( 'a', 11 );
+  var d = new Set()
+  d.add( 'b' );
+  d.add( 5 );
+  src.add( d );
+  var got = _.look
+  ({
+    src,
+    upToken : [ '/', './' ],
+    onUp,
+    onDown,
+  });
+  var exp = [ '/', '/#0', '/#1', '/#1/#0', '/#1/#1' ];
+  test.identical( upPaths, exp );
+  var exp = [ '/#0', '/#1/#0', '/#1/#1', '/#1', '/' ];
+  test.identical( downPaths, exp );
+
+  /* */
+
+  test.case = 'basic array';
+
+  clean();
+  var src = [ 'a', [ 'b', 'c' ] ];
+  var got = _.look
+  ({
+    src,
+    upToken : [ '/', './' ],
+    onUp,
+    onDown,
+  });
+  var exp = [ '/', '/#0', '/#1', '/#1/#0', '/#1/#1' ];
+  test.identical( upPaths, exp );
+  var exp = [ '/#0', '/#1/#0', '/#1/#1', '/#1', '/' ];
+  test.identical( downPaths, exp );
+
+  /* */
+
+  test.case = 'countalbe';
+
+  clean();
+  var b = new countableConstructor({ withIterator : 1, elements : [ 'c', 'd' ] });
+  var src = new countableConstructor({ withIterator : 1, elements : [ 'a', b ] });
+  var got = _.look
+  ({
+    src,
+    upToken : [ '/', './' ],
+    onUp,
+    onDown,
+    withCountable : 'countable',
+  });
+  var exp = [ '/', '/#0', '/#1', '/#1/#0', '/#1/#1' ];
+  test.identical( upPaths, exp );
+  var exp = [ '/#0', '/#1/#0', '/#1/#1', '/#1', '/' ];
+  test.identical( downPaths, exp );
+
+  /* */
+
+  function clean()
+  {
+    upPaths = [];
+    downPaths = [];
+  }
+
+  function onUp()
+  {
+    let it = this;
+    upPaths.push( it.path );
+  }
+
+  function onDown()
+  {
+    let it = this;
+    downPaths.push( it.path );
+  }
+
+  /* */
+
+  function _iterate()
+  {
+
+    let iterator = Object.create( null );
+    iterator.next = next;
+    iterator.index = 0;
+    iterator.instance = this;
+    return iterator;
+
+    function next()
+    {
+      let result = Object.create( null );
+      result.done = this.index === this.instance.elements.length;
+      if( result.done )
+      return result;
+      result.value = this.instance.elements[ this.index ];
+      this.index += 1;
+      return result;
+    }
+
+  }
+
+  /* */
+
+  function countableConstructor( o )
+  {
+    return countableMake( this, o );
+  }
+
+  /* */
+
+  function countableMake( dst, o )
+  {
+    if( dst === null )
+    dst = Object.create( null );
+    _.mapExtend( dst, o );
+    if( o.withIterator )
+    dst[ Symbol.iterator ] = _iterate;
+    return dst;
+  }
 
   /* */
 
 }
 
+fieldPath.description =
+`
+  - field path has sane values during traversing
+  - cardinals are prefixed with #
+  - empty string is quoted
+  - keys with spaces are quoted
+  - keys with delimeter are quoted
+`
+
 //
 
-function callbacksComplex( test )
-{
-  let ups = [];
-  let dws = [];
-
-  /* - */
-
-  let expUps =
-  [
-    '/',
-    '/null',
-    '/undefined',
-    '/boolean.true',
-    '/boolean.false',
-    '/string.defined',
-    '/string.empty',
-    '/number.zero',
-    '/number.small',
-    '/number.big',
-    '/number.infinity.positive',
-    '/number.infinity.negative',
-    '/number.nan',
-    '/number.signed.zero.negative',
-    '/number.signed.zero.positive',
-    '/bigInt.zero',
-    '/bigInt.small',
-    '/bigInt.big',
-    '/regexp.defined',
-    '/regexp.simple1',
-    '/regexp.simple2',
-    '/regexp.simple3',
-    '/regexp.simple4',
-    '/regexp.simple5',
-    '/regexp.complex0',
-    '/regexp.complex1',
-    '/regexp.complex2',
-    '/regexp.complex3',
-    '/regexp.complex4',
-    '/regexp.complex5',
-    '/regexp.complex6',
-    '/regexp.complex7',
-    '/date.now',
-    '/date.fixed',
-    '/buffer.node',
-    '/buffer.raw',
-    '/buffer.bytes',
-    '/array.simple',
-    '/array.simple/0',
-    '/array.simple/1',
-    '/array.complex',
-    '/array.complex/0',
-    '/array.complex/0/null',
-    '/array.complex/0/undefined',
-    '/array.complex/0/boolean.true',
-    '/array.complex/0/boolean.false',
-    '/array.complex/0/string.defined',
-    '/array.complex/0/string.empty',
-    '/array.complex/0/number.zero',
-    '/array.complex/0/number.small',
-    '/array.complex/0/number.big',
-    '/array.complex/0/number.infinity.positive',
-    '/array.complex/0/number.infinity.negative',
-    '/array.complex/0/number.nan',
-    '/array.complex/0/number.signed.zero.negative',
-    '/array.complex/0/number.signed.zero.positive',
-    '/array.complex/0/bigInt.zero',
-    '/array.complex/0/bigInt.small',
-    '/array.complex/0/bigInt.big',
-    '/array.complex/0/regexp.defined',
-    '/array.complex/0/regexp.simple1',
-    '/array.complex/0/regexp.simple2',
-    '/array.complex/0/regexp.simple3',
-    '/array.complex/0/regexp.simple4',
-    '/array.complex/0/regexp.simple5',
-    '/array.complex/0/regexp.complex0',
-    '/array.complex/0/regexp.complex1',
-    '/array.complex/0/regexp.complex2',
-    '/array.complex/0/regexp.complex3',
-    '/array.complex/0/regexp.complex4',
-    '/array.complex/0/regexp.complex5',
-    '/array.complex/0/regexp.complex6',
-    '/array.complex/0/regexp.complex7',
-    '/array.complex/0/date.now',
-    '/array.complex/0/date.fixed',
-    '/array.complex/0/buffer.node',
-    '/array.complex/0/buffer.raw',
-    '/array.complex/0/buffer.bytes',
-    '/array.complex/0/array.simple',
-    '/array.complex/0/array.simple/0',
-    '/array.complex/0/array.simple/1',
-    '/array.complex/0/array.complex',
-    '/array.complex/0/array.complex/0',
-    '/array.complex/0/array.complex/1',
-    '/array.complex/0/set',
-    '/array.complex/0/set/null',
-    '/array.complex/0/hashmap',
-    '/array.complex/0/hashmap/element0',
-    '/array.complex/0/hashmap/element1',
-    '/array.complex/0/map',
-    '/array.complex/0/map/element0',
-    '/array.complex/0/map/element1',
-    '/array.complex/0/recursion.self',
-    '/array.complex/1',
-    '/array.complex/1/null',
-    '/array.complex/1/undefined',
-    '/array.complex/1/boolean.true',
-    '/array.complex/1/boolean.false',
-    '/array.complex/1/string.defined',
-    '/array.complex/1/string.empty',
-    '/array.complex/1/number.zero',
-    '/array.complex/1/number.small',
-    '/array.complex/1/number.big',
-    '/array.complex/1/number.infinity.positive',
-    '/array.complex/1/number.infinity.negative',
-    '/array.complex/1/number.nan',
-    '/array.complex/1/number.signed.zero.negative',
-    '/array.complex/1/number.signed.zero.positive',
-    '/array.complex/1/bigInt.zero',
-    '/array.complex/1/bigInt.small',
-    '/array.complex/1/bigInt.big',
-    '/array.complex/1/regexp.defined',
-    '/array.complex/1/regexp.simple1',
-    '/array.complex/1/regexp.simple2',
-    '/array.complex/1/regexp.simple3',
-    '/array.complex/1/regexp.simple4',
-    '/array.complex/1/regexp.simple5',
-    '/array.complex/1/regexp.complex0',
-    '/array.complex/1/regexp.complex1',
-    '/array.complex/1/regexp.complex2',
-    '/array.complex/1/regexp.complex3',
-    '/array.complex/1/regexp.complex4',
-    '/array.complex/1/regexp.complex5',
-    '/array.complex/1/regexp.complex6',
-    '/array.complex/1/regexp.complex7',
-    '/array.complex/1/date.now',
-    '/array.complex/1/date.fixed',
-    '/array.complex/1/buffer.node',
-    '/array.complex/1/buffer.raw',
-    '/array.complex/1/buffer.bytes',
-    '/array.complex/1/array.simple',
-    '/array.complex/1/array.simple/0',
-    '/array.complex/1/array.simple/1',
-    '/array.complex/1/array.complex',
-    '/array.complex/1/array.complex/0',
-    '/array.complex/1/array.complex/1',
-    '/array.complex/1/set',
-    '/array.complex/1/set/null',
-    '/array.complex/1/hashmap',
-    '/array.complex/1/hashmap/element0',
-    '/array.complex/1/hashmap/element1',
-    '/array.complex/1/map',
-    '/array.complex/1/map/element0',
-    '/array.complex/1/map/element1',
-    '/array.complex/1/recursion.self',
-    '/set',
-    '/set/{- Map.pure with 42 elements -}',
-    '/set/{- Map.pure with 42 elements -}/null',
-    '/set/{- Map.pure with 42 elements -}/undefined',
-    '/set/{- Map.pure with 42 elements -}/boolean.true',
-    '/set/{- Map.pure with 42 elements -}/boolean.false',
-    '/set/{- Map.pure with 42 elements -}/string.defined',
-    '/set/{- Map.pure with 42 elements -}/string.empty',
-    '/set/{- Map.pure with 42 elements -}/number.zero',
-    '/set/{- Map.pure with 42 elements -}/number.small',
-    '/set/{- Map.pure with 42 elements -}/number.big',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.positive',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.negative',
-    '/set/{- Map.pure with 42 elements -}/number.nan',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.negative',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.positive',
-    '/set/{- Map.pure with 42 elements -}/bigInt.zero',
-    '/set/{- Map.pure with 42 elements -}/bigInt.small',
-    '/set/{- Map.pure with 42 elements -}/bigInt.big',
-    '/set/{- Map.pure with 42 elements -}/regexp.defined',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple1',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple2',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple3',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple4',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex0',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex1',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex2',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex3',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex4',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex6',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex7',
-    '/set/{- Map.pure with 42 elements -}/date.now',
-    '/set/{- Map.pure with 42 elements -}/date.fixed',
-    '/set/{- Map.pure with 42 elements -}/buffer.node',
-    '/set/{- Map.pure with 42 elements -}/buffer.raw',
-    '/set/{- Map.pure with 42 elements -}/buffer.bytes',
-    '/set/{- Map.pure with 42 elements -}/array.simple',
-    '/set/{- Map.pure with 42 elements -}/array.simple/0',
-    '/set/{- Map.pure with 42 elements -}/array.simple/1',
-    '/set/{- Map.pure with 42 elements -}/array.complex',
-    '/set/{- Map.pure with 42 elements -}/array.complex/0',
-    '/set/{- Map.pure with 42 elements -}/array.complex/1',
-    '/set/{- Map.pure with 42 elements -}/set',
-    '/set/{- Map.pure with 42 elements -}/set/null',
-    '/set/{- Map.pure with 42 elements -}/hashmap',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element0',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element1',
-    '/set/{- Map.pure with 42 elements -}/map',
-    '/set/{- Map.pure with 42 elements -}/map/element0',
-    '/set/{- Map.pure with 42 elements -}/map/element1',
-    '/set/{- Map.pure with 42 elements -}/recursion.self',
-    '/set/{- Map.pure with 42 elements -}',
-    '/set/{- Map.pure with 42 elements -}/null',
-    '/set/{- Map.pure with 42 elements -}/undefined',
-    '/set/{- Map.pure with 42 elements -}/boolean.true',
-    '/set/{- Map.pure with 42 elements -}/boolean.false',
-    '/set/{- Map.pure with 42 elements -}/string.defined',
-    '/set/{- Map.pure with 42 elements -}/string.empty',
-    '/set/{- Map.pure with 42 elements -}/number.zero',
-    '/set/{- Map.pure with 42 elements -}/number.small',
-    '/set/{- Map.pure with 42 elements -}/number.big',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.positive',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.negative',
-    '/set/{- Map.pure with 42 elements -}/number.nan',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.negative',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.positive',
-    '/set/{- Map.pure with 42 elements -}/bigInt.zero',
-    '/set/{- Map.pure with 42 elements -}/bigInt.small',
-    '/set/{- Map.pure with 42 elements -}/bigInt.big',
-    '/set/{- Map.pure with 42 elements -}/regexp.defined',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple1',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple2',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple3',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple4',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex0',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex1',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex2',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex3',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex4',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex6',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex7',
-    '/set/{- Map.pure with 42 elements -}/date.now',
-    '/set/{- Map.pure with 42 elements -}/date.fixed',
-    '/set/{- Map.pure with 42 elements -}/buffer.node',
-    '/set/{- Map.pure with 42 elements -}/buffer.raw',
-    '/set/{- Map.pure with 42 elements -}/buffer.bytes',
-    '/set/{- Map.pure with 42 elements -}/array.simple',
-    '/set/{- Map.pure with 42 elements -}/array.simple/0',
-    '/set/{- Map.pure with 42 elements -}/array.simple/1',
-    '/set/{- Map.pure with 42 elements -}/array.complex',
-    '/set/{- Map.pure with 42 elements -}/array.complex/0',
-    '/set/{- Map.pure with 42 elements -}/array.complex/1',
-    '/set/{- Map.pure with 42 elements -}/set',
-    '/set/{- Map.pure with 42 elements -}/set/null',
-    '/set/{- Map.pure with 42 elements -}/hashmap',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element0',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element1',
-    '/set/{- Map.pure with 42 elements -}/map',
-    '/set/{- Map.pure with 42 elements -}/map/element0',
-    '/set/{- Map.pure with 42 elements -}/map/element1',
-    '/set/{- Map.pure with 42 elements -}/recursion.self',
-    '/hashmap',
-    '/hashmap/element0',
-    '/hashmap/element0/null',
-    '/hashmap/element0/undefined',
-    '/hashmap/element0/boolean.true',
-    '/hashmap/element0/boolean.false',
-    '/hashmap/element0/string.defined',
-    '/hashmap/element0/string.empty',
-    '/hashmap/element0/number.zero',
-    '/hashmap/element0/number.small',
-    '/hashmap/element0/number.big',
-    '/hashmap/element0/number.infinity.positive',
-    '/hashmap/element0/number.infinity.negative',
-    '/hashmap/element0/number.nan',
-    '/hashmap/element0/number.signed.zero.negative',
-    '/hashmap/element0/number.signed.zero.positive',
-    '/hashmap/element0/bigInt.zero',
-    '/hashmap/element0/bigInt.small',
-    '/hashmap/element0/bigInt.big',
-    '/hashmap/element0/regexp.defined',
-    '/hashmap/element0/regexp.simple1',
-    '/hashmap/element0/regexp.simple2',
-    '/hashmap/element0/regexp.simple3',
-    '/hashmap/element0/regexp.simple4',
-    '/hashmap/element0/regexp.simple5',
-    '/hashmap/element0/regexp.complex0',
-    '/hashmap/element0/regexp.complex1',
-    '/hashmap/element0/regexp.complex2',
-    '/hashmap/element0/regexp.complex3',
-    '/hashmap/element0/regexp.complex4',
-    '/hashmap/element0/regexp.complex5',
-    '/hashmap/element0/regexp.complex6',
-    '/hashmap/element0/regexp.complex7',
-    '/hashmap/element0/date.now',
-    '/hashmap/element0/date.fixed',
-    '/hashmap/element0/buffer.node',
-    '/hashmap/element0/buffer.raw',
-    '/hashmap/element0/buffer.bytes',
-    '/hashmap/element0/array.simple',
-    '/hashmap/element0/array.simple/0',
-    '/hashmap/element0/array.simple/1',
-    '/hashmap/element0/array.complex',
-    '/hashmap/element0/array.complex/0',
-    '/hashmap/element0/array.complex/1',
-    '/hashmap/element0/set',
-    '/hashmap/element0/set/null',
-    '/hashmap/element0/hashmap',
-    '/hashmap/element0/hashmap/element0',
-    '/hashmap/element0/hashmap/element1',
-    '/hashmap/element0/map',
-    '/hashmap/element0/map/element0',
-    '/hashmap/element0/map/element1',
-    '/hashmap/element0/recursion.self',
-    '/hashmap/element1',
-    '/hashmap/element1/null',
-    '/hashmap/element1/undefined',
-    '/hashmap/element1/boolean.true',
-    '/hashmap/element1/boolean.false',
-    '/hashmap/element1/string.defined',
-    '/hashmap/element1/string.empty',
-    '/hashmap/element1/number.zero',
-    '/hashmap/element1/number.small',
-    '/hashmap/element1/number.big',
-    '/hashmap/element1/number.infinity.positive',
-    '/hashmap/element1/number.infinity.negative',
-    '/hashmap/element1/number.nan',
-    '/hashmap/element1/number.signed.zero.negative',
-    '/hashmap/element1/number.signed.zero.positive',
-    '/hashmap/element1/bigInt.zero',
-    '/hashmap/element1/bigInt.small',
-    '/hashmap/element1/bigInt.big',
-    '/hashmap/element1/regexp.defined',
-    '/hashmap/element1/regexp.simple1',
-    '/hashmap/element1/regexp.simple2',
-    '/hashmap/element1/regexp.simple3',
-    '/hashmap/element1/regexp.simple4',
-    '/hashmap/element1/regexp.simple5',
-    '/hashmap/element1/regexp.complex0',
-    '/hashmap/element1/regexp.complex1',
-    '/hashmap/element1/regexp.complex2',
-    '/hashmap/element1/regexp.complex3',
-    '/hashmap/element1/regexp.complex4',
-    '/hashmap/element1/regexp.complex5',
-    '/hashmap/element1/regexp.complex6',
-    '/hashmap/element1/regexp.complex7',
-    '/hashmap/element1/date.now',
-    '/hashmap/element1/date.fixed',
-    '/hashmap/element1/buffer.node',
-    '/hashmap/element1/buffer.raw',
-    '/hashmap/element1/buffer.bytes',
-    '/hashmap/element1/array.simple',
-    '/hashmap/element1/array.simple/0',
-    '/hashmap/element1/array.simple/1',
-    '/hashmap/element1/array.complex',
-    '/hashmap/element1/array.complex/0',
-    '/hashmap/element1/array.complex/1',
-    '/hashmap/element1/set',
-    '/hashmap/element1/set/null',
-    '/hashmap/element1/hashmap',
-    '/hashmap/element1/hashmap/element0',
-    '/hashmap/element1/hashmap/element1',
-    '/hashmap/element1/map',
-    '/hashmap/element1/map/element0',
-    '/hashmap/element1/map/element1',
-    '/hashmap/element1/recursion.self',
-    '/map',
-    '/map/element0',
-    '/map/element0/null',
-    '/map/element0/undefined',
-    '/map/element0/boolean.true',
-    '/map/element0/boolean.false',
-    '/map/element0/string.defined',
-    '/map/element0/string.empty',
-    '/map/element0/number.zero',
-    '/map/element0/number.small',
-    '/map/element0/number.big',
-    '/map/element0/number.infinity.positive',
-    '/map/element0/number.infinity.negative',
-    '/map/element0/number.nan',
-    '/map/element0/number.signed.zero.negative',
-    '/map/element0/number.signed.zero.positive',
-    '/map/element0/bigInt.zero',
-    '/map/element0/bigInt.small',
-    '/map/element0/bigInt.big',
-    '/map/element0/regexp.defined',
-    '/map/element0/regexp.simple1',
-    '/map/element0/regexp.simple2',
-    '/map/element0/regexp.simple3',
-    '/map/element0/regexp.simple4',
-    '/map/element0/regexp.simple5',
-    '/map/element0/regexp.complex0',
-    '/map/element0/regexp.complex1',
-    '/map/element0/regexp.complex2',
-    '/map/element0/regexp.complex3',
-    '/map/element0/regexp.complex4',
-    '/map/element0/regexp.complex5',
-    '/map/element0/regexp.complex6',
-    '/map/element0/regexp.complex7',
-    '/map/element0/date.now',
-    '/map/element0/date.fixed',
-    '/map/element0/buffer.node',
-    '/map/element0/buffer.raw',
-    '/map/element0/buffer.bytes',
-    '/map/element0/array.simple',
-    '/map/element0/array.simple/0',
-    '/map/element0/array.simple/1',
-    '/map/element0/array.complex',
-    '/map/element0/array.complex/0',
-    '/map/element0/array.complex/1',
-    '/map/element0/set',
-    '/map/element0/set/null',
-    '/map/element0/hashmap',
-    '/map/element0/hashmap/element0',
-    '/map/element0/hashmap/element1',
-    '/map/element0/map',
-    '/map/element0/map/element0',
-    '/map/element0/map/element1',
-    '/map/element0/recursion.self',
-    '/map/element1',
-    '/map/element1/null',
-    '/map/element1/undefined',
-    '/map/element1/boolean.true',
-    '/map/element1/boolean.false',
-    '/map/element1/string.defined',
-    '/map/element1/string.empty',
-    '/map/element1/number.zero',
-    '/map/element1/number.small',
-    '/map/element1/number.big',
-    '/map/element1/number.infinity.positive',
-    '/map/element1/number.infinity.negative',
-    '/map/element1/number.nan',
-    '/map/element1/number.signed.zero.negative',
-    '/map/element1/number.signed.zero.positive',
-    '/map/element1/bigInt.zero',
-    '/map/element1/bigInt.small',
-    '/map/element1/bigInt.big',
-    '/map/element1/regexp.defined',
-    '/map/element1/regexp.simple1',
-    '/map/element1/regexp.simple2',
-    '/map/element1/regexp.simple3',
-    '/map/element1/regexp.simple4',
-    '/map/element1/regexp.simple5',
-    '/map/element1/regexp.complex0',
-    '/map/element1/regexp.complex1',
-    '/map/element1/regexp.complex2',
-    '/map/element1/regexp.complex3',
-    '/map/element1/regexp.complex4',
-    '/map/element1/regexp.complex5',
-    '/map/element1/regexp.complex6',
-    '/map/element1/regexp.complex7',
-    '/map/element1/date.now',
-    '/map/element1/date.fixed',
-    '/map/element1/buffer.node',
-    '/map/element1/buffer.raw',
-    '/map/element1/buffer.bytes',
-    '/map/element1/array.simple',
-    '/map/element1/array.simple/0',
-    '/map/element1/array.simple/1',
-    '/map/element1/array.complex',
-    '/map/element1/array.complex/0',
-    '/map/element1/array.complex/1',
-    '/map/element1/set',
-    '/map/element1/set/null',
-    '/map/element1/hashmap',
-    '/map/element1/hashmap/element0',
-    '/map/element1/hashmap/element1',
-    '/map/element1/map',
-    '/map/element1/map/element0',
-    '/map/element1/map/element1',
-    '/map/element1/recursion.self',
-    '/level1',
-    '/level1/null',
-    '/level1/undefined',
-    '/level1/boolean.true',
-    '/level1/boolean.false',
-    '/level1/string.defined',
-    '/level1/string.empty',
-    '/level1/number.zero',
-    '/level1/number.small',
-    '/level1/number.big',
-    '/level1/number.infinity.positive',
-    '/level1/number.infinity.negative',
-    '/level1/number.nan',
-    '/level1/number.signed.zero.negative',
-    '/level1/number.signed.zero.positive',
-    '/level1/bigInt.zero',
-    '/level1/bigInt.small',
-    '/level1/bigInt.big',
-    '/level1/regexp.defined',
-    '/level1/regexp.simple1',
-    '/level1/regexp.simple2',
-    '/level1/regexp.simple3',
-    '/level1/regexp.simple4',
-    '/level1/regexp.simple5',
-    '/level1/regexp.complex0',
-    '/level1/regexp.complex1',
-    '/level1/regexp.complex2',
-    '/level1/regexp.complex3',
-    '/level1/regexp.complex4',
-    '/level1/regexp.complex5',
-    '/level1/regexp.complex6',
-    '/level1/regexp.complex7',
-    '/level1/date.now',
-    '/level1/date.fixed',
-    '/level1/buffer.node',
-    '/level1/buffer.raw',
-    '/level1/buffer.bytes',
-    '/level1/array.simple',
-    '/level1/array.simple/0',
-    '/level1/array.simple/1',
-    '/level1/array.complex',
-    '/level1/array.complex/0',
-    '/level1/array.complex/1',
-    '/level1/set',
-    '/level1/set/null',
-    '/level1/hashmap',
-    '/level1/hashmap/element0',
-    '/level1/hashmap/element1',
-    '/level1/map',
-    '/level1/map/element0',
-    '/level1/map/element1',
-    '/level1/recursion.self',
-    '/level1/recursion.super',
-    '/recursion.self'
-  ]
-
-  let expDws =
-  [
-    '/null',
-    '/undefined',
-    '/boolean.true',
-    '/boolean.false',
-    '/string.defined',
-    '/string.empty',
-    '/number.zero',
-    '/number.small',
-    '/number.big',
-    '/number.infinity.positive',
-    '/number.infinity.negative',
-    '/number.nan',
-    '/number.signed.zero.negative',
-    '/number.signed.zero.positive',
-    '/bigInt.zero',
-    '/bigInt.small',
-    '/bigInt.big',
-    '/regexp.defined',
-    '/regexp.simple1',
-    '/regexp.simple2',
-    '/regexp.simple3',
-    '/regexp.simple4',
-    '/regexp.simple5',
-    '/regexp.complex0',
-    '/regexp.complex1',
-    '/regexp.complex2',
-    '/regexp.complex3',
-    '/regexp.complex4',
-    '/regexp.complex5',
-    '/regexp.complex6',
-    '/regexp.complex7',
-    '/date.now',
-    '/date.fixed',
-    '/buffer.node',
-    '/buffer.raw',
-    '/buffer.bytes',
-    '/array.simple/0',
-    '/array.simple/1',
-    '/array.simple',
-    '/array.complex/0/null',
-    '/array.complex/0/undefined',
-    '/array.complex/0/boolean.true',
-    '/array.complex/0/boolean.false',
-    '/array.complex/0/string.defined',
-    '/array.complex/0/string.empty',
-    '/array.complex/0/number.zero',
-    '/array.complex/0/number.small',
-    '/array.complex/0/number.big',
-    '/array.complex/0/number.infinity.positive',
-    '/array.complex/0/number.infinity.negative',
-    '/array.complex/0/number.nan',
-    '/array.complex/0/number.signed.zero.negative',
-    '/array.complex/0/number.signed.zero.positive',
-    '/array.complex/0/bigInt.zero',
-    '/array.complex/0/bigInt.small',
-    '/array.complex/0/bigInt.big',
-    '/array.complex/0/regexp.defined',
-    '/array.complex/0/regexp.simple1',
-    '/array.complex/0/regexp.simple2',
-    '/array.complex/0/regexp.simple3',
-    '/array.complex/0/regexp.simple4',
-    '/array.complex/0/regexp.simple5',
-    '/array.complex/0/regexp.complex0',
-    '/array.complex/0/regexp.complex1',
-    '/array.complex/0/regexp.complex2',
-    '/array.complex/0/regexp.complex3',
-    '/array.complex/0/regexp.complex4',
-    '/array.complex/0/regexp.complex5',
-    '/array.complex/0/regexp.complex6',
-    '/array.complex/0/regexp.complex7',
-    '/array.complex/0/date.now',
-    '/array.complex/0/date.fixed',
-    '/array.complex/0/buffer.node',
-    '/array.complex/0/buffer.raw',
-    '/array.complex/0/buffer.bytes',
-    '/array.complex/0/array.simple/0',
-    '/array.complex/0/array.simple/1',
-    '/array.complex/0/array.simple',
-    '/array.complex/0/array.complex/0',
-    '/array.complex/0/array.complex/1',
-    '/array.complex/0/array.complex',
-    '/array.complex/0/set/null',
-    '/array.complex/0/set',
-    '/array.complex/0/hashmap/element0',
-    '/array.complex/0/hashmap/element1',
-    '/array.complex/0/hashmap',
-    '/array.complex/0/map/element0',
-    '/array.complex/0/map/element1',
-    '/array.complex/0/map',
-    '/array.complex/0/recursion.self',
-    '/array.complex/0',
-    '/array.complex/1/null',
-    '/array.complex/1/undefined',
-    '/array.complex/1/boolean.true',
-    '/array.complex/1/boolean.false',
-    '/array.complex/1/string.defined',
-    '/array.complex/1/string.empty',
-    '/array.complex/1/number.zero',
-    '/array.complex/1/number.small',
-    '/array.complex/1/number.big',
-    '/array.complex/1/number.infinity.positive',
-    '/array.complex/1/number.infinity.negative',
-    '/array.complex/1/number.nan',
-    '/array.complex/1/number.signed.zero.negative',
-    '/array.complex/1/number.signed.zero.positive',
-    '/array.complex/1/bigInt.zero',
-    '/array.complex/1/bigInt.small',
-    '/array.complex/1/bigInt.big',
-    '/array.complex/1/regexp.defined',
-    '/array.complex/1/regexp.simple1',
-    '/array.complex/1/regexp.simple2',
-    '/array.complex/1/regexp.simple3',
-    '/array.complex/1/regexp.simple4',
-    '/array.complex/1/regexp.simple5',
-    '/array.complex/1/regexp.complex0',
-    '/array.complex/1/regexp.complex1',
-    '/array.complex/1/regexp.complex2',
-    '/array.complex/1/regexp.complex3',
-    '/array.complex/1/regexp.complex4',
-    '/array.complex/1/regexp.complex5',
-    '/array.complex/1/regexp.complex6',
-    '/array.complex/1/regexp.complex7',
-    '/array.complex/1/date.now',
-    '/array.complex/1/date.fixed',
-    '/array.complex/1/buffer.node',
-    '/array.complex/1/buffer.raw',
-    '/array.complex/1/buffer.bytes',
-    '/array.complex/1/array.simple/0',
-    '/array.complex/1/array.simple/1',
-    '/array.complex/1/array.simple',
-    '/array.complex/1/array.complex/0',
-    '/array.complex/1/array.complex/1',
-    '/array.complex/1/array.complex',
-    '/array.complex/1/set/null',
-    '/array.complex/1/set',
-    '/array.complex/1/hashmap/element0',
-    '/array.complex/1/hashmap/element1',
-    '/array.complex/1/hashmap',
-    '/array.complex/1/map/element0',
-    '/array.complex/1/map/element1',
-    '/array.complex/1/map',
-    '/array.complex/1/recursion.self',
-    '/array.complex/1',
-    '/array.complex',
-    '/set/{- Map.pure with 42 elements -}/null',
-    '/set/{- Map.pure with 42 elements -}/undefined',
-    '/set/{- Map.pure with 42 elements -}/boolean.true',
-    '/set/{- Map.pure with 42 elements -}/boolean.false',
-    '/set/{- Map.pure with 42 elements -}/string.defined',
-    '/set/{- Map.pure with 42 elements -}/string.empty',
-    '/set/{- Map.pure with 42 elements -}/number.zero',
-    '/set/{- Map.pure with 42 elements -}/number.small',
-    '/set/{- Map.pure with 42 elements -}/number.big',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.positive',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.negative',
-    '/set/{- Map.pure with 42 elements -}/number.nan',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.negative',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.positive',
-    '/set/{- Map.pure with 42 elements -}/bigInt.zero',
-    '/set/{- Map.pure with 42 elements -}/bigInt.small',
-    '/set/{- Map.pure with 42 elements -}/bigInt.big',
-    '/set/{- Map.pure with 42 elements -}/regexp.defined',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple1',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple2',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple3',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple4',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex0',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex1',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex2',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex3',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex4',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex6',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex7',
-    '/set/{- Map.pure with 42 elements -}/date.now',
-    '/set/{- Map.pure with 42 elements -}/date.fixed',
-    '/set/{- Map.pure with 42 elements -}/buffer.node',
-    '/set/{- Map.pure with 42 elements -}/buffer.raw',
-    '/set/{- Map.pure with 42 elements -}/buffer.bytes',
-    '/set/{- Map.pure with 42 elements -}/array.simple/0',
-    '/set/{- Map.pure with 42 elements -}/array.simple/1',
-    '/set/{- Map.pure with 42 elements -}/array.simple',
-    '/set/{- Map.pure with 42 elements -}/array.complex/0',
-    '/set/{- Map.pure with 42 elements -}/array.complex/1',
-    '/set/{- Map.pure with 42 elements -}/array.complex',
-    '/set/{- Map.pure with 42 elements -}/set/null',
-    '/set/{- Map.pure with 42 elements -}/set',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element0',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element1',
-    '/set/{- Map.pure with 42 elements -}/hashmap',
-    '/set/{- Map.pure with 42 elements -}/map/element0',
-    '/set/{- Map.pure with 42 elements -}/map/element1',
-    '/set/{- Map.pure with 42 elements -}/map',
-    '/set/{- Map.pure with 42 elements -}/recursion.self',
-    '/set/{- Map.pure with 42 elements -}',
-    '/set/{- Map.pure with 42 elements -}/null',
-    '/set/{- Map.pure with 42 elements -}/undefined',
-    '/set/{- Map.pure with 42 elements -}/boolean.true',
-    '/set/{- Map.pure with 42 elements -}/boolean.false',
-    '/set/{- Map.pure with 42 elements -}/string.defined',
-    '/set/{- Map.pure with 42 elements -}/string.empty',
-    '/set/{- Map.pure with 42 elements -}/number.zero',
-    '/set/{- Map.pure with 42 elements -}/number.small',
-    '/set/{- Map.pure with 42 elements -}/number.big',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.positive',
-    '/set/{- Map.pure with 42 elements -}/number.infinity.negative',
-    '/set/{- Map.pure with 42 elements -}/number.nan',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.negative',
-    '/set/{- Map.pure with 42 elements -}/number.signed.zero.positive',
-    '/set/{- Map.pure with 42 elements -}/bigInt.zero',
-    '/set/{- Map.pure with 42 elements -}/bigInt.small',
-    '/set/{- Map.pure with 42 elements -}/bigInt.big',
-    '/set/{- Map.pure with 42 elements -}/regexp.defined',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple1',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple2',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple3',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple4',
-    '/set/{- Map.pure with 42 elements -}/regexp.simple5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex0',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex1',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex2',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex3',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex4',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex5',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex6',
-    '/set/{- Map.pure with 42 elements -}/regexp.complex7',
-    '/set/{- Map.pure with 42 elements -}/date.now',
-    '/set/{- Map.pure with 42 elements -}/date.fixed',
-    '/set/{- Map.pure with 42 elements -}/buffer.node',
-    '/set/{- Map.pure with 42 elements -}/buffer.raw',
-    '/set/{- Map.pure with 42 elements -}/buffer.bytes',
-    '/set/{- Map.pure with 42 elements -}/array.simple/0',
-    '/set/{- Map.pure with 42 elements -}/array.simple/1',
-    '/set/{- Map.pure with 42 elements -}/array.simple',
-    '/set/{- Map.pure with 42 elements -}/array.complex/0',
-    '/set/{- Map.pure with 42 elements -}/array.complex/1',
-    '/set/{- Map.pure with 42 elements -}/array.complex',
-    '/set/{- Map.pure with 42 elements -}/set/null',
-    '/set/{- Map.pure with 42 elements -}/set',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element0',
-    '/set/{- Map.pure with 42 elements -}/hashmap/element1',
-    '/set/{- Map.pure with 42 elements -}/hashmap',
-    '/set/{- Map.pure with 42 elements -}/map/element0',
-    '/set/{- Map.pure with 42 elements -}/map/element1',
-    '/set/{- Map.pure with 42 elements -}/map',
-    '/set/{- Map.pure with 42 elements -}/recursion.self',
-    '/set/{- Map.pure with 42 elements -}',
-    '/set',
-    '/hashmap/element0/null',
-    '/hashmap/element0/undefined',
-    '/hashmap/element0/boolean.true',
-    '/hashmap/element0/boolean.false',
-    '/hashmap/element0/string.defined',
-    '/hashmap/element0/string.empty',
-    '/hashmap/element0/number.zero',
-    '/hashmap/element0/number.small',
-    '/hashmap/element0/number.big',
-    '/hashmap/element0/number.infinity.positive',
-    '/hashmap/element0/number.infinity.negative',
-    '/hashmap/element0/number.nan',
-    '/hashmap/element0/number.signed.zero.negative',
-    '/hashmap/element0/number.signed.zero.positive',
-    '/hashmap/element0/bigInt.zero',
-    '/hashmap/element0/bigInt.small',
-    '/hashmap/element0/bigInt.big',
-    '/hashmap/element0/regexp.defined',
-    '/hashmap/element0/regexp.simple1',
-    '/hashmap/element0/regexp.simple2',
-    '/hashmap/element0/regexp.simple3',
-    '/hashmap/element0/regexp.simple4',
-    '/hashmap/element0/regexp.simple5',
-    '/hashmap/element0/regexp.complex0',
-    '/hashmap/element0/regexp.complex1',
-    '/hashmap/element0/regexp.complex2',
-    '/hashmap/element0/regexp.complex3',
-    '/hashmap/element0/regexp.complex4',
-    '/hashmap/element0/regexp.complex5',
-    '/hashmap/element0/regexp.complex6',
-    '/hashmap/element0/regexp.complex7',
-    '/hashmap/element0/date.now',
-    '/hashmap/element0/date.fixed',
-    '/hashmap/element0/buffer.node',
-    '/hashmap/element0/buffer.raw',
-    '/hashmap/element0/buffer.bytes',
-    '/hashmap/element0/array.simple/0',
-    '/hashmap/element0/array.simple/1',
-    '/hashmap/element0/array.simple',
-    '/hashmap/element0/array.complex/0',
-    '/hashmap/element0/array.complex/1',
-    '/hashmap/element0/array.complex',
-    '/hashmap/element0/set/null',
-    '/hashmap/element0/set',
-    '/hashmap/element0/hashmap/element0',
-    '/hashmap/element0/hashmap/element1',
-    '/hashmap/element0/hashmap',
-    '/hashmap/element0/map/element0',
-    '/hashmap/element0/map/element1',
-    '/hashmap/element0/map',
-    '/hashmap/element0/recursion.self',
-    '/hashmap/element0',
-    '/hashmap/element1/null',
-    '/hashmap/element1/undefined',
-    '/hashmap/element1/boolean.true',
-    '/hashmap/element1/boolean.false',
-    '/hashmap/element1/string.defined',
-    '/hashmap/element1/string.empty',
-    '/hashmap/element1/number.zero',
-    '/hashmap/element1/number.small',
-    '/hashmap/element1/number.big',
-    '/hashmap/element1/number.infinity.positive',
-    '/hashmap/element1/number.infinity.negative',
-    '/hashmap/element1/number.nan',
-    '/hashmap/element1/number.signed.zero.negative',
-    '/hashmap/element1/number.signed.zero.positive',
-    '/hashmap/element1/bigInt.zero',
-    '/hashmap/element1/bigInt.small',
-    '/hashmap/element1/bigInt.big',
-    '/hashmap/element1/regexp.defined',
-    '/hashmap/element1/regexp.simple1',
-    '/hashmap/element1/regexp.simple2',
-    '/hashmap/element1/regexp.simple3',
-    '/hashmap/element1/regexp.simple4',
-    '/hashmap/element1/regexp.simple5',
-    '/hashmap/element1/regexp.complex0',
-    '/hashmap/element1/regexp.complex1',
-    '/hashmap/element1/regexp.complex2',
-    '/hashmap/element1/regexp.complex3',
-    '/hashmap/element1/regexp.complex4',
-    '/hashmap/element1/regexp.complex5',
-    '/hashmap/element1/regexp.complex6',
-    '/hashmap/element1/regexp.complex7',
-    '/hashmap/element1/date.now',
-    '/hashmap/element1/date.fixed',
-    '/hashmap/element1/buffer.node',
-    '/hashmap/element1/buffer.raw',
-    '/hashmap/element1/buffer.bytes',
-    '/hashmap/element1/array.simple/0',
-    '/hashmap/element1/array.simple/1',
-    '/hashmap/element1/array.simple',
-    '/hashmap/element1/array.complex/0',
-    '/hashmap/element1/array.complex/1',
-    '/hashmap/element1/array.complex',
-    '/hashmap/element1/set/null',
-    '/hashmap/element1/set',
-    '/hashmap/element1/hashmap/element0',
-    '/hashmap/element1/hashmap/element1',
-    '/hashmap/element1/hashmap',
-    '/hashmap/element1/map/element0',
-    '/hashmap/element1/map/element1',
-    '/hashmap/element1/map',
-    '/hashmap/element1/recursion.self',
-    '/hashmap/element1',
-    '/hashmap',
-    '/map/element0/null',
-    '/map/element0/undefined',
-    '/map/element0/boolean.true',
-    '/map/element0/boolean.false',
-    '/map/element0/string.defined',
-    '/map/element0/string.empty',
-    '/map/element0/number.zero',
-    '/map/element0/number.small',
-    '/map/element0/number.big',
-    '/map/element0/number.infinity.positive',
-    '/map/element0/number.infinity.negative',
-    '/map/element0/number.nan',
-    '/map/element0/number.signed.zero.negative',
-    '/map/element0/number.signed.zero.positive',
-    '/map/element0/bigInt.zero',
-    '/map/element0/bigInt.small',
-    '/map/element0/bigInt.big',
-    '/map/element0/regexp.defined',
-    '/map/element0/regexp.simple1',
-    '/map/element0/regexp.simple2',
-    '/map/element0/regexp.simple3',
-    '/map/element0/regexp.simple4',
-    '/map/element0/regexp.simple5',
-    '/map/element0/regexp.complex0',
-    '/map/element0/regexp.complex1',
-    '/map/element0/regexp.complex2',
-    '/map/element0/regexp.complex3',
-    '/map/element0/regexp.complex4',
-    '/map/element0/regexp.complex5',
-    '/map/element0/regexp.complex6',
-    '/map/element0/regexp.complex7',
-    '/map/element0/date.now',
-    '/map/element0/date.fixed',
-    '/map/element0/buffer.node',
-    '/map/element0/buffer.raw',
-    '/map/element0/buffer.bytes',
-    '/map/element0/array.simple/0',
-    '/map/element0/array.simple/1',
-    '/map/element0/array.simple',
-    '/map/element0/array.complex/0',
-    '/map/element0/array.complex/1',
-    '/map/element0/array.complex',
-    '/map/element0/set/null',
-    '/map/element0/set',
-    '/map/element0/hashmap/element0',
-    '/map/element0/hashmap/element1',
-    '/map/element0/hashmap',
-    '/map/element0/map/element0',
-    '/map/element0/map/element1',
-    '/map/element0/map',
-    '/map/element0/recursion.self',
-    '/map/element0',
-    '/map/element1/null',
-    '/map/element1/undefined',
-    '/map/element1/boolean.true',
-    '/map/element1/boolean.false',
-    '/map/element1/string.defined',
-    '/map/element1/string.empty',
-    '/map/element1/number.zero',
-    '/map/element1/number.small',
-    '/map/element1/number.big',
-    '/map/element1/number.infinity.positive',
-    '/map/element1/number.infinity.negative',
-    '/map/element1/number.nan',
-    '/map/element1/number.signed.zero.negative',
-    '/map/element1/number.signed.zero.positive',
-    '/map/element1/bigInt.zero',
-    '/map/element1/bigInt.small',
-    '/map/element1/bigInt.big',
-    '/map/element1/regexp.defined',
-    '/map/element1/regexp.simple1',
-    '/map/element1/regexp.simple2',
-    '/map/element1/regexp.simple3',
-    '/map/element1/regexp.simple4',
-    '/map/element1/regexp.simple5',
-    '/map/element1/regexp.complex0',
-    '/map/element1/regexp.complex1',
-    '/map/element1/regexp.complex2',
-    '/map/element1/regexp.complex3',
-    '/map/element1/regexp.complex4',
-    '/map/element1/regexp.complex5',
-    '/map/element1/regexp.complex6',
-    '/map/element1/regexp.complex7',
-    '/map/element1/date.now',
-    '/map/element1/date.fixed',
-    '/map/element1/buffer.node',
-    '/map/element1/buffer.raw',
-    '/map/element1/buffer.bytes',
-    '/map/element1/array.simple/0',
-    '/map/element1/array.simple/1',
-    '/map/element1/array.simple',
-    '/map/element1/array.complex/0',
-    '/map/element1/array.complex/1',
-    '/map/element1/array.complex',
-    '/map/element1/set/null',
-    '/map/element1/set',
-    '/map/element1/hashmap/element0',
-    '/map/element1/hashmap/element1',
-    '/map/element1/hashmap',
-    '/map/element1/map/element0',
-    '/map/element1/map/element1',
-    '/map/element1/map',
-    '/map/element1/recursion.self',
-    '/map/element1',
-    '/map',
-    '/level1/null',
-    '/level1/undefined',
-    '/level1/boolean.true',
-    '/level1/boolean.false',
-    '/level1/string.defined',
-    '/level1/string.empty',
-    '/level1/number.zero',
-    '/level1/number.small',
-    '/level1/number.big',
-    '/level1/number.infinity.positive',
-    '/level1/number.infinity.negative',
-    '/level1/number.nan',
-    '/level1/number.signed.zero.negative',
-    '/level1/number.signed.zero.positive',
-    '/level1/bigInt.zero',
-    '/level1/bigInt.small',
-    '/level1/bigInt.big',
-    '/level1/regexp.defined',
-    '/level1/regexp.simple1',
-    '/level1/regexp.simple2',
-    '/level1/regexp.simple3',
-    '/level1/regexp.simple4',
-    '/level1/regexp.simple5',
-    '/level1/regexp.complex0',
-    '/level1/regexp.complex1',
-    '/level1/regexp.complex2',
-    '/level1/regexp.complex3',
-    '/level1/regexp.complex4',
-    '/level1/regexp.complex5',
-    '/level1/regexp.complex6',
-    '/level1/regexp.complex7',
-    '/level1/date.now',
-    '/level1/date.fixed',
-    '/level1/buffer.node',
-    '/level1/buffer.raw',
-    '/level1/buffer.bytes',
-    '/level1/array.simple/0',
-    '/level1/array.simple/1',
-    '/level1/array.simple',
-    '/level1/array.complex/0',
-    '/level1/array.complex/1',
-    '/level1/array.complex',
-    '/level1/set/null',
-    '/level1/set',
-    '/level1/hashmap/element0',
-    '/level1/hashmap/element1',
-    '/level1/hashmap',
-    '/level1/map/element0',
-    '/level1/map/element1',
-    '/level1/map',
-    '/level1/recursion.self',
-    '/level1/recursion.super',
-    '/level1',
-    '/recursion.self',
-    '/'
-  ]
-
-  var generated = _.diagnosticStructureGenerate({ depth : 1, defaultComplexity : 5, defaultLength : 2, random : 0 });
-
-  clean();
-  _.look({ src : generated.result, onUp, onDown });
-  test.identical( ups, expUps );
-  test.identical( dws, expDws );
-
-  /* - */
-
-  function clean()
-  {
-    ups.splice( 0, ups.length );
-    dws.splice( 0, dws.length );
-  }
-
-  function onUp( e, k, it )
-  {
-    ups.push( it.path );
-  }
-
-  function onDown( e, k, it )
-  {
-    dws.push( it.path );
-  }
-
-} /* end of function callbacksComplex */
+// xxx : switch on after rewriting of Stringer
+// function complexStructure( test )
+// {
+//   let ups = [];
+//   let dws = [];
+//
+//   /* - */
+//
+//   let expUps =
+//   [
+//   ]
+//
+//   let expDws =
+//   [
+//   ]
+//
+//   var generated = _.diagnosticStructureGenerate
+//   ({
+//     depth : 1,
+//     defaultComplexity : 5,
+//     defaultLength : 1,
+//     defaultSize : 1,
+//     random : 0,
+//   });
+//
+//   clean();
+//   debugger;
+//   _.look({ src : generated.result, onUp, onDown });
+//   test.identical( ups, expUps );
+//   test.identical( dws, expDws );
+//   debugger;
+//
+//   /* - */
+//
+//   function clean()
+//   {
+//     ups.splice( 0, ups.length );
+//     dws.splice( 0, dws.length );
+//   }
+//
+//   function onUp( e, k, it )
+//   {
+//     ups.push( it.path );
+//   }
+//
+//   function onDown( e, k, it )
+//   {
+//     dws.push( it.path );
+//   }
+//
+// } /* end of function complexStructure */
 
 //
 
@@ -1660,9 +788,9 @@ function reperform( test )
     '/a',
     '/a/name',
     '/a/name',
-    '/a/name/0',
-    '/a/name/1',
-    '/a/name/2',
+    '/a/name/#0',
+    '/a/name/#1',
+    '/a/name/#2',
     '/a/value',
     '/b',
     '/b/name',
@@ -1678,9 +806,9 @@ function reperform( test )
   var exp =
   [
     '/a/name',
-    '/a/name/0',
-    '/a/name/1',
-    '/a/name/2',
+    '/a/name/#0',
+    '/a/name/#1',
+    '/a/name/#2',
     '/a/name',
     '/a/value',
     '/a',
@@ -1723,9 +851,9 @@ function reperform( test )
     '/a',
     '/a/name',
     '/a/name',
-    '/a/name/0',
-    '/a/name/1',
-    '/a/name/2',
+    '/a/name/#0',
+    '/a/name/#1',
+    '/a/name/#2',
     '/a/value',
     '/b',
     '/b/name',
@@ -1740,9 +868,9 @@ function reperform( test )
   test.identical( dwsLevel, exp );
   var exp =
   [
-    '/a/name/0',
-    '/a/name/1',
-    '/a/name/2',
+    '/a/name/#0',
+    '/a/name/#1',
+    '/a/name/#2',
     '/a/name',
     '/a/name',
     '/a/value',
@@ -1827,7 +955,7 @@ function reperform( test )
 function makeCustomBasic( test )
 {
   let its = [];
-  let cid = _.looker.Looker.containerNameToIdMap;
+  let cid = _.looker.Looker.ContainerNameToIdMap;
   _.assert( _.auxIs( cid ) );
 
   /* */
@@ -1837,7 +965,7 @@ function makeCustomBasic( test )
 
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1 });
-  var exp = [ '/', '/0' ];
+  var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ cid.countable, cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
@@ -1925,7 +1053,7 @@ function makeCustomBasic( test )
   */
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
-  var exp = [ '/', '/0' ];
+  var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ undefined, undefined ];
   test.identical( its.map( ( it ) => it.field1 ), exp );
@@ -1950,7 +1078,7 @@ function makeCustomBasic( test )
   Iterator.iterableEval = iterableEval;
   var src = new _.Escape( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
-  var exp = [ '/', '/0' ];
+  var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ undefined, undefined ];
   test.identical( its.map( ( it ) => it.field1 ), exp );
@@ -2000,7 +1128,7 @@ function makeCustomBasic( test )
     it.iterable = null;
     if( _.aux.is( it.src ) )
     {
-      it.iterable = _.looker.Looker.containerNameToIdMap.aux;
+      it.iterable = _.looker.Looker.ContainerNameToIdMap.aux;
     }
     else
     {
@@ -2240,7 +1368,7 @@ function optionWithCountable( test )
     test.true( _.arrayIs( src.a ) );
     clean();
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
-    var exp = [ '/', '/a', '/a/0', '/a/1' ];
+    var exp = [ '/', '/a', '/a/#0', '/a/#1' ];
     if( !env.withCountable )
     exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
@@ -2258,7 +1386,7 @@ function optionWithCountable( test )
     test.true( !_.arrayIs( src.a ) );
     clean();
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
-    var exp = [ '/', '/a', '/a/0', '/a/1' ];
+    var exp = [ '/', '/a', '/a/#0', '/a/#1' ];
     if( !env.withCountable || env.withCountable === 'array' )
     exp = [ '/', '/a' ];
     test.identical( gotUpPaths, exp );
@@ -2278,7 +1406,7 @@ function optionWithCountable( test )
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
     if( env.withCountable === 'countable' || env.withCountable === 'vector' || env.withCountable === true || env.withCountable === 1 )
-    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    exp = [ '/', '/a', '/a/#0', '/a/#1' ];
     test.identical( gotUpPaths, exp );
 
     /* */
@@ -2296,7 +1424,7 @@ function optionWithCountable( test )
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
     if( env.withCountable === 'countable' || env.withCountable === true || env.withCountable === 1 )
-    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    exp = [ '/', '/a', '/a/#0', '/a/#1' ];
     test.identical( gotUpPaths, exp );
 
     /* */
@@ -2314,7 +1442,7 @@ function optionWithCountable( test )
     var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : env.withCountable });
     var exp = [ '/', '/a' ];
     if( env.withCountable === 'countable' || env.withCountable === true || env.withCountable === 1 )
-    exp = [ '/', '/a', '/a/0', '/a/1' ];
+    exp = [ '/', '/a', '/a/#0', '/a/#1' ];
     test.identical( gotUpPaths, exp );
 
     /* */
@@ -2614,8 +1742,8 @@ function optionWithImplicitGenerated( test )
       [
         '/',
         '/elements',
-        '/elements/0',
-        '/elements/1',
+        '/elements/#0',
+        '/elements/#1',
         '/withIterator',
         '/pure',
         '/withOwnConstructor',
@@ -2644,8 +1772,8 @@ function optionWithImplicitGenerated( test )
       [
         '/',
         '/elements',
-        '/elements/0',
-        '/elements/1',
+        '/elements/#0',
+        '/elements/#1',
         '/withIterator',
         '/pure',
         '/withOwnConstructor',
@@ -2724,24 +1852,24 @@ function optionRevisiting( test )
   [
     '/',
     '/arr',
-    '/arr/0',
-    '/arr/1',
-    '/arr/1/a',
-    '/arr/1/b',
-    '/arr/1/c',
-    '/arr/2',
+    '/arr/#0',
+    '/arr/#1',
+    '/arr/#1/a',
+    '/arr/#1/b',
+    '/arr/#1/c',
+    '/arr/#2',
     '/arr2'
   ]
   var expDws =
   [
     '/',
     '/arr',
-    '/arr/0',
-    '/arr/1',
-    '/arr/1/a',
-    '/arr/1/b',
-    '/arr/1/c',
-    '/arr/2',
+    '/arr/#0',
+    '/arr/#1',
+    '/arr/#1/a',
+    '/arr/#1/b',
+    '/arr/#1/c',
+    '/arr/#2',
     '/arr2'
   ]
   var got = _.look({ src : structure, revisiting : 0, onUp, onDown });
@@ -2757,37 +1885,37 @@ function optionRevisiting( test )
   [
     '/',
     '/arr',
-    '/arr/0',
-    '/arr/1',
-    '/arr/1/a',
-    '/arr/1/b',
-    '/arr/1/c',
-    '/arr/2',
+    '/arr/#0',
+    '/arr/#1',
+    '/arr/#1/a',
+    '/arr/#1/b',
+    '/arr/#1/c',
+    '/arr/#2',
     '/arr2',
-    '/arr2/0',
-    '/arr2/1',
-    '/arr2/1/a',
-    '/arr2/1/b',
-    '/arr2/1/c',
-    '/arr2/2'
+    '/arr2/#0',
+    '/arr2/#1',
+    '/arr2/#1/a',
+    '/arr2/#1/b',
+    '/arr2/#1/c',
+    '/arr2/#2'
   ]
   var expDws =
   [
     '/',
     '/arr',
-    '/arr/0',
-    '/arr/1',
-    '/arr/1/a',
-    '/arr/1/b',
-    '/arr/1/c',
-    '/arr/2',
+    '/arr/#0',
+    '/arr/#1',
+    '/arr/#1/a',
+    '/arr/#1/b',
+    '/arr/#1/c',
+    '/arr/#2',
     '/arr2',
-    '/arr2/0',
-    '/arr2/1',
-    '/arr2/1/a',
-    '/arr2/1/b',
-    '/arr2/1/c',
-    '/arr2/2'
+    '/arr2/#0',
+    '/arr2/#1',
+    '/arr2/#1/a',
+    '/arr2/#1/b',
+    '/arr2/#1/c',
+    '/arr2/#2'
   ]
   var got = _.look({ src : structure, revisiting : 1, onUp, onDown });
 
@@ -2802,37 +1930,37 @@ function optionRevisiting( test )
   [
     '/',
     '/arr',
-    '/arr/0',
-    '/arr/1',
-    '/arr/1/a',
-    '/arr/1/b',
-    '/arr/1/c',
-    '/arr/2',
+    '/arr/#0',
+    '/arr/#1',
+    '/arr/#1/a',
+    '/arr/#1/b',
+    '/arr/#1/c',
+    '/arr/#2',
     '/arr2',
-    '/arr2/0',
-    '/arr2/1',
-    '/arr2/1/a',
-    '/arr2/1/b',
-    '/arr2/1/c',
-    '/arr2/2'
+    '/arr2/#0',
+    '/arr2/#1',
+    '/arr2/#1/a',
+    '/arr2/#1/b',
+    '/arr2/#1/c',
+    '/arr2/#2'
   ]
   var expDws =
   [
     '/',
     '/arr',
-    '/arr/0',
-    '/arr/1',
-    '/arr/1/a',
-    '/arr/1/b',
-    '/arr/1/c',
-    '/arr/2',
+    '/arr/#0',
+    '/arr/#1',
+    '/arr/#1/a',
+    '/arr/#1/b',
+    '/arr/#1/c',
+    '/arr/#2',
     '/arr2',
-    '/arr2/0',
-    '/arr2/1',
-    '/arr2/1/a',
-    '/arr2/1/b',
-    '/arr2/1/c',
-    '/arr2/2'
+    '/arr2/#0',
+    '/arr2/#1',
+    '/arr2/#1/a',
+    '/arr2/#1/b',
+    '/arr2/#1/c',
+    '/arr2/#2'
   ]
   var got = _.look({ src : structure, revisiting : 2, onUp : onUp2, onDown });
   test.identical( ups, expUps );
@@ -2894,13 +2022,13 @@ function optionOnSrcChanged( test )
       '/num',
       '/name',
       '/elements',
-      '/elements/0',
-      '/elements/0/str',
-      '/elements/0/num',
-      '/elements/0/name',
-      '/elements/0/elements',
-      '/elements/0/elements/0',
-      '/elements/0/elements/1'
+      '/elements/#0',
+      '/elements/#0/str',
+      '/elements/#0/num',
+      '/elements/#0/name',
+      '/elements/#0/elements',
+      '/elements/#0/elements/#0',
+      '/elements/#0/elements/#1'
     ];
     var expDws =
     [
@@ -2909,13 +2037,13 @@ function optionOnSrcChanged( test )
       '/num',
       '/name',
       '/elements',
-      '/elements/0',
-      '/elements/0/str',
-      '/elements/0/num',
-      '/elements/0/name',
-      '/elements/0/elements',
-      '/elements/0/elements/0',
-      '/elements/0/elements/1'
+      '/elements/#0',
+      '/elements/#0/str',
+      '/elements/#0/num',
+      '/elements/#0/name',
+      '/elements/#0/elements',
+      '/elements/#0/elements/#0',
+      '/elements/#0/elements/#1'
     ]
     var expUpNames =
     [
@@ -3010,7 +2138,7 @@ function optionOnSrcChanged( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = _.looker.Looker.containerNameToIdMap.aux;
+        it.iterable = _.looker.Looker.ContainerNameToIdMap.aux;
         it.onAscend = function objAscend()
         {
           this._auxAscend( this.src );
@@ -3027,7 +2155,7 @@ function optionOnSrcChanged( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = _.looker.Looker.containerNameToIdMap.aux;
+        it.iterable = _.looker.Looker.ContainerNameToIdMap.aux;
       }
     }
   }
@@ -3064,8 +2192,8 @@ function optionOnUpNonContainer( test )
   var b = new Obj({ name : 'b', elements : [ a1, a2 ] });
   var c = new Obj({ name : 'c', elements : [ b ] });
 
-  var expUps = [ '/', '/0', '/0/0', '/0/1' ];
-  var expDws = [ '/', '/0', '/0/0', '/0/1' ];
+  var expUps = [ '/', '/#0', '/#0/#0', '/#0/#1' ];
+  var expDws = [ '/', '/#0', '/#0/#0', '/#0/#1' ];
   var expUpNames = [ 'c', 'b', 'a1', 'a2' ];
   var expDwNames = [ 'a1', 'a2', 'b', 'c' ];
 
@@ -3120,6 +2248,7 @@ function optionOnUpNonContainer( test )
 
 //
 
+/* xxx : qqq : add test routine for different type of src to module::selector, based on the test routine optionOnPathJoin */
 function optionOnPathJoin( test )
 {
   let ups = [];
@@ -3151,14 +2280,14 @@ function optionOnPathJoin( test )
     '/Number::int',
     '/String::str',
     '/Array::arr',
-    '/Array::arr/Number::0',
-    '/Array::arr/Number::1',
+    '/Array::arr/Number::#0',
+    '/Array::arr/Number::#1',
     '/Map.polluted::map',
     '/Map.polluted::map/Date.constructible::m1',
     '/Map.polluted::map/String::m3',
     '/Set::set',
-    '/Set::set/Number::1',
-    '/Set::set/Number::3',
+    '/Set::set/Number::#0',
+    '/Set::set/Number::#1',
     '/HashMap::hash',
     '/HashMap::hash/Routine::1989-12-31T00:00:00.000Z',
     '/HashMap::hash/String::m3'
@@ -3168,14 +2297,14 @@ function optionOnPathJoin( test )
   [
     '/Number::int',
     '/String::str',
-    '/Array::arr/Number::0',
-    '/Array::arr/Number::1',
+    '/Array::arr/Number::#0',
+    '/Array::arr/Number::#1',
     '/Array::arr',
     '/Map.polluted::map/Date.constructible::m1',
     '/Map.polluted::map/String::m3',
     '/Map.polluted::map',
-    '/Set::set/Number::1',
-    '/Set::set/Number::3',
+    '/Set::set/Number::#0',
+    '/Set::set/Number::#1',
     '/Set::set',
     '/HashMap::hash/Routine::1989-12-31T00:00:00.000Z',
     '/HashMap::hash/String::m3',
@@ -3210,15 +2339,6 @@ function optionOnPathJoin( test )
     _.assert( arguments.length === 2 );
 
     selectorPath = _.strRemoveEnd( selectorPath, it.upToken );
-
-    // if( _.strEnds( selectorPath, upToken ) )
-    // {
-    //   result = selectorPath + _.entity.strType( it.src ) + '::' + selectorName;
-    // }
-    // else
-    // {
-    //   result = selectorPath + defaultUpToken + _.entity.strType( it.src ) + '::' + selectorName;
-    // }
 
     result = selectorPath + it.defaultUpToken + _.entity.strType( it.src ) + '::' + selectorName;
 
@@ -3266,9 +2386,9 @@ function optionAscend( test )
     '/',
     '/a',
     '/a/name',
-    '/a/name/0',
-    '/a/name/1',
-    '/a/name/2',
+    '/a/name/#0',
+    '/a/name/#1',
+    '/a/name/#2',
     '/a/value',
     '/b',
     '/b/name',
@@ -3283,9 +2403,9 @@ function optionAscend( test )
   test.identical( dwsLevel, exp );
   var exp =
   [
-    '/a/name/0',
-    '/a/name/1',
-    '/a/name/2',
+    '/a/name/#0',
+    '/a/name/#1',
+    '/a/name/#2',
     '/a/name',
     '/a/value',
     '/a',
@@ -4038,7 +3158,7 @@ function optionFastCycled( test )
 
 //
 
-function performance( test ) /* xxx0 : write similar test for other lookers */
+function performance( test ) /* xxx : write similar test for other lookers */
 {
   // Config.debug = false;
 
@@ -4123,8 +3243,8 @@ const Proto =
     lookRecursive,
     lookWithIterator,
 
-    fieldPaths,
-    callbacksComplex,
+    fieldPath,
+    // complexStructure,
     reperform,
     makeCustomBasic,
     errMakeBasic,

@@ -97,8 +97,8 @@ function head( routine, args )
   _.map.assertHasOnly( o, routine.defaults );
   _.assert
   (
-    _.mapKeys( routine.defaults ).length === _.mapKeys( o.Looker ).length,
-    () => `${_.mapKeys( routine.defaults ).length} <> ${_.mapKeys( o.Looker ).length}`
+    _.props.keys( routine.defaults ).length === _.props.keys( o.Looker ).length,
+    () => `${_.props.keys( routine.defaults ).length} <> ${_.props.keys( o.Looker ).length}`
   );
   let it = o.Looker.optionsToIteration( null, o );
   // let it = o.Looker.optionsToIteration( this !== o.Looker ? this : null, o );
@@ -141,7 +141,7 @@ function optionsToIteration( iterator, o )
 {
   _.assert( o.it === undefined );
   _.assert( _.mapIs( o ) );
-  _.assert( !_.property.ownEnumerable( o, 'constructor' ) );
+  _.assert( !_.props.ownEnumerable( o, 'constructor' ) );
   _.assert( arguments.length === 2 );
   if( iterator === null )
   iterator = o.Looker.iteratorRetype( o );
@@ -272,7 +272,8 @@ function iteratorInitEnd( iterator )
   );
   _.assert
   (
-    _.longHas( [ 'aux', '' ], iterator.withImplicit ),
+    // _.longHas( [ 'aux', '' ], iterator.withImplicit ),
+    this.WithImplicict[ iterator.withImplicit ] !== undefined,
     'Unexpected value of option::withImplicit'
   );
 
@@ -505,7 +506,7 @@ function elementGet( e, k )
   let it = this;
   let result;
   _.assert( arguments.length === 2, 'Expects two argument' );
-  result = _.container.elementGet( e, k );
+  result = _.container.elementWithImplicit( e, k ); /* xxx : use maybe functor */
   return result;
 }
 
@@ -568,6 +569,7 @@ function chooseEnd( e, k, exists )
     assigning key and src should goes first
   */
 
+  _.debugger;
   it.key = k;
   it.src = e;
   it.originalSrc = e;
@@ -706,7 +708,7 @@ function isImplicit()
 {
   let it = this;
   _.assert( it.iterationProper( it ) );
-  return _.escape.is( it.key );
+  return _.props.implicit.is( it.key );
 }
 
 // --
@@ -1071,7 +1073,7 @@ function _auxAscend( src )
   if( canSibling )
   if( it.hasImplicit( src ) )
   {
-    var props = _.property.onlyImplicit( src );
+    var props = _.props.onlyImplicit( src );
 
     for( var [ k, e ] of props )
     {
@@ -1125,7 +1127,7 @@ function _setAscend( src )
 }
 
 // --
-// typing
+// dichotomy
 // --
 
 function _isCountable( src )
@@ -1292,16 +1294,16 @@ function iterationIs( it )
 function classDefine( o )
 {
 
-  _.routineOptions( classDefine, o );
+  _.routine.options_( classDefine, o );
 
   if( o.parent === null )
   o.parent = this.Looker;
   if( o.name === null )
   o.name = 'CustomLooker'
 
-  _.assert( _.objectIs( o.parent ) );
+  _.assert( _.objectIs( o.parent ), `Parent should be object` );
 
-  let looker = _.mapExtend( null, o.parent );
+  let looker = _.props.extend( null, o.parent );
 
   if( !o.looker || !o.looker.constructor || o.looker.constructor === Object )
   {
@@ -1316,19 +1318,19 @@ function classDefine( o )
   }
 
   if( o.prime )
-  _.mapExtend( looker, o.prime );
+  _.props.extend( looker, o.prime );
   if( o.looker )
-  _.mapExtend( looker, o.looker );
+  _.props.extend( looker, o.looker );
   if( o.iterator )
-  _.mapExtend( looker, o.iterator );
+  _.props.extend( looker, o.iterator );
   if( o.iterationPreserve )
-  _.mapSupplement( looker, o.iterationPreserve );
+  _.props.supplement( looker, o.iterationPreserve );
 
   looker.Looker = looker;
   looker.OriginalLooker = looker;
   looker.Prime = Object.create( looker.Prime || null );
   if( o.prime )
-  _.mapExtend( looker.Prime, o.prime );
+  _.props.extend( looker.Prime, o.prime );
   Object.preventExtensions( looker.Prime );
 
   looker.exec = exec_functor( o.exec || looker.exec );
@@ -1336,16 +1338,16 @@ function classDefine( o )
 
   let iterator = looker.Iterator = Object.assign( Object.create( null ), looker.Iterator );
   if( o.iterator )
-  _.mapExtend( iterator, o.iterator );
+  _.props.extend( iterator, o.iterator );
 
   let iteration = looker.Iteration = Object.assign( Object.create( null ), looker.Iteration );
   let iterationPreserve = looker.IterationPreserve = Object.assign( Object.create( null ), looker.IterationPreserve );
   if( o.iterationPreserve )
   {
-    _.mapExtend( iterationPreserve, o.iterationPreserve );
+    _.props.extend( iterationPreserve, o.iterationPreserve );
   }
   if( o.iteration )
-  _.mapExtend( iteration, o.iteration );
+  _.props.extend( iteration, o.iteration );
 
   if( Config.debug )
   validate();
@@ -1375,20 +1377,20 @@ function classDefine( o )
     /* qqq : add explanation for each assert */
     _.assert( looker.Prime.Looker === undefined );
     _.assert( _.routineIs( looker.iterableEval ) );
-    _.assert( !_.property.has( looker.Iteration, 'src' ) && looker.Iteration.src === undefined );
-    _.assert( _.property.has( looker.IterationPreserve, 'src' ) && looker.IterationPreserve.src === undefined );
-    _.assert( _.property.has( looker, 'src' ) && looker.src === undefined );
-    _.assert( !_.property.has( looker.Iteration, 'root' ) && looker.Iteration.root === undefined );
-    _.assert( _.property.has( looker, 'root' ) && looker.root === undefined );
-    if( _.property.has( looker, 'dst' ) )
+    _.assert( !_.props.has( looker.Iteration, 'src' ) && looker.Iteration.src === undefined );
+    _.assert( _.props.has( looker.IterationPreserve, 'src' ) && looker.IterationPreserve.src === undefined );
+    _.assert( _.props.has( looker, 'src' ) && looker.src === undefined );
+    _.assert( !_.props.has( looker.Iteration, 'root' ) && looker.Iteration.root === undefined );
+    _.assert( _.props.has( looker, 'root' ) && looker.root === undefined );
+    if( _.props.has( looker, 'dst' ) )
     {
-      _.assert( _.property.has( looker.Iteration, 'dst' ) && looker.Iteration.dst === undefined );
-      _.assert( _.property.has( looker, 'dst' ) && looker.dst === undefined );
+      _.assert( _.props.has( looker.Iteration, 'dst' ) && looker.Iteration.dst === undefined );
+      _.assert( _.props.has( looker, 'dst' ) && looker.dst === undefined );
     }
-    if( _.property.has( looker, 'result' ) )
+    if( _.props.has( looker, 'result' ) )
     {
-      _.assert( _.property.has( looker.Iterator, 'result' ) && looker.Iterator.result === undefined );
-      _.assert( _.property.has( looker, 'result' ) && looker.result === undefined );
+      _.assert( _.props.has( looker.Iterator, 'result' ) && looker.Iterator.result === undefined );
+      _.assert( _.props.has( looker, 'result' ) && looker.result === undefined );
     }
   }
 
@@ -1463,6 +1465,12 @@ let WithCountable =
   'vector' : 'vector',
   'long' : 'long',
   'array' : 'array',
+  '' : '',
+}
+
+let WithImplicict =
+{
+  'aux' : 'aux',
   '' : '',
 }
 
@@ -1560,7 +1568,7 @@ Looker._auxAscend = _auxAscend;
 Looker._hashMapAscend = _hashMapAscend;
 Looker._setAscend = _setAscend;
 
-// typing
+// dichotomy
 
 Looker._isCountable = _isCountable;
 Looker._isVector = _isVector;
@@ -1584,6 +1592,7 @@ Looker.ContainerIdToAscendMap = ContainerIdToAscendMap;
 Looker.WithCountableToIsElementalFunctionMap = WithCountableToIsElementalFunctionMap;
 Looker.WithImplicitToHasImplicitFunctionMap = WithImplicitToHasImplicitFunctionMap;
 Looker.WithCountable = WithCountable;
+Looker.WithImplicict = WithImplicict;
 Looker.Prime = Prime;
 
 //
@@ -1638,7 +1647,7 @@ Iterator.level = 0;
 Iterator.root = undefined;
 Iterator.context = null;
 
-_.mapExtend( Looker, Iterator );
+_.props.extend( Looker, Iterator );
 Object.freeze( Iterator );
 
 //
@@ -1696,11 +1705,11 @@ IterationPreserve.path = null;
 IterationPreserve.src = undefined;
 Object.freeze( IterationPreserve );
 
-_.assert( !_.property.has( Looker.Iteration, 'src' ) && Looker.Iteration.src === undefined );
-_.assert( _.property.has( Looker.IterationPreserve, 'src' ) && Looker.IterationPreserve.src === undefined );
-_.assert( _.property.has( Looker, 'src' ) && Looker.src === undefined );
-_.assert( !_.property.has( Looker.Iteration, 'root' ) && Looker.Iteration.root === undefined );
-_.assert( _.property.has( Looker, 'root' ) && Looker.root === undefined );
+_.assert( !_.props.has( Looker.Iteration, 'src' ) && Looker.Iteration.src === undefined );
+_.assert( _.props.has( Looker.IterationPreserve, 'src' ) && Looker.IterationPreserve.src === undefined );
+_.assert( _.props.has( Looker, 'src' ) && Looker.src === undefined );
+_.assert( !_.props.has( Looker.Iteration, 'root' ) && Looker.Iteration.root === undefined );
+_.assert( _.props.has( Looker, 'root' ) && Looker.root === undefined );
 
 _.map.assertHasAll( Looker, Prime );
 
@@ -1755,9 +1764,9 @@ let ToolsExtension =
 
 }
 
-_.mapExtend( _.looker, LookerNamespaceExtension );
-_.mapExtend( _.error, ErrorExtension );
-_.mapExtend( _, ToolsExtension );
+_.props.extend( _.looker, LookerNamespaceExtension );
+_.props.extend( _.error, ErrorExtension );
+_.props.extend( _, ToolsExtension );
 
 // --
 // export

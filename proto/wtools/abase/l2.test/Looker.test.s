@@ -53,7 +53,7 @@ function entitySize( test )
   test.identical( got, exp );
 
   test.case = 'unroll';
-  var got = _.entitySize( _.unrollMake( [ 1, 2, 'str' ] ) );
+  var got = _.entitySize( _.unroll.make( [ 1, 2, 'str' ] ) );
   var exp = 19;
   test.identical( got, exp );
 
@@ -461,7 +461,7 @@ function lookWithIterator( test )
 
   function Obj1( o )
   {
-    _.mapExtend( this, o );
+    _.props.extend( this, o );
     if( o.withIterator )
     this[ Symbol.iterator ] = _iterate;
     return this;
@@ -536,7 +536,7 @@ function fieldPath( test )
 
   /* */
 
-  test.case = 'basic hashmap';
+  test.case = 'basic hashMap';
 
   clean();
 
@@ -676,7 +676,7 @@ function fieldPath( test )
   {
     if( dst === null )
     dst = Object.create( null );
-    _.mapExtend( dst, o );
+    _.props.extend( dst, o );
     if( o.withIterator )
     dst[ Symbol.iterator ] = _iterate;
     return dst;
@@ -963,7 +963,7 @@ function makeCustomBasic( test )
   test.case = 'control';
   clean();
 
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1 });
   var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -975,11 +975,11 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, extending';
   clean();
 
-  var Looker2 = _.mapExtend( null, _.Looker );
+  var Looker2 = _.props.extend( null, _.Looker );
   Looker2.Looker = Looker2;
   Looker2.OriginalLooker = Looker2;
   Looker2.iterableEval = iterableEval;
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -1000,7 +1000,7 @@ function makeCustomBasic( test )
   var Looker2 = Object.create( _.Looker );
   Looker2.Looker = Looker2;
   Looker2.iterableEval = iterableEval;
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -1019,7 +1019,7 @@ function makeCustomBasic( test )
   clean();
 
   var Looker2 = _.looker.classDefine({ looker : { iterableEval } });
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -1037,10 +1037,10 @@ function makeCustomBasic( test )
   test.case = 'extending Iterator, cloning';
   clean();
 
-  var Looker2 = _.mapExtend( null, _.Looker );
+  var Looker2 = _.props.extend( null, _.Looker );
   Looker2.Looker = Looker2;
   Looker2.OriginalLooker = Looker2;
-  var Iterator = Looker2.Iterator = _.mapExtend( null, Looker2.Iterator );
+  var Iterator = Looker2.Iterator = _.props.extend( null, Looker2.Iterator );
   Iterator.field1 = 'field1';
   Iterator.iterableEval = iterableEval;
   /*
@@ -1051,7 +1051,7 @@ function makeCustomBasic( test )
   because looker should be extended by iterator once in define
   not during each look
   */
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -1076,7 +1076,7 @@ function makeCustomBasic( test )
   var Iterator = Looker2.Iterator = Object.create( Looker2.Iterator );
   Iterator.field1 = 'field1';
   Iterator.iterableEval = iterableEval;
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -1097,7 +1097,7 @@ function makeCustomBasic( test )
   clean();
 
   var Looker2 = _.looker.classDefine({ iterator : { iterableEval } })
-  var src = new _.Escape( 'abc' );
+  var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
@@ -1119,7 +1119,7 @@ function makeCustomBasic( test )
 
   function handleUp1( e, k, it )
   {
-    its.push( _.mapExtend( null, it ) );
+    its.push( _.props.extend( null, it ) );
   }
 
   function iterableEval()
@@ -1158,7 +1158,7 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'LookingError' );
   test.identical( got, exp );
 
   /* */
@@ -1176,7 +1176,7 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'LookingError' );
   test.identical( got, exp );
 
   /* */
@@ -1194,7 +1194,7 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'LookingError' );
   test.identical( got, exp );
 
   /* */
@@ -1212,7 +1212,7 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.property.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'LookingError' );
   test.identical( got, exp );
 
   /* */
@@ -1396,7 +1396,7 @@ function optionWithCountable( test )
     test.case = `withCountable:${env.withCountable}, vector`;
     var src =
     {
-      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
+      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
     }
     test.true( _.countableIs( src.a ) );
     test.true( _.vectorIs( src.a ) );
@@ -1414,7 +1414,7 @@ function optionWithCountable( test )
     test.case = `withCountable:${env.withCountable}, countable`;
     var src =
     {
-      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
+      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
     }
     test.true( _.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
@@ -1432,7 +1432,7 @@ function optionWithCountable( test )
     test.case = `withCountable:${env.withCountable}, countable made`;
     var src =
     {
-      a : _.objectForTesting({ elements : [ '1', '10' ], withIterator : 1 }),
+      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], withIterator : 1 }),
     }
     test.true( _.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
@@ -1531,7 +1531,7 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      exp = [ '/', '/a', '/p', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/p' ];
+      exp = [ '/', '/a', '/p', '/{- Implicit {- Symbol prototype -} -}', '/{- Implicit {- Symbol prototype -} -}/p' ];
       test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
       test.identical( its.map( ( it ) => it.src ), exp );
@@ -1540,7 +1540,7 @@ function optionWithImplicitBasic( test )
         null,
         'a',
         'p',
-        new _.Escape( Symbol.for( 'prototype' ) ),
+        new _.props.Implicit( Symbol.for( 'prototype' ) ),
         'p'
       ];
       test.identical( its.map( ( it ) => it.key ), exp );
@@ -1575,7 +1575,7 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      exp = [ '/', '/a', '/Escape( Symbol( prototype ) )', '/Escape( Symbol( prototype ) )/a' ];
+      exp = [ '/', '/a', '/{- Implicit {- Symbol prototype -} -}', '/{- Implicit {- Symbol prototype -} -}/a' ];
       test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
       test.identical( its.map( ( it ) => it.src ), exp );
@@ -1583,7 +1583,7 @@ function optionWithImplicitBasic( test )
       [
         null,
         'a',
-        new _.Escape( Symbol.for( 'prototype' ) ),
+        new _.props.Implicit( Symbol.for( 'prototype' ) ),
         'a'
       ];
       test.identical( its.map( ( it ) => it.key ), exp );
@@ -1624,10 +1624,10 @@ function optionWithImplicitBasic( test )
       [
         '/',
         '/a',
-        '/Escape( Symbol( prototype ) )',
-        '/Escape( Symbol( prototype ) )/a',
-        '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )',
-        '/Escape( Symbol( prototype ) )/Escape( Symbol( prototype ) )/a'
+        '/{- Implicit {- Symbol prototype -} -}',
+        '/{- Implicit {- Symbol prototype -} -}/a',
+        '/{- Implicit {- Symbol prototype -} -}/{- Implicit {- Symbol prototype -} -}',
+        '/{- Implicit {- Symbol prototype -} -}/{- Implicit {- Symbol prototype -} -}/a'
       ]
       test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 2, _.prototype.each( src )[ 1 ], 1, _.prototype.each( src )[ 2 ], 0 ];
@@ -1636,9 +1636,9 @@ function optionWithImplicitBasic( test )
       [
         null,
         'a',
-        new _.Escape( Symbol.for( 'prototype' ) ),
+        new _.props.Implicit( Symbol.for( 'prototype' ) ),
         'a',
-        new _.Escape( Symbol.for( 'prototype' ) ),
+        new _.props.Implicit( Symbol.for( 'prototype' ) ),
         'a',
       ];
       test.identical( its.map( ( it ) => it.key ), exp );
@@ -1672,7 +1672,7 @@ function optionWithImplicitBasic( test )
 
   function handleUp1( e, k, it )
   {
-    its.push( _.mapExtend( null, it ) );
+    its.push( _.props.extend( null, it ) );
   }
 
   /* */
@@ -1721,7 +1721,7 @@ function optionWithImplicitGenerated( test )
     if( env.new && env.withConstructor )
     {
       test.case = `${toStr( env )}`;
-      src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+      src = _.diagnostic.objectMake( { elements : [ '1', '10' ], ... env } );
 
       clean();
       it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
@@ -1733,7 +1733,7 @@ function optionWithImplicitGenerated( test )
     else if( env.new )
     {
       test.case = `${toStr( env )}`;
-      src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+      src = _.diagnostic.objectMake( { elements : [ '1', '10' ], ... env } );
 
       clean();
       it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
@@ -1754,7 +1754,7 @@ function optionWithImplicitGenerated( test )
       if( env.withOwnConstructor )
       exp.push( '/constructor' );
       if( env.withImplicit )
-      exp.push( '/Escape( Symbol( prototype ) )' );
+      exp.push( '/{- Implicit {- Symbol prototype -} -}' );
       test.identical( gotUpPaths, exp );
 
     }
@@ -1763,7 +1763,7 @@ function optionWithImplicitGenerated( test )
       test.case = `${toStr( env )}`;
       // if( env.withIterator === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
       // debugger;
-      src = _.objectForTesting( { elements : [ '1', '10' ], ... env } );
+      src = _.diagnostic.objectMake( { elements : [ '1', '10' ], ... env } );
 
       clean();
       it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
@@ -3168,12 +3168,12 @@ function performance( test ) /* xxx : write similar test for other lookers */
 
   var counter = 0;
   var nruns = 10;
-  var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
+  var data = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 3 }).result;
   var time = _.time.now();
 
   debugger; /* eslint-disable-line no-debugger */
   for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
+  run( data );
   console.log( `Inner : ${_.time.spent( time )}` );
   test.identical( counter, 309516 * nruns );
   debugger; /* eslint-disable-line no-debugger */
@@ -3191,12 +3191,12 @@ function performance( test ) /* xxx : write similar test for other lookers */
 
   var counter = 0;
   var nruns = 1000;
-  var src = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 1 }).result;
+  var data = _.diagnosticStructureGenerate({ defaultComplexity : 5, depth : 1 }).result;
   var time = _.time.now();
 
   debugger; /* eslint-disable-line no-debugger */
   for( let i = 0 ; i < nruns ; i++ )
-  _.look( src, ( e, k, it ) => { ( counter += 1, undefined ) } );
+  run( data );
   console.log( `Outer : ${_.time.spent( time )}` );
   test.identical( counter, 1068 * nruns );
   debugger; /* eslint-disable-line no-debugger */
@@ -3207,6 +3207,11 @@ function performance( test ) /* xxx : write similar test for other lookers */
   = after
   nruns:1000 time:3.3s
   */
+
+  function run( data )
+  {
+    _.look( data, ( e, k, it ) => { ( counter += 1, undefined ) } );
+  }
 
 }
 

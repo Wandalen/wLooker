@@ -177,9 +177,9 @@ function iteratorRetype( iterator )
 
   _.assert( arguments.length === 1 );
   _.assert( _.mapIs( iterator ) );
-  _.assert( _.objectIs( this.Iterator ) );
-  _.assert( _.objectIs( this.Iteration ) );
-  _.assert( _.objectIs( iterator.Looker ) );
+  _.assert( _.object.isBasic( this.Iterator ) );
+  _.assert( _.object.isBasic( this.Iteration ) );
+  _.assert( _.object.isBasic( iterator.Looker ) );
   _.assert( iterator.Looker === this );
   _.assert( iterator.looker === undefined );
   _.assert( iterator.iterableEval !== null );
@@ -210,9 +210,9 @@ function iteratorInitBegin( iterator )
 
   _.assert( arguments.length === 1 );
   _.assert( !_.mapIs( iterator ) );
-  _.assert( _.objectIs( this.Iterator ) );
-  _.assert( _.objectIs( this.Iteration ) );
-  _.assert( _.objectIs( iterator.Looker ) );
+  _.assert( _.object.isBasic( this.Iterator ) );
+  _.assert( _.object.isBasic( this.Iteration ) );
+  _.assert( _.object.isBasic( iterator.Looker ) );
   _.assert( iterator.Looker === this );
   _.assert( iterator.looker === undefined );
   _.assert( _.routineIs( iterator.iterableEval ) );
@@ -364,7 +364,7 @@ function iteratorCopy( o )
   let it = this;
 
   _.assert( arguments.length === 1 );
-  _.assert( _.objectIs( o ) )
+  _.assert( _.object.isBasic( o ) )
 
   for( let k in o )
   {
@@ -420,8 +420,8 @@ function iterationMake()
 
   // _.assert( arguments.length === 0, 'Expects no arguments' );
   // _.assert( it.level >= 0 );
-  // _.assert( _.objectIs( it.iterator ) );
-  // _.assert( _.objectIs( it.Looker ) );
+  // _.assert( _.object.isBasic( it.iterator ) );
+  // _.assert( _.object.isBasic( it.Looker ) );
   // _.assert( it.looker === undefined );
   // _.assert( _.numberIs( it.level ) && it.level >= 0 );
   // _.assert( !!it.iterationPrototype );
@@ -543,7 +543,7 @@ function chooseBegin( e, k, exists )
 {
   let it = this;
 
-  _.assert( _.objectIs( it.down ) );
+  _.assert( _.object.isBasic( it.down ) );
   _.assert( it.fast || it.level >= 0 );
   _.assert( it.originalKey === null );
   _.assert( arguments.length === 3 );
@@ -561,7 +561,7 @@ function chooseEnd( e, k, exists )
   let it = this;
 
   _.assert( arguments.length === 3, 'Expects three argument' );
-  _.assert( _.objectIs( it.down ) );
+  _.assert( _.object.isBasic( it.down ) );
   _.assert( _.boolIs( exists ) );
   _.assert( it.fast || it.level >= 0 );
 
@@ -1228,7 +1228,7 @@ function exec_body( it )
 function execIt_body( it )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( _.objectIs( it.Looker ) );
+  _.assert( _.object.isBasic( it.Looker ) );
   _.assert( _.prototype.isPrototypeFor( it.Looker, it ) );
   _.assert( it.looker === undefined );
   it.perform();
@@ -1301,7 +1301,7 @@ function classDefine( o )
   if( o.name === null )
   o.name = 'CustomLooker'
 
-  _.assert( _.objectIs( o.parent ), `Parent should be object` );
+  _.assert( _.object.isBasic( o.parent ), `Parent should be object` );
 
   let looker = _.props.extend( null, o.parent );
 
@@ -1484,7 +1484,7 @@ Looker.constructor = function Looker() /* zzz : implement */
 {
   _.assert( 0, 'not implemented' );
   let prototype = _.prototype.of( this );
-  _.assert( _.object.is( prototype ) );
+  _.assert( _.object.isBasic( prototype ) );
   _.assert( prototype.exec.defaults === prototype );
   let result = this.head( prototype.exec, arguments );
   _.assert( result === this );

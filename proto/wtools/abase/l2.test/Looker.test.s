@@ -604,8 +604,8 @@ function fieldPath( test )
   test.case = 'countalbe';
 
   clean();
-  var b = new countableConstructor({ withIterator : 1, elements : [ 'c', 'd' ] });
-  var src = new countableConstructor({ withIterator : 1, elements : [ 'a', b ] });
+  var b = __.diagnostic.objectMake({ /* ttt */ new : 1, withIterator : 1, elements : [ 'c', 'd' ] });
+  var src = __.diagnostic.objectMake({ /* ttt */ new : 1, withIterator : 1, elements : [ 'a', b ] });
   var got = _.look
   ({
     src,

@@ -1705,7 +1705,7 @@ function optionWithImplicitGenerated( test )
     new : [ 0, 1 ],
     withImplicit : 1,
   };
-  let samples = _.eachSample_({ sets });
+  let samples = _.permutation.eachSample({ sets });
 
   for( let env of samples )
   eachCase( env );

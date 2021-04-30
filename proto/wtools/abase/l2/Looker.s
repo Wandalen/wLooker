@@ -594,7 +594,7 @@ function chooseEnd( e, k, exists )
   else
   {
     debugger;
-    k2 = _.entity.exportStringShallow( k2 );
+    k2 = _.entity.exportStringDiagnosticShallow( k2 );
   }
   _.assert( k2 );
   let hasUp = _.strHasAny( k2, it.upToken );

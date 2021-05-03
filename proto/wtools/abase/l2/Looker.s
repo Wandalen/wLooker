@@ -517,14 +517,14 @@ function elementGet( e, k )
  * @class Tools.Looker
  */
 
-function choose( e, k, exists )
+function choose( e, k, c, exists )
 {
   let it = this;
 
-  [ e, k, exists ] = it.chooseBegin( e, k, exists );
+  [ e, k, c, exists ] = it.chooseBegin( e, k, c, exists );
 
   _.assert( _.boolIs( exists ) || exists === null );
-  _.assert( arguments.length === 3 );
+  _.assert( arguments.length === 4 );
 
   if( e === undefined )
   [ e, k, exists ] = it.elementGet( it.src, k );
@@ -539,20 +539,58 @@ function choose( e, k, exists )
 
 //
 
-function chooseBegin( e, k, exists )
+function chooseBegin( e, k, c, exists )
 {
   let it = this;
 
   _.assert( _.object.isBasic( it.down ) );
   _.assert( it.fast || it.level >= 0 );
   _.assert( it.originalKey === null );
-  _.assert( arguments.length === 3 );
+  _.assert( arguments.length === 4 );
 
   if( it.originalKey === null )
   it.originalKey = k;
 
-  return [ e, k, exists ];
+  return [ e, k, c, exists ];
 }
+
+// function choose( e, k, exists )
+// {
+//   let it = this;
+//
+//   let c = it.src;
+//   [ e, k, c, exists ] = it.chooseBegin( e, k, c, exists );
+//
+//   _.assert( _.boolIs( exists ) || exists === null );
+//   _.assert( arguments.length === 3 );
+//
+//   if( e === undefined )
+//   [ e, k, exists ] = it.elementGet( it.src, k );
+//
+//   it.chooseEnd( e, k, exists );
+//
+//   it.srcChanged();
+//   it.revisitedEval( it.originalSrc );
+//
+//   return it;
+// }
+//
+// //
+//
+// function chooseBegin( e, k, c, exists )
+// {
+//   let it = this;
+//
+//   _.assert( _.object.isBasic( it.down ) );
+//   _.assert( it.fast || it.level >= 0 );
+//   _.assert( it.originalKey === null );
+//   _.assert( arguments.length === 4 );
+//
+//   if( it.originalKey === null )
+//   it.originalKey = k;
+//
+//   return [ e, k, c, exists ];
+// }
 
 //
 
@@ -1030,7 +1068,7 @@ function _countableAscend( src )
     let k = 0;
     for( let e of src ) /* xxx : implement test with e === undefined */
     {
-      let eit = it.iterationMake().choose( e, k, true );
+      let eit = it.iterationMake().choose( e, k, src, true );
       eit.iterate();
       if( !it.canSibling() )
       break;
@@ -1042,7 +1080,7 @@ function _countableAscend( src )
     for( let k = 0 ; k < src.length ; k++ )
     {
       let e = src[ k ]; /* xxx : implement test with e === undefined */
-      let eit = it.iterationMake().choose( e, k, true );
+      let eit = it.iterationMake().choose( e, k, src, true );
       eit.iterate();
       if( !it.canSibling() )
       break;
@@ -1063,7 +1101,7 @@ function _auxAscend( src )
   for( let k in src ) /* xxx : implement test with e === undefined */
   {
     let e = src[ k ];
-    let eit = it.iterationMake().choose( e, k, true );
+    let eit = it.iterationMake().choose( e, k, src, true );
     eit.iterate();
     canSibling = it.canSibling();
     if( !canSibling )
@@ -1077,7 +1115,7 @@ function _auxAscend( src )
 
     for( var [ k, e ] of props )
     {
-      let eit = it.iterationMake().choose( e, k, true );
+      let eit = it.iterationMake().choose( e, k, src, true );
       eit.iterate();
       canSibling = it.canSibling();
       if( !canSibling )
@@ -1087,6 +1125,73 @@ function _auxAscend( src )
   }
 
 }
+
+// function _countableAscend( src )
+// {
+//   let it = this;
+//
+//   if( _.class.methodIteratorOf( src ) )
+//   {
+//     let k = 0;
+//     for( let e of src ) /* xxx : implement test with e === undefined */
+//     {
+//       let eit = it.iterationMake().choose( e, k, true );
+//       eit.iterate();
+//       if( !it.canSibling() )
+//       break;
+//       k += 1;
+//     }
+//   }
+//   else
+//   {
+//     for( let k = 0 ; k < src.length ; k++ )
+//     {
+//       let e = src[ k ]; /* xxx : implement test with e === undefined */
+//       let eit = it.iterationMake().choose( e, k, true );
+//       eit.iterate();
+//       if( !it.canSibling() )
+//       break;
+//     }
+//   }
+//
+// }
+//
+// //
+//
+// function _auxAscend( src )
+// {
+//   let it = this;
+//   let canSibling = true;
+//
+//   _.assert( arguments.length === 1 );
+//
+//   for( let k in src ) /* xxx : implement test with e === undefined */
+//   {
+//     let e = src[ k ];
+//     let eit = it.iterationMake().choose( e, k, true );
+//     eit.iterate();
+//     canSibling = it.canSibling();
+//     if( !canSibling )
+//     break;
+//   }
+//
+//   if( canSibling )
+//   if( it.hasImplicit( src ) )
+//   {
+//     var props = _.props.onlyImplicit( src );
+//
+//     for( var [ k, e ] of props )
+//     {
+//       let eit = it.iterationMake().choose( e, k, true );
+//       eit.iterate();
+//       canSibling = it.canSibling();
+//       if( !canSibling )
+//       break;
+//     }
+//
+//   }
+//
+// }
 
 //
 

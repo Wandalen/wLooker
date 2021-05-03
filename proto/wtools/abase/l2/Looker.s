@@ -1203,7 +1203,7 @@ function _hashMapAscend( src )
 
   for( var [ k, e ] of src ) /* xxx : implement test with e === undefined */
   {
-    let eit = it.iterationMake().choose( e, k, true );
+    let eit = it.iterationMake().choose( e, k, src, true );
     eit.iterate();
     if( !it.canSibling() )
     break;
@@ -1222,7 +1222,7 @@ function _setAscend( src )
   let k = 0;
   for( let e of src ) /* xxx : implement test with e === undefined */
   {
-    let eit = it.iterationMake().choose( e, k, true );
+    let eit = it.iterationMake().choose( e, k, src, true );
     eit.iterate();
     if( !it.canSibling() )
     break;
@@ -1230,6 +1230,42 @@ function _setAscend( src )
   }
 
 }
+
+// function _hashMapAscend( src )
+// {
+//   let it = this;
+//
+//   _.assert( arguments.length === 1 );
+//
+//   for( var [ k, e ] of src ) /* xxx : implement test with e === undefined */
+//   {
+//     let eit = it.iterationMake().choose( e, k, true );
+//     eit.iterate();
+//     if( !it.canSibling() )
+//     break;
+//   }
+//
+// }
+//
+// //
+//
+// function _setAscend( src )
+// {
+//   let it = this;
+//
+//   _.assert( arguments.length === 1 );
+//
+//   let k = 0;
+//   for( let e of src ) /* xxx : implement test with e === undefined */
+//   {
+//     let eit = it.iterationMake().choose( e, k, true );
+//     eit.iterate();
+//     if( !it.canSibling() )
+//     break;
+//     k += 1;
+//   }
+//
+// }
 
 // --
 // dichotomy

@@ -501,13 +501,15 @@ function performEnd()
  * @class Tools.Looker
  */
 
-function elementGet( e, k )
+function elementGet( e, k, c )
 {
   let it = this;
   let result;
-  _.assert( arguments.length === 2, 'Expects two argument' );
+  _.assert( arguments.length === 3, 'Expects two argument' );
   result = _.container.elementWithImplicit( e, k ); /* xxx : use maybe functor */
-  return result;
+  if( c === null )
+  c = _.container.cardinalWithKey( e, k );
+  return [ result[ 0 ], result[ 1 ], c, result[ 2 ] ];
 }
 
 //
@@ -517,19 +519,24 @@ function elementGet( e, k )
  * @class Tools.Looker
  */
 
-function choose( e, k, exists )
+// function choose( e, k, exists )
+function choose()
 {
   let it = this;
+  let e = arguments[ 0 ];
+  let k = arguments[ 1 ];
+  let c = arguments[ 2 ];
+  let exists = arguments[ 3 ];
 
-  [ e, k, exists ] = it.chooseBegin( e, k, exists );
+  [ e, k, c, exists ] = it.chooseBegin( e, k, c, exists );
 
+  _.assert( arguments.length === 4 );
   _.assert( _.boolIs( exists ) || exists === null );
-  _.assert( arguments.length === 3 );
 
   if( e === undefined )
-  [ e, k, exists ] = it.elementGet( it.src, k );
+  [ e, k, c, exists ] = it.elementGet( it.src, k, c );
 
-  it.chooseEnd( e, k, exists );
+  it.chooseEnd( e, k, c, exists );
 
   it.srcChanged();
   it.revisitedEval( it.originalSrc );
@@ -539,38 +546,48 @@ function choose( e, k, exists )
 
 //
 
-function chooseBegin( e, k, exists )
+// function chooseBegin( e, k, exists )
+function chooseBegin()
 {
   let it = this;
+  let e = arguments[ 0 ];
+  let k = arguments[ 1 ];
+  let c = arguments[ 2 ];
+  let exists = arguments[ 3 ];
 
   _.assert( _.object.isBasic( it.down ) );
   _.assert( it.fast || it.level >= 0 );
   _.assert( it.originalKey === null );
-  _.assert( arguments.length === 3 );
+  _.assert( arguments.length === 4 );
 
   if( it.originalKey === null )
   it.originalKey = k;
 
-  return [ e, k, exists ];
+  return [ e, k, c, exists ];
 }
 
 //
 
-function chooseEnd( e, k, exists )
+// function chooseEnd( e, k, exists )
+function chooseEnd()
 {
   let it = this;
+  let e = arguments[ 0 ];
+  let k = arguments[ 1 ];
+  let c = arguments[ 2 ];
+  let exists = arguments[ 3 ];
 
-  _.assert( arguments.length === 3, 'Expects three argument' );
+  _.assert( arguments.length === 4, 'Expects three argument' );
   _.assert( _.object.isBasic( it.down ) );
   _.assert( _.boolIs( exists ) );
   _.assert( it.fast || it.level >= 0 );
 
   /*
-    assigning key and src should goes first
+  assigning of key and src should goes first
   */
 
-  _.debugger;
   it.key = k;
+  it.cardinal = c;
   it.src = e;
   it.originalSrc = e;
 
@@ -582,19 +599,30 @@ function chooseEnd( e, k, exists )
   let k2 = k;
   if( k2 === null )
   k2 = e;
-  if( _.numberIs( k2 ) )
+  // if( _.numberIs( k2 ) )
+  // {
+  //   k2 = `#${k2}`;
+  // }
+  // else
+  if( _.strIs( k2 ) )
   {
-    k2 = `#${k2}`;
-  }
-  else if( _.strIs( k2 ) )
-  {
+    /* xxx : test escaped path
+    .!not-prototype
+    .#not-cardinal
+    */
     if( k2 === '' )
     k2 = '""';
   }
+  else if( _.props.implicit.is( k2 ) )
+  {
+    k2 = `!${Symbol.keyFor( k2.val )}`;
+  }
   else
   {
-    debugger;
-    k2 = _.entity.exportStringDiagnosticShallow( k2 );
+    // debugger;
+    // k2 = _.entity.exportStringDiagnosticShallow( k2 );
+    _.assert( c >= 0 );
+    k2 = `#${c}`;
   }
   _.assert( k2 );
   let hasUp = _.strHasAny( k2, it.upToken );
@@ -661,11 +689,7 @@ function iterableEval()
   _.assert( it.iterable === null );
   _.assert( arguments.length === 0, 'Expects no arguments' );
 
-  if( it.isCountable( it.src ) )
-  {
-    it.iterable = it.ContainerNameToIdMap.countable;
-  }
-  else if( _.aux.is( it.src ) )
+  if( _.aux.is( it.src ) )
   {
     it.iterable = it.ContainerNameToIdMap.aux;
   }
@@ -676,6 +700,10 @@ function iterableEval()
   else if( _.setLike( it.src ) )
   {
     it.iterable = it.ContainerNameToIdMap.set;
+  }
+  else if( it.isCountable( it.src ) )
+  {
+    it.iterable = it.ContainerNameToIdMap.countable;
   }
   else
   {
@@ -1030,7 +1058,7 @@ function _countableAscend( src )
     let k = 0;
     for( let e of src ) /* xxx : implement test with e === undefined */
     {
-      let eit = it.iterationMake().choose( e, k, true );
+      let eit = it.iterationMake().choose( e, k, k, true );
       eit.iterate();
       if( !it.canSibling() )
       break;
@@ -1042,7 +1070,7 @@ function _countableAscend( src )
     for( let k = 0 ; k < src.length ; k++ )
     {
       let e = src[ k ]; /* xxx : implement test with e === undefined */
-      let eit = it.iterationMake().choose( e, k, true );
+      let eit = it.iterationMake().choose( e, k, k, true );
       eit.iterate();
       if( !it.canSibling() )
       break;
@@ -1060,12 +1088,14 @@ function _auxAscend( src )
 
   _.assert( arguments.length === 1 );
 
+  let c = 0;
   for( let k in src ) /* xxx : implement test with e === undefined */
   {
     let e = src[ k ];
-    let eit = it.iterationMake().choose( e, k, true );
+    let eit = it.iterationMake().choose( e, k, c, true );
     eit.iterate();
     canSibling = it.canSibling();
+    c += 1;
     if( !canSibling )
     break;
   }
@@ -1077,7 +1107,9 @@ function _auxAscend( src )
 
     for( var [ k, e ] of props )
     {
-      let eit = it.iterationMake().choose( e, k, true );
+      if( _.props.implicit.is( k ) )
+      debugger;
+      let eit = it.iterationMake().choose( e, k, -1, true );
       eit.iterate();
       canSibling = it.canSibling();
       if( !canSibling )
@@ -1096,10 +1128,12 @@ function _hashMapAscend( src )
 
   _.assert( arguments.length === 1 );
 
+  let c = 0;
   for( var [ k, e ] of src ) /* xxx : implement test with e === undefined */
   {
-    let eit = it.iterationMake().choose( e, k, true );
+    let eit = it.iterationMake().choose( e, k, c, true );
     eit.iterate();
+    c += 1;
     if( !it.canSibling() )
     break;
   }
@@ -1114,14 +1148,15 @@ function _setAscend( src )
 
   _.assert( arguments.length === 1 );
 
-  let k = 0;
+  let c = 0;
   for( let e of src ) /* xxx : implement test with e === undefined */
   {
-    let eit = it.iterationMake().choose( e, k, true );
+    // let eit = it.iterationMake().choose( e, c, c, true );
+    let eit = it.iterationMake().choose( e, e, c, true );
     eit.iterate();
+    c += 1;
     if( !it.canSibling() )
     break;
-    k += 1;
   }
 
 }
@@ -1626,11 +1661,11 @@ let Iterator = Looker.Iterator = Object.create( null );
 Iterator.src = undefined;
 Iterator.iterator = null;
 Iterator.iterationPrototype = null;
-Iterator.path = null;
+Iterator.path = null; /* xxx : remove? */
 Iterator.lastPath = null;
 Iterator.lastIt = null;
 Iterator.continue = true;
-Iterator.key = null;
+Iterator.key = null; /* xxx : remove? */
 Iterator.error = null;
 Iterator.visitedContainer = null;
 Iterator.isCountable = null;
@@ -1676,6 +1711,7 @@ Iteration.childrenCounter = 0;
 Iteration.level = 0;
 Iteration.path = '/';
 Iteration.key = null;
+Iteration.cardinal = null;
 Iteration.originalKey = null;
 Iteration.index = null;
 Iteration.originalSrc = null;

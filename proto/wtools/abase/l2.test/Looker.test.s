@@ -32,76 +32,6 @@ node wtools/atop/will.test/Int.test.s n:1 rapidity:-3
 */
 
 // --
-// from Tools
-// --
-
-function entitySize( test )
-{
-  test.case = 'empty array';
-  var got = _.entitySize( [] );
-  var exp = 0;
-  test.identical( got, exp );
-
-  test.case = 'array';
-  var got = _.entitySize( [ 3, undefined, 34 ] );
-  var exp = 24;
-  test.identical( got, exp );
-
-  test.case = 'argumentsArray';
-  var got = _.entitySize( _.argumentsArray.make( [ 1, null, 4 ] ) );
-  var exp = 24;
-  test.identical( got, exp );
-
-  test.case = 'unroll';
-  var got = _.entitySize( _.unroll.make( [ 1, 2, 'str' ] ) );
-  var exp = 19;
-  test.identical( got, exp );
-
-  test.case = 'BufferTyped';
-  var got = _.entitySize( new U8x( [ 1, 2, 3, 4 ] ) );
-  test.identical( got, 4 );
-
-  test.case = 'BufferRaw';
-  var got = _.entitySize( new BufferRaw( 10 ) );
-  test.identical( got, 10 );
-
-  test.case = 'BufferView';
-  var got = _.entitySize( new BufferView( new BufferRaw( 10 ) ) );
-  test.identical( got, 10 );
-
-  test.case = 'Set';
-  var got = _.entitySize( new Set( [ 1, 2, undefined, 4 ] ) );
-  var exp = 32;
-  test.identical( got, exp );
-
-  test.case = 'map';
-  var got = _.entitySize( { a : 1, b : 2, c : 'str' } );
-  var exp = 19;
-  test.identical( got, exp );
-
-  test.case = 'HashMap';
-  var got = _.entitySize( new Map( [ [ undefined, undefined ], [ 1, 2 ], [ '', 'str' ] ] ) );
-  var exp = 35;
-  test.identical( got, exp );
-
-  test.case = 'object, some properties are non enumerable';
-  var src = Object.create( null );
-  var o =
-  {
-    'property3' :
-    {
-      enumerable : true,
-      value : 'World',
-      writable : true
-    }
-  };
-  Object.defineProperties( src, o );
-  var got = _.entitySize( src );
-  var exp = 5;
-  test.identical( got, exp );
-}
-
-// --
 // tests
 // --
 
@@ -378,9 +308,9 @@ function lookWithIterator( test )
 
   /* */
 
-  test.case = 'withIterator : 1, default';
+  test.case = 'countable : 1, default';
   clean();
-  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
+  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
   var it = _.look( ins1, handleUp1, handleDown1 );
   var expectedUpPaths = [ '/' ];
   test.identical( gotUpPaths, expectedUpPaths );
@@ -397,9 +327,9 @@ function lookWithIterator( test )
 
   /* */
 
-  test.case = 'withIterator : 1, withCountable : 1';
+  test.case = 'countable : 1, withCountable : 1';
   clean();
-  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 1 });
+  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
   var it = _.look({ src : ins1, onUp : handleUp1, onDown : handleDown1, withCountable : 1 });
   var expectedUpPaths = [ '/', '/#0', '/#1' ];
   test.identical( gotUpPaths, expectedUpPaths );
@@ -416,9 +346,9 @@ function lookWithIterator( test )
 
   /* */
 
-  test.case = 'withIterator : 0';
+  test.case = 'countable : 0';
   clean();
-  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], withIterator : 0 });
+  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], countable : 0 });
   var it = _.look( ins1, handleUp1, handleDown1 );
   var expectedUpPaths = [ '/' ];
   test.identical( gotUpPaths, expectedUpPaths );
@@ -462,7 +392,7 @@ function lookWithIterator( test )
   function Obj1( o )
   {
     _.props.extend( this, o );
-    if( o.withIterator )
+    if( o.countable )
     this[ Symbol.iterator ] = _iterate;
     return this;
   }
@@ -498,6 +428,142 @@ function lookWithIterator( test )
   }
 
   /* */
+
+}
+
+//
+
+function lookHashMap( test )
+{
+  let ups = [];
+  let downs = [];
+
+  /* */
+
+  test.case = 'basic';
+  clean();
+  var src = new HashMap([ [ 'k1', 'v1' ], [ 'k2', 'v2' ] ]);
+  var got = _.look( src, onUp, onDown );
+  test.true( got.iterationProper( got ) );
+  var exp = [ '/', '/k1', '/k2' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ '/k1', '/k2', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+
+  /* */
+
+  test.case = 'deep';
+  clean();
+  var src = new HashMap([ [ 'k1', { v : 'v1' } ], [ 'k2', new HashMap([ [ 'k1', 'v1' ], [ 'k2', 'v2' ] ]) ] ]);
+  var got = _.look( src, onUp, onDown );
+  var exp = [ '/', '/k1', '/k1/v', '/k2', '/k2/k1', '/k2/k2' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ '/k1/v', '/k1', '/k2/k1', '/k2/k2', '/k2', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+
+  /* */
+
+  test.case = 'special';
+  clean();
+  var src = new HashMap([ [ 'k1', 'v1' ], [ undefined, undefined ], [ null, null ], [ 10, 20 ] ]);
+  var got = _.look( src, onUp, onDown );
+  test.true( got.iterationProper( got ) );
+  var exp = [ '/', '/k1', '/#1', '/#2', '/#3' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ '/k1', '/#1', '/#2', '/#3', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+
+  /* */
+
+  function clean()
+  {
+    ups = [];
+    downs = [];
+  }
+
+  function onUp()
+  {
+    let it = this;
+    ups.push( _.props.extend( null, it ) );
+  }
+
+  function onDown()
+  {
+    let it = this;
+    downs.push( _.props.extend( null, it ) );
+  }
+
+}
+
+//
+
+function lookSet( test )
+{
+  let ups = [];
+  let downs = [];
+
+  /* */
+
+  test.case = 'basic';
+  clean();
+  var src = new Set([ 'k1', 'k2' ]);
+  var got = _.look( src, onUp, onDown );
+  test.true( got.iterationProper( got ) );
+  var exp = [ '/', '/k1', '/k2' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ src, 'k1', 'k2' ];
+  test.identical( __.select( ups, '*/src' ), exp );
+  var exp = [ '/k1', '/k2', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+  var exp = [ 'k1', 'k2', src ];
+  test.identical( __.select( downs, '*/src' ), exp );
+
+  /* */
+
+  test.case = 'deep';
+  clean();
+  var src = new Set([ 'k1', new Set([ 'v1', 'v2' ]) ]);
+  var got = _.look( src, onUp, onDown );
+  var exp = [ '/', '/k1', '/#1', '/#1/v1', '/#1/v2' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ '/k1', '/#1/v1', '/#1/v2', '/#1', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+
+  /* */
+
+  test.case = 'special';
+  clean();
+  var src = new Set([ undefined, null, 10, 'k' ]);
+  var got = _.look( src, onUp, onDown );
+  test.true( got.iterationProper( got ) );
+  var exp = [ '/', '/#0', '/#1', '/#2', '/k' ] ;
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ new Set([ undefined, null, 10, 'k' ]), undefined, null, 10, 'k' ];
+  test.identical( __.select( ups, '*/src' ), exp );
+  var exp = [ '/#0', '/#1', '/#2', '/k', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+  var exp = [ undefined, null, 10, 'k', new Set([ undefined, null, 10, 'k' ]) ];
+  test.identical( __.select( downs, '*/src' ), exp );
+
+  /* */
+
+  function clean()
+  {
+    ups = [];
+    downs = [];
+  }
+
+  function onUp()
+  {
+    let it = this;
+    ups.push( _.props.extend( null, it ) );
+  }
+
+  function onDown()
+  {
+    let it = this;
+    downs.push( _.props.extend( null, it ) );
+  }
 
 }
 
@@ -553,9 +619,9 @@ function fieldPath( test )
     onUp,
     onDown,
   });
-  var exp = [ '/', '/a', '/d', '/d/b', '/d/#5' ];
+  var exp = [ '/', '/a', '/d', '/d/b', '/d/#1' ];
   test.identical( upPaths, exp );
-  var exp = [ '/a', '/d/b', '/d/#5', '/d', '/' ];
+  var exp = [ '/a', '/d/b', '/d/#1', '/d', '/' ];
   test.identical( downPaths, exp );
 
   /* */
@@ -576,9 +642,9 @@ function fieldPath( test )
     onUp,
     onDown,
   });
-  var exp = [ '/', '/#0', '/#1', '/#1/#0', '/#1/#1' ];
+  var exp = [ '/', '/a', '/#1', '/#1/b', '/#1/#1' ];
   test.identical( upPaths, exp );
-  var exp = [ '/#0', '/#1/#0', '/#1/#1', '/#1', '/' ];
+  var exp = [ '/a', '/#1/b', '/#1/#1', '/#1', '/' ];
   test.identical( downPaths, exp );
 
   /* */
@@ -604,8 +670,8 @@ function fieldPath( test )
   test.case = 'countalbe';
 
   clean();
-  var b = __.diagnostic.objectMake({ /* ttt */ new : 1, withIterator : 1, elements : [ 'c', 'd' ] });
-  var src = __.diagnostic.objectMake({ /* ttt */ new : 1, withIterator : 1, elements : [ 'a', b ] });
+  var b = __.diagnostic.objectMake({ /* ttt */ new : 1, countable : 1, elements : [ 'c', 'd' ] });
+  var src = __.diagnostic.objectMake({ /* ttt */ new : 1, countable : 1, elements : [ 'a', b ] });
   var got = _.look
   ({
     src,
@@ -677,7 +743,7 @@ function fieldPath( test )
   //   if( dst === null )
   //   dst = Object.create( null );
   //   _.props.extend( dst, o );
-  //   if( o.withIterator )
+  //   if( o.countable )
   //   dst[ Symbol.iterator ] = _iterate;
   //   return dst;
   // }
@@ -1396,7 +1462,7 @@ function optionWithCountable( test )
     test.case = `withCountable:${env.withCountable}, vector`;
     var src =
     {
-      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], withIterator : 1, length : 2, new : 1 }),
+      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], countable : 1, length : 2, new : 1 }),
     }
     test.true( _.countableIs( src.a ) );
     test.true( _.vectorIs( src.a ) );
@@ -1414,7 +1480,7 @@ function optionWithCountable( test )
     test.case = `withCountable:${env.withCountable}, countable`;
     var src =
     {
-      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], withIterator : 1, new : 1 }),
+      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], countable : 1, new : 1 }),
     }
     test.true( _.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
@@ -1432,7 +1498,7 @@ function optionWithCountable( test )
     test.case = `withCountable:${env.withCountable}, countable made`;
     var src =
     {
-      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], withIterator : 1 }),
+      a : _.diagnostic.objectMake({ elements : [ '1', '10' ], countable : 1 }),
     }
     test.true( _.countableIs( src.a ) );
     test.true( !_.vectorIs( src.a ) );
@@ -1531,7 +1597,7 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      exp = [ '/', '/a', '/p', '/{- Implicit {- Symbol prototype -} -}', '/{- Implicit {- Symbol prototype -} -}/p' ];
+      exp = [ '/', '/a', '/p', '/!prototype', '/!prototype/p' ];
       test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
       test.identical( its.map( ( it ) => it.src ), exp );
@@ -1575,7 +1641,7 @@ function optionWithImplicitBasic( test )
 
     if( env.withImplicit )
     {
-      exp = [ '/', '/a', '/{- Implicit {- Symbol prototype -} -}', '/{- Implicit {- Symbol prototype -} -}/a' ];
+      exp = [ '/', '/a', '/!prototype', '/!prototype/a' ];
       test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
       test.identical( its.map( ( it ) => it.src ), exp );
@@ -1624,10 +1690,10 @@ function optionWithImplicitBasic( test )
       [
         '/',
         '/a',
-        '/{- Implicit {- Symbol prototype -} -}',
-        '/{- Implicit {- Symbol prototype -} -}/a',
-        '/{- Implicit {- Symbol prototype -} -}/{- Implicit {- Symbol prototype -} -}',
-        '/{- Implicit {- Symbol prototype -} -}/{- Implicit {- Symbol prototype -} -}/a'
+        '/!prototype',
+        '/!prototype/a',
+        '/!prototype/!prototype',
+        '/!prototype/!prototype/a'
       ]
       test.identical( its.map( ( it ) => it.path ), exp );
       exp = [ src, 2, _.prototype.each( src )[ 1 ], 1, _.prototype.each( src )[ 2 ], 0 ];
@@ -1698,7 +1764,7 @@ function optionWithImplicitGenerated( test )
 
   let sets =
   {
-    withIterator : 0,
+    countable : 0,
     pure : [ 0, 1 ],
     withOwnConstructor : [ 0, 1 ],
     withConstructor : [ 0, 1 ],
@@ -1744,26 +1810,30 @@ function optionWithImplicitGenerated( test )
         '/elements',
         '/elements/#0',
         '/elements/#1',
-        '/withIterator',
+        '/countable',
         '/pure',
         '/withOwnConstructor',
         '/withConstructor',
         '/new',
-        '/withImplicit'
+        '/withImplicit',
+        '/basic',
+        '/vector',
+        // '/!prototype'
       ]
+      // xxx : qqq : improve _.str.typeParse to parse such strigns
+      // '!prototype'
       if( env.withOwnConstructor )
       exp.push( '/constructor' );
       if( env.withImplicit )
-      exp.push( '/{- Implicit {- Symbol prototype -} -}' );
+      exp.push( '/!prototype' );
       test.identical( gotUpPaths, exp );
-
     }
     else
     {
       test.case = `${toStr( env )}`;
-      // if( env.withIterator === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
+      // if( env.countable === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
       // debugger;
-      src = _.diagnostic.objectMake( { elements : [ '1', '10' ], ... env } );
+      src = _.diagnostic.objectMake({ elements : [ '1', '10' ], ... env });
 
       clean();
       it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withImplicit : env.withImplicit });
@@ -1774,12 +1844,14 @@ function optionWithImplicitGenerated( test )
         '/elements',
         '/elements/#0',
         '/elements/#1',
-        '/withIterator',
+        '/countable',
         '/pure',
         '/withOwnConstructor',
         '/withConstructor',
         '/new',
-        '/withImplicit'
+        '/withImplicit',
+        '/basic',
+        '/vector',
       ]
       if( env.withOwnConstructor )
       exp.push( '/constructor' );
@@ -2289,7 +2361,7 @@ function optionOnPathJoin( test )
     '/Set::set/Number::#0',
     '/Set::set/Number::#1',
     '/HashMap::hash',
-    '/HashMap::hash/Routine::1989-12-31T00:00:00.000Z',
+    '/HashMap::hash/Routine::#0',
     '/HashMap::hash/String::m3'
   ]
   test.identical( ups, exp );
@@ -2306,7 +2378,7 @@ function optionOnPathJoin( test )
     '/Set::set/Number::#0',
     '/Set::set/Number::#1',
     '/Set::set',
-    '/HashMap::hash/Routine::1989-12-31T00:00:00.000Z',
+    '/HashMap::hash/Routine::#0',
     '/HashMap::hash/String::m3',
     '/HashMap::hash',
     '/'
@@ -3156,7 +3228,9 @@ function optionFastCycled( test )
 
 }
 
-//
+// --
+// performance
+// --
 
 function performance( test ) /* xxx : write similar test for other lookers */
 {
@@ -3237,16 +3311,14 @@ const Proto =
   tests :
   {
 
-    // from Tools
-
-    entitySize,
-
     //
 
     look,
     lookWithCountableVector,
     lookRecursive,
     lookWithIterator,
+    lookHashMap,
+    lookSet,
 
     fieldPath,
     // complexStructure,
@@ -3266,6 +3338,8 @@ const Proto =
     optionFastPerformance,
     // optionFast,
     // optionFastCycled,
+
+    // performance
 
     performance,
 

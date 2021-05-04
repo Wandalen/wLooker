@@ -619,7 +619,6 @@ function chooseEnd()
   }
   else
   {
-    // debugger;
     // k2 = _.entity.exportStringDiagnosticShallow( k2 );
     _.assert( c >= 0 );
     k2 = `#${c}`;
@@ -1107,8 +1106,6 @@ function _auxAscend( src )
 
     for( var [ k, e ] of props )
     {
-      if( _.props.implicit.is( k ) )
-      debugger;
       let eit = it.iterationMake().choose( e, k, -1, true );
       eit.iterate();
       canSibling = it.canSibling();
@@ -1812,3 +1809,4 @@ if( typeof module !== 'undefined' )
 module[ 'exports' ] = _;
 
 })();
+

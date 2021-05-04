@@ -789,11 +789,9 @@ fieldPath.description =
 //   });
 //
 //   clean();
-//   debugger;
 //   _.look({ src : generated.result, onUp, onDown });
 //   test.identical( ups, expUps );
 //   test.identical( dws, expDws );
-//   debugger;
 //
 //   /* - */
 //
@@ -1831,8 +1829,6 @@ function optionWithImplicitGenerated( test )
     else
     {
       test.case = `${toStr( env )}`;
-      // if( env.countable === 0 && env.pure === 0 && env.withOwnConstructor === 0 && env.withConstructor === 0 )
-      // debugger;
       src = _.diagnostic.objectMake({ elements : [ '1', '10' ], ... env });
 
       clean();

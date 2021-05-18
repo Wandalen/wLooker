@@ -29,6 +29,9 @@ node wtools/amid/l5_mapper.test/TemplateTreeEnvironment.test.s && \
 tst.local wtools/amid/l3/introspector.test n:1 && \
 node wtools/atop/will.test/Int.test.s n:1 rapidity:-3
 
+tst.local wtools/abase/l0 n:1 && \
+tst.local wtools/abase/l1.test n:1 
+
 */
 
 // --

@@ -266,13 +266,11 @@ function iteratorInitEnd( iterator )
   _.assert( 0 <= iterator.revisiting && iterator.revisiting <= 2 );
   _.assert
   (
-    // _.longHas( [ 'countable', 'vector', 'long', 'array', '' ], iterator.withCountable ),
     this.WithCountable[ iterator.withCountable ] !== undefined,
     'Unexpected value of option::withCountable'
   );
   _.assert
   (
-    // _.longHas( [ 'aux', '' ], iterator.withImplicit ),
     this.WithImplicict[ iterator.withImplicit ] !== undefined,
     'Unexpected value of option::withImplicit'
   );
@@ -401,9 +399,7 @@ function iterationProper( it )
 function iterationMakeCommon()
 {
   let it = this;
-
   let newIt = Object.create( it.iterationPrototype );
-
   return newIt;
 }
 
@@ -533,7 +529,8 @@ function choose()
   _.assert( arguments.length === 4 );
   _.assert( _.boolIs( exists ) || exists === null );
 
-  if( e === undefined )
+  // if( e === undefined ) // yyy
+  if( exists !== true )
   [ e, k, c, exists ] = it.elementGet( it.src, k, c );
 
   it.chooseEnd( e, k, c, exists );
@@ -758,6 +755,9 @@ function iterate()
   it.visiting = it.canVisit();
   if( !it.visiting )
   return it;
+
+  if( it.selector === 'k2::.' )
+  debugger;
 
   it.visitUp();
 
@@ -1148,7 +1148,6 @@ function _setAscend( src )
   let c = 0;
   for( let e of src ) /* xxx : implement test with e === undefined */
   {
-    // let eit = it.iterationMake().choose( e, c, c, true );
     let eit = it.iterationMake().choose( e, e, c, true );
     eit.iterate();
     c += 1;
@@ -1508,10 +1507,14 @@ let WithImplicict =
 
 //
 
-const Looker = Object.create( null );
+// debugger;
+_.assert( !!_.looker.Looker );
+// const Looker = Object.create( null );
+const Looker = _.looker.Looker;
 const Self = Looker;
 
 Looker.OriginalLooker = Looker;
+
 Looker.constructor = function Looker() /* zzz : implement */
 {
   _.assert( 0, 'not implemented' );
@@ -1522,6 +1525,8 @@ Looker.constructor = function Looker() /* zzz : implement */
   _.assert( result === this );
   return this;
 }
+Looker.constructor.prototype = Object.create( null );
+
 Looker.Looker = Looker;
 Looker.Iterator = null;
 Looker.Iteration = null;
@@ -1654,6 +1659,8 @@ Looker.Prime = Prime;
  */
 
 let Iterator = Looker.Iterator = Object.create( null );
+// let Iterator = Looker.Iterator;
+// _.assert( _.map.is( Iterator ) );
 
 Iterator.src = undefined;
 Iterator.iterator = null;

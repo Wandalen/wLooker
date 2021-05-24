@@ -756,9 +756,6 @@ function iterate()
   if( !it.visiting )
   return it;
 
-  if( it.selector === 'k2::.' )
-  debugger;
-
   it.visitUp();
 
   it.ascending = it.canAscend();

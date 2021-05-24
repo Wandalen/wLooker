@@ -74,6 +74,11 @@ function optionsToIterationWithPreserve( test )
   test.identical( got.option1, 1 );
 }
 
+optionsToIterationWithPreserve.description =
+`
+Routine 'optionsToIteration' should extend new instance of Looker by options from options map 'iterationPreserve'
+`;
+
 //
 
 function look( test )

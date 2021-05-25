@@ -38,6 +38,49 @@ tst.local wtools/abase/l1.test n:1
 // tests
 // --
 
+function optionsToIterationWithPreserve( test )
+{
+  var Looker = _.looker.classDefine
+  ({
+    name : 'custom',
+    iterationPreserve :
+    {
+      option : null,
+      option1 : 0,
+    },
+    looker :
+    {
+      down : null,
+      originalSrc : null,
+    },
+    iteration :
+    {
+      option : null,
+      option1 : 0,
+    },
+  });
+
+  /* - */
+
+  test.case = 'rewrite default options';
+  let o =
+  {
+    selector : '*/filePath',
+    src : {},
+    option1 : 1,
+  };
+  o.Looker = Looker;
+  var got = _.looker.Looker.optionsToIteration( null, o );
+  test.identical( got.option1, 1 );
+}
+
+optionsToIterationWithPreserve.description =
+`
+Routine 'optionsToIteration' should extend new instance of Looker by options from options map 'iterationPreserve'
+`;
+
+//
+
 function look( test )
 {
 
@@ -3590,6 +3633,8 @@ const Proto =
 
   tests :
   {
+
+    optionsToIterationWithPreserve,
 
     //
 

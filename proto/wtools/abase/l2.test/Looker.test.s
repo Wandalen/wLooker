@@ -30,7 +30,7 @@ tst.local wtools/amid/l3/introspector.test n:1 && \
 node wtools/atop/will.test/Int.test.s n:1 rapidity:-3
 
 tst.local wtools/abase/l0 n:1 && \
-tst.local wtools/abase/l1.test n:1 
+tst.local wtools/abase/l1.test n:1
 
 */
 
@@ -313,7 +313,7 @@ function lookWithIterator( test )
 
   test.case = 'countable : 1, default';
   clean();
-  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
+  var ins1 = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
   var it = _.look( ins1, handleUp1, handleDown1 );
   var expectedUpPaths = [ '/' ];
   test.identical( gotUpPaths, expectedUpPaths );
@@ -332,7 +332,7 @@ function lookWithIterator( test )
 
   test.case = 'countable : 1, withCountable : 1';
   clean();
-  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
+  var ins1 = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
   var it = _.look({ src : ins1, onUp : handleUp1, onDown : handleDown1, withCountable : 1 });
   var expectedUpPaths = [ '/', '/#0', '/#1' ];
   test.identical( gotUpPaths, expectedUpPaths );
@@ -351,7 +351,7 @@ function lookWithIterator( test )
 
   test.case = 'countable : 0';
   clean();
-  var ins1 = new Obj1({ c : 'c1', elements : [ 'a', 'b' ], countable : 0 });
+  var ins1 = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], countable : 0 });
   var it = _.look( ins1, handleUp1, handleDown1 );
   var expectedUpPaths = [ '/' ];
   test.identical( gotUpPaths, expectedUpPaths );
@@ -368,37 +368,37 @@ function lookWithIterator( test )
 
   /* */
 
-  function _iterate()
-  {
-
-    let iterator = Object.create( null );
-    iterator.next = next;
-    iterator.index = 0;
-    iterator.instance = this;
-    return iterator;
-
-    function next()
-    {
-      let result = Object.create( null );
-      result.done = this.index === this.instance.elements.length;
-      if( result.done )
-      return result;
-      result.value = this.instance.elements[ this.index ];
-      this.index += 1;
-      return result;
-    }
-
-  }
-
-  /* */
-
-  function Obj1( o )
-  {
-    _.props.extend( this, o );
-    if( o.countable )
-    this[ Symbol.iterator ] = _iterate;
-    return this;
-  }
+  // function _iterate()
+  // {
+  //
+  //   let iterator = Object.create( null );
+  //   iterator.next = next;
+  //   iterator.index = 0;
+  //   iterator.instance = this;
+  //   return iterator;
+  //
+  //   function next()
+  //   {
+  //     let result = Object.create( null );
+  //     result.done = this.index === this.instance.elements.length;
+  //     if( result.done )
+  //     return result;
+  //     result.value = this.instance.elements[ this.index ];
+  //     this.index += 1;
+  //     return result;
+  //   }
+  //
+  // }
+  //
+  // /* */
+  //
+  // function Obj1( o )
+  // {
+  //   _.props.extend( this, o );
+  //   if( o.countable )
+  //   this[ Symbol.iterator ] = _iterate;
+  //   return this;
+  // }
 
   /* */
 
@@ -567,6 +567,252 @@ function lookSet( test )
     let it = this;
     downs.push( _.props.extend( null, it ) );
   }
+
+}
+
+//
+
+function lookMethodAscend( test )
+{
+  let ups, downs;
+
+  /* */
+
+  test.case = 'uncountable assumption';
+  clean();
+  var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], countable : 0 });
+  var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+  var exp = [ '/' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+
+  /* */
+
+  test.case = 'countable assumption';
+  clean();
+  var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], countable : 1 });
+  var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+  var exp = [ '/', '/#0', '/#1' ];
+  test.identical( __.select( ups, '*/path' ), exp );
+  var exp = [ '/#0', '/#1', '/' ];
+  test.identical( __.select( downs, '*/path' ), exp );
+
+  /* */
+
+  caseEach({ countable : 0 });
+  caseEach({ countable : 1 });
+
+  /* - */
+
+  function caseEach( env )
+  {
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, ascend with iterate`;
+    clean();
+    var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ascend : ascend1, ... env });
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/#0', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/#0', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ 'a', 'b', src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/originalSrc' ), exp );
+    var exp = [ 'a', 'b', src ];
+    test.identical( __.select( downs, '*/originalSrc' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, ascend with ascend`;
+    clean();
+    var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ascend : ascend2, ... env });
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/#0', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/#0', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ 'a', 'b', [ 'a', 'b' ] ];
+    test.identical( __.select( downs, '*/src' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/originalSrc' ), exp );
+    var exp = [ 'a', 'b', src ];
+    test.identical( __.select( downs, '*/originalSrc' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, ascend with ascendSrc`;
+    clean();
+    var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ascend : ascend3, ... env });
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/#0', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/#0', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ 'a', 'b', [ 'a', 'b' ] ];
+    test.identical( __.select( downs, '*/src' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/originalSrc' ), exp );
+    var exp = [ 'a', 'b', src ];
+    test.identical( __.select( downs, '*/originalSrc' ), exp );
+
+  }
+
+  /* - */
+
+  function ascend1( it )
+  {
+    for( let i = 0 ; i < it.src.elements.length ; i++ )
+    {
+      let e = it.src.elements[ i ];
+      let eit = it.iterationMake().choose( e, i, i, true );
+      eit.iterate();
+      if( !it.canSibling() )
+      break;
+    }
+  }
+
+  /* - */
+
+  function ascend2( it )
+  {
+    it.src = it.src.elements;
+    it.iterable = null;
+    it.srcChanged();
+    it.ascend();
+  }
+
+  /* - */
+
+  function ascend3( it )
+  {
+    it.ascendSrc( it.src.elements );
+  }
+
+  /* - */
+
+  function clean()
+  {
+    ups = [];
+    downs = [];
+  }
+
+  /* - */
+
+  function onUp( src, key, it )
+  {
+    ups.push( _.props.extend( null, it ) );
+  }
+
+  /* - */
+
+  function onDown( src, key, it )
+  {
+    downs.push( _.props.extend( null, it ) );
+  }
+
+  /* - */
+
+}
+
+//
+
+function lookCustomized( test )
+{
+  let ups, downs;
+
+  caseEach({ countable : 0 });
+  caseEach({ countable : 1 });
+
+  /* - */
+
+  function caseEach( env )
+  {
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, object`;
+    clean();
+    var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ... env });
+    var it = _.look({ src, onUp, onDown, srcChanged });
+    var exp = [ '/', '/#0', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/#0', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ [ 'a', 'b' ], 'a', 'b' ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ 'a', 'b', [ 'a', 'b' ] ];
+    test.identical( __.select( downs, '*/src' ), exp );
+    var exp = [ src, 'a', 'b' ];
+    test.identical( __.select( ups, '*/originalSrc' ), exp );
+    var exp = [ 'a', 'b', src ];
+    test.identical( __.select( downs, '*/originalSrc' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, object in map`;
+    clean();
+    var src = { x : __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ... env }) };
+    var it = _.look({ src, onUp, onDown, srcChanged });
+    var exp = [ '/', '/x', '/x/#0', '/x/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/x/#0', '/x/#1', '/x', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, [ 'a', 'b' ], 'a', 'b' ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ 'a', 'b', [ 'a', 'b' ], src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+    var exp = [ src, src.x, 'a', 'b' ];
+    test.identical( __.select( ups, '*/originalSrc' ), exp );
+    var exp = [ 'a', 'b', src.x, src ];
+    test.identical( __.select( downs, '*/originalSrc' ), exp );
+
+    /* */
+
+  }
+
+  /* - */
+
+  function srcChanged()
+  {
+    let it = this;
+    if( _.long.is( it.src.elements ) )
+    it.src = it.src.elements;
+    it.Looker.srcChanged.call( it );
+  }
+
+  /* - */
+
+  function clean()
+  {
+    ups = [];
+    downs = [];
+  }
+
+  /* - */
+
+  function onUp( src, key, it )
+  {
+    ups.push( _.props.extend( null, it ) );
+  }
+
+  /* - */
+
+  function onDown( src, key, it )
+  {
+    downs.push( _.props.extend( null, it ) );
+  }
+
+  /* - */
 
 }
 
@@ -1022,7 +1268,7 @@ function reperform( test )
 function makeCustomBasic( test )
 {
   let its = [];
-  let cid = _.looker.Looker.ContainerNameToIdMap;
+  let cid = _.looker.Looker.ContainerType;
   _.assert( _.auxIs( cid ) );
 
   /* */
@@ -1085,7 +1331,7 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, making';
   clean();
 
-  var Looker2 = _.looker.classDefine({ looker : { iterableEval } });
+  var Looker2 = _.looker.classDefine({ looker : { iterableEval, constructor : function Looker2(){} } });
   var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
@@ -1163,7 +1409,7 @@ function makeCustomBasic( test )
   test.case = 'extending Iterator, making';
   clean();
 
-  var Looker2 = _.looker.classDefine({ iterator : { iterableEval } })
+  var Looker2 = _.looker.classDefine({ iterator : { iterableEval } });
   var src = new _.props.Implicit( 'abc' );
   var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
   var exp = [ '/' ];
@@ -1195,7 +1441,7 @@ function makeCustomBasic( test )
     it.iterable = null;
     if( _.aux.is( it.src ) )
     {
-      it.iterable = _.looker.Looker.ContainerNameToIdMap.aux;
+      it.iterable = _.looker.Looker.ContainerType.aux;
     }
     else
     {
@@ -1361,17 +1607,17 @@ function optionWithCountable( test )
   let gotUpIndinces = [];
   let gotDownIndices = [];
 
-  eachCase({ withCountable : 'countable' });
-  eachCase({ withCountable : 'vector' });
-  eachCase({ withCountable : 'long' });
-  eachCase({ withCountable : 'array' });
-  eachCase({ withCountable : true });
-  eachCase({ withCountable : 1 });
-  eachCase({ withCountable : '' });
-  eachCase({ withCountable : false });
-  eachCase({ withCountable : 0 });
+  caseEach({ withCountable : 'countable' });
+  caseEach({ withCountable : 'vector' });
+  caseEach({ withCountable : 'long' });
+  caseEach({ withCountable : 'array' });
+  caseEach({ withCountable : true });
+  caseEach({ withCountable : 1 });
+  caseEach({ withCountable : '' });
+  caseEach({ withCountable : false });
+  caseEach({ withCountable : 0 });
 
-  function eachCase( env )
+  function caseEach( env )
   {
 
     /* */
@@ -1552,14 +1798,14 @@ function optionWithImplicitBasic( test )
 {
   let its = [];
 
-  eachCase({ withImplicit : 1 });
-  eachCase({ withImplicit : true });
-  eachCase({ withImplicit : 'aux' });
-  eachCase({ withImplicit : 0 });
-  eachCase({ withImplicit : false });
-  eachCase({ withImplicit : '' });
+  caseEach({ withImplicit : 1 });
+  caseEach({ withImplicit : true });
+  caseEach({ withImplicit : 'aux' });
+  caseEach({ withImplicit : 0 });
+  caseEach({ withImplicit : false });
+  caseEach({ withImplicit : '' });
 
-  function eachCase( env )
+  function caseEach( env )
   {
     let exp;
 
@@ -1775,11 +2021,11 @@ function optionWithImplicitGenerated( test )
   let samples = _.permutation.eachSample({ sets });
 
   for( let env of samples )
-  eachCase( env );
+  caseEach( env );
 
   /* */
 
-  function eachCase( env )
+  function caseEach( env )
   {
     let exp, src, it;
 
@@ -2148,21 +2394,24 @@ function optionOnSrcChanged( test )
     ]
 
     clean();
-    var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedBoth });
+    // var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedBoth });
+    var got = _.look({ src : c, onUp, onDown, srcChanged : onSrcChangedBoth });
     test.identical( ups, expUps );
     test.identical( ups, expDws );
     test.identical( upNames, expUpNames );
     test.identical( dwNames, expDwNames );
 
     clean();
-    var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedWithIterable });
+    // var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedWithIterable });
+    var got = _.look({ src : c, onUp, onDown, srcChanged : onSrcChangedWithIterable });
     test.identical( ups, expUps );
     test.identical( ups, expDws );
     test.identical( upNames, expUpNames );
     test.identical( dwNames, expDwNames );
 
     clean();
-    var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedWithAux });
+    // var got = _.look({ src : c, onUp, onDown, onSrcChanged : onSrcChangedWithAux });
+    var got = _.look({ src : c, onUp, onDown, srcChanged : onSrcChangedWithAux });
     test.identical( ups, expUps );
     test.identical( ups, expDws );
     test.identical( upNames, expUpNames );
@@ -2204,16 +2453,23 @@ function optionOnSrcChanged( test )
   function onSrcChangedBoth()
   {
     let it = this;
+
+    it.Looker.srcChanged.call( it );
+
     if( !it.iterable )
     if( it.src instanceof Obj )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = _.looker.Looker.ContainerNameToIdMap.aux;
-        it.onAscend = function objAscend()
+        it.iterable = _.looker.Looker.ContainerType.aux;
+        it.ascend = function objAscend()
         {
           this._auxAscend( this.src );
         }
+        // it.onAscend = function objAscend()
+        // {
+        //   this._auxAscend( this.src );
+        // }
       }
     }
   }
@@ -2221,12 +2477,15 @@ function optionOnSrcChanged( test )
   function onSrcChangedWithIterable()
   {
     let it = this;
+
+    it.Looker.srcChanged.call( it );
+
     if( !it.iterable )
     if( it.src instanceof Obj )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.iterable = _.looker.Looker.ContainerNameToIdMap.aux;
+        it.iterable = _.looker.Looker.ContainerType.aux;
       }
     }
   }
@@ -2234,12 +2493,16 @@ function optionOnSrcChanged( test )
   function onSrcChangedWithAux()
   {
     let it = this;
+
+    it.Looker.srcChanged.call( it );
+
     if( !it.iterable )
     if( it.src instanceof Obj )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.onAscend = function objAscend()
+        // it.onAscend = function objAscend()
+        it.ascend = function objAscend()
         {
           this._auxAscend( this.src );
         }
@@ -2296,7 +2559,8 @@ function optionOnUpNonContainer( test )
     {
       if( _.longIs( it.src.elements ) )
       {
-        it.onAscend = function objAscend()
+        // it.onAscend = function objAscend()
+        it.ascend = function objAscend()
         {
           return this._countableAscend( this.src.elements );
         }
@@ -2447,7 +2711,8 @@ function optionAscend( test )
     src,
     onDown,
     onUp,
-    onAscend,
+    ascend,
+    // onAscend,
   });
 
   var exp = [ 0, 1, 2, 3, 3, 3, 2, 1, 2, 2, 1, 2, 2 ];
@@ -2508,15 +2773,25 @@ function optionAscend( test )
 
   }
 
-  function onAscend()
+  function ascend()
   {
     let it = this;
     test.true( arguments.length === 0 );
     if( it.src === 'name1' )
     it._countableAscend( [ 'r1', 'r2', 'r3' ] );
     else
-    it.Looker.onAscend.call( it );
+    it.Looker.ascend.call( it );
   }
+
+  // function onAscend()
+  // {
+  //   let it = this;
+  //   test.true( arguments.length === 0 );
+  //   if( it.src === 'name1' )
+  //   it._countableAscend( [ 'r1', 'r2', 'r3' ] );
+  //   else
+  //   it.Looker.onAscend.call( it );
+  // }
 
   function clean()
   {
@@ -3251,15 +3526,6 @@ function performance( test ) /* xxx : write similar test for other lookers */
   test.identical( counter, 309516 * nruns );
   debugger; /* eslint-disable-line no-debugger */
 
-  /*
-
-  = before
-  nruns:10 time:43s
-  = after
-  nruns:10 time:8.3s
-
- */
-
   test.case = 'outer';
 
   var counter = 0;
@@ -3275,10 +3541,25 @@ function performance( test ) /* xxx : write similar test for other lookers */
   debugger; /* eslint-disable-line no-debugger */
 
   /*
-  = before
-  nruns:1000 time:14.5s
-  = after
-  nruns:1000 time:3.3s
+
+== Inner
+
+= before
+nruns:10 time:43s
+= after
+nruns:10 time:8.3s
+= now
+nruns:10 time:12.6s
+
+== Outer
+
+= before
+nruns:1000 time:14.5s
+= after
+nruns:1000 time:3.3s
+= now
+nruns:1000 time:5.0s
+
   */
 
   function run( data )
@@ -3318,6 +3599,8 @@ const Proto =
     lookWithIterator,
     lookHashMap,
     lookSet,
+    lookMethodAscend,
+    lookCustomized,
 
     fieldPath,
     // complexStructure,

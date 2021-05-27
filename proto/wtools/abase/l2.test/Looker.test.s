@@ -38,49 +38,6 @@ tst.local wtools/abase/l1.test n:1
 // tests
 // --
 
-function optionsToIterationWithPreserve( test )
-{
-  var Looker = _.looker.classDefine
-  ({
-    name : 'custom',
-    iterationPreserve :
-    {
-      option : null,
-      option1 : 0,
-    },
-    looker :
-    {
-      down : null,
-      originalSrc : null,
-    },
-    iteration :
-    {
-      option : null,
-      option1 : 0,
-    },
-  });
-
-  /* - */
-
-  test.case = 'rewrite default options';
-  let o =
-  {
-    selector : '*/filePath',
-    src : {},
-    option1 : 1,
-  };
-  o.Looker = Looker;
-  var got = _.looker.Looker.optionsToIteration( null, o );
-  test.identical( got.option1, 1 );
-}
-
-optionsToIterationWithPreserve.description =
-`
-Routine 'optionsToIteration' should extend new instance of Looker by options from options map 'iterationPreserve'
-`;
-
-//
-
 function look( test )
 {
 
@@ -108,14 +65,17 @@ function look( test )
   var it = _.look( src, handleUp1, handleDown1 );
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationProper( it ) );
-  test.true( _.Looker.iteratorProper( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
+
+  test.true( it.Looker === undefined );
+  test.true( _.looker.Looker === _.looker.Seeker );
+  test.true( _.looker.Looker.iterationProper( it ) );
+  test.true( _.looker.Looker.iteratorProper( _.prototype.each( it )[ 3 ] ) );
   test.true( _.looker.iterationIs( it ) );
-  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
-  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) === null );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === it.Looker );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.iterator );
+  test.true( _.looker.iteratorIs( _.prototype.each( it )[ 3 ] ) );
+  test.true( _.looker.is( _.prototype.each( it )[ 4 ] ) );
+  test.identical( _.prototype.each( it ).length, 5 );
+  test.true( _.prototype.each( it )[ 3 ] === it.iterator );
+  test.true( _.prototype.each( it )[ 4 ] === it.Seeker );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -169,13 +129,17 @@ function lookWithCountableVector( test )
   var it = _.look({ src, onUp : handleUp1, onDown : handleDown1, withCountable : 'vector' });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationProper( it ) );
+
+  test.true( it.Looker === undefined );
+  test.true( _.looker.Looker === _.looker.Seeker );
+  test.true( _.looker.Looker.iterationProper( it ) );
+  test.true( _.looker.Looker.iteratorProper( _.prototype.each( it )[ 3 ] ) );
   test.true( _.looker.iterationIs( it ) );
-  test.true( _.looker.iteratorIs( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) );
-  test.true( _.looker.is( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) ) === null );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) ) === it.Looker );
-  test.true( Object.getPrototypeOf( Object.getPrototypeOf( it ) ) === it.iterator );
+  test.true( _.looker.iteratorIs( _.prototype.each( it )[ 3 ] ) );
+  test.true( _.looker.is( _.prototype.each( it )[ 4 ] ) );
+  test.identical( _.prototype.each( it ).length, 5 );
+  test.true( _.prototype.each( it )[ 3 ] === it.iterator );
+  test.true( _.prototype.each( it )[ 4 ] === it.Seeker );
 
   test.description = 'paths on up';
   test.identical( gotUpPaths, expectedUpPaths );
@@ -237,7 +201,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.Looker.iterationProper( it ) );
   test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
@@ -265,7 +229,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.Looker.iterationProper( it ) );
   test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
@@ -293,7 +257,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.Looker.iterationProper( it ) );
   test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
@@ -321,7 +285,7 @@ function lookRecursive( test )
   });
 
   test.case = 'iteration';
-  test.true( _.Looker.iterationProper( it ) );
+  test.true( _.looker.Looker.iterationProper( it ) );
   test.true( _.looker.iterationIs( it ) );
 
   test.case = 'paths on up';
@@ -786,7 +750,7 @@ function lookCustomized( test )
     test.case = `${__.entity.exportStringSolo( env )}, object`;
     clean();
     var src = __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ... env });
-    var it = _.look({ src, onUp, onDown, srcChanged });
+    var it = _.look({ src, onUp, onDown, srcChanged, withCountable : 'countable' });
     var exp = [ '/', '/#0', '/#1' ];
     test.identical( __.select( ups, '*/path' ), exp );
     var exp = [ '/#0', '/#1', '/' ];
@@ -805,7 +769,7 @@ function lookCustomized( test )
     test.case = `${__.entity.exportStringSolo( env )}, object in map`;
     clean();
     var src = { x : __.diagnostic.objectMake({ c : 'c1', elements : [ 'a', 'b' ], ... env }) };
-    var it = _.look({ src, onUp, onDown, srcChanged });
+    var it = _.look({ src, onUp, onDown, srcChanged, withCountable : 'countable' });
     var exp = [ '/', '/x', '/x/#0', '/x/#1' ];
     test.identical( __.select( ups, '*/path' ), exp );
     var exp = [ '/x/#0', '/x/#1', '/x', '/' ];
@@ -828,9 +792,159 @@ function lookCustomized( test )
   function srcChanged()
   {
     let it = this;
-    if( _.long.is( it.src.elements ) )
+    if( it.src && _.long.is( it.src.elements ) )
     it.src = it.src.elements;
-    it.Looker.srcChanged.call( it );
+    it.Seeker.srcChanged.call( it );
+  }
+
+  /* - */
+
+  function clean()
+  {
+    ups = [];
+    downs = [];
+  }
+
+  /* - */
+
+  function onUp( src, key, it )
+  {
+    ups.push( _.props.extend( null, it ) );
+  }
+
+  /* - */
+
+  function onDown( src, key, it )
+  {
+    downs.push( _.props.extend( null, it ) );
+  }
+
+  /* - */
+
+}
+
+//
+
+function lookUndefined( test )
+{
+  let ups, downs;
+
+  caseEach({});
+
+  /* - */
+
+  function caseEach( env )
+  {
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, countable`;
+    clean();
+    var src = __.diagnostic.objectMake({ c : 'c1', elements : [ undefined, undefined ], ... env });
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/#0', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/#0', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, undefined, undefined ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ undefined, undefined, src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, array`;
+    clean();
+    var src = [ undefined, undefined ];
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/#0', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/#0', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, undefined, undefined ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ undefined, undefined, src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, set`;
+    clean();
+    var src = new Set([ 'a', undefined ]);
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/a', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/a', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, 'a', undefined ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ 'a', undefined, src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, hashmap`;
+    clean();
+    var src = new HashMap([ [ 'a', undefined ], [ undefined, undefined ] ]);
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/a', '/#1' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/a', '/#1', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, undefined, undefined ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ undefined, undefined, src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, map`;
+    clean();
+    var src = { a : undefined, b : undefined };
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/a', '/b' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/a', '/b', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, undefined, undefined ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ undefined, undefined, src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, aux`;
+    clean();
+    var src = Object.create( Object.create( null ) );
+    src.a = undefined;
+    src.b = undefined;
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/a', '/b', '/!prototype' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/a', '/b', '/!prototype', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, undefined, undefined, {} ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ undefined, undefined, {}, src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
+    test.case = `${__.entity.exportStringSolo( env )}, aux with undefined in prototype`;
+    clean();
+    var src = Object.create({ a : undefined, b : undefined });
+    var it = _.look({ src, onUp, onDown, withCountable : 'countable' });
+    var exp = [ '/', '/a', '/b', '/!prototype', '/!prototype/a', '/!prototype/b' ];
+    test.identical( __.select( ups, '*/path' ), exp );
+    var exp = [ '/a', '/b', '/!prototype/a', '/!prototype/b', '/!prototype', '/' ];
+    test.identical( __.select( downs, '*/path' ), exp );
+    var exp = [ src, undefined, undefined, _.prototype.of( src ), undefined, undefined ];
+    test.identical( __.select( ups, '*/src' ), exp );
+    var exp = [ undefined, undefined, undefined, undefined, _.prototype.of( src ), src ];
+    test.identical( __.select( downs, '*/src' ), exp );
+
+    /* */
+
   }
 
   /* - */
@@ -1331,20 +1445,20 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, extending';
   clean();
 
-  var Looker2 = _.props.extend( null, _.Looker );
-  Looker2.Looker = Looker2;
-  Looker2.OriginalLooker = Looker2;
+  var Looker2 = _.props.extend( null, _.looker.Looker );
+  Looker2.Seeker = Looker2;
+  Looker2.OriginalSeeker = Looker2;
   Looker2.iterableEval = iterableEval;
   var src = new _.props.Implicit( 'abc' );
-  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Seeker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
-  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iteratorProper( it ) ) );
   its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
   its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
 
@@ -1353,19 +1467,19 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, prototyping';
   clean();
 
-  var Looker2 = Object.create( _.Looker );
-  Looker2.Looker = Looker2;
+  var Looker2 = Object.create( _.looker.Looker );
+  Looker2.Seeker = Looker2;
   Looker2.iterableEval = iterableEval;
   var src = new _.props.Implicit( 'abc' );
-  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Seeker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
-  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iteratorProper( it ) ) );
   its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
   its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
 
@@ -1374,17 +1488,17 @@ function makeCustomBasic( test )
   test.case = 'extending Looker, making';
   clean();
 
-  var Looker2 = _.looker.classDefine({ looker : { iterableEval, constructor : function Looker2(){} } });
+  var Looker2 = _.looker.classDefine({ seeker : { iterableEval, constructor : function Looker2(){} } });
   var src = new _.props.Implicit( 'abc' );
-  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Seeker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iterationProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iteratorProper( it ) ) );
   its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
   its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
 
@@ -1393,9 +1507,9 @@ function makeCustomBasic( test )
   test.case = 'extending Iterator, cloning';
   clean();
 
-  var Looker2 = _.props.extend( null, _.Looker );
-  Looker2.Looker = Looker2;
-  Looker2.OriginalLooker = Looker2;
+  var Looker2 = _.props.extend( null, _.looker.Looker );
+  Looker2.Seeker = Looker2;
+  Looker2.OriginalSeeker = Looker2;
   var Iterator = Looker2.Iterator = _.props.extend( null, Looker2.Iterator );
   Iterator.field1 = 'field1';
   Iterator.iterableEval = iterableEval;
@@ -1408,7 +1522,7 @@ function makeCustomBasic( test )
   not during each look
   */
   var src = new _.props.Implicit( 'abc' );
-  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Seeker : Looker2 });
   var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ undefined, undefined ];
@@ -1417,8 +1531,8 @@ function makeCustomBasic( test )
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
-  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iteratorProper( it ) ) );
   its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
   its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
 
@@ -1427,13 +1541,13 @@ function makeCustomBasic( test )
   test.case = 'extending Iterator, prototyping';
   clean();
 
-  var Looker2 = Object.create(_.Looker );
-  Looker2.Looker = Looker2;
+  var Looker2 = Object.create(_.looker.Looker );
+  Looker2.Seeker = Looker2;
   var Iterator = Looker2.Iterator = Object.create( Looker2.Iterator );
   Iterator.field1 = 'field1';
   Iterator.iterableEval = iterableEval;
   var src = new _.props.Implicit( 'abc' );
-  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Seeker : Looker2 });
   var exp = [ '/', '/#0' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ undefined, undefined ];
@@ -1442,8 +1556,8 @@ function makeCustomBasic( test )
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
-  its.map( ( it ) => test.true( _.Looker.iterationProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( _.looker.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iteratorProper( it ) ) );
   its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
   its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
 
@@ -1454,15 +1568,15 @@ function makeCustomBasic( test )
 
   var Looker2 = _.looker.classDefine({ iterator : { iterableEval } });
   var src = new _.props.Implicit( 'abc' );
-  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Looker : Looker2 });
+  var got = _.look({ src, withCountable : 'countable', onUp : handleUp1, Seeker : Looker2 });
   var exp = [ '/' ];
   test.identical( its.map( ( it ) => it.path ), exp );
   var exp = [ cid.terminal ];
   test.identical( its.map( ( it ) => it.iterable ), exp );
   its.map( ( it ) => test.true( Looker2.iterationProper( it ) ) );
   its.map( ( it ) => test.true( !Looker2.iteratorProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iterationProper( it ) ) );
-  its.map( ( it ) => test.true( !_.Looker.iteratorProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iterationProper( it ) ) );
+  its.map( ( it ) => test.true( !_.looker.Looker.iteratorProper( it ) ) );
   its.map( ( it ) => test.true( _.looker.iterationIs( it ) ) );
   its.map( ( it ) => test.true( !_.looker.iteratorIs( it ) ) );
 
@@ -1502,11 +1616,11 @@ function errMakeBasic( test )
   /* */
 
   test.case = 'basic';
-  var got = _.looker.LookingError();
+  var got = _.looker.SeekingError();
   test.true( _.errIs( got ) );
-  test.true( got instanceof _.looker.LookingError );
-  test.identical( got.originalMessage, 'LookingError' );
-  test.identical( got.LookingError, true );
+  test.true( got instanceof _.looker.SeekingError );
+  test.identical( got.originalMessage, 'SeekingError' );
+  test.identical( got.SeekingError, true );
   var exp =
   {
     'value' : true,
@@ -1514,17 +1628,17 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.props.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'SeekingError' );
   test.identical( got, exp );
 
   /* */
 
   test.case = 'basic, new';
-  var got = new _.looker.LookingError();
+  var got = new _.looker.SeekingError();
   test.true( _.errIs( got ) );
-  test.true( got instanceof _.looker.LookingError );
-  test.identical( got.originalMessage, 'LookingError' );
-  test.identical( got.LookingError, true );
+  test.true( got instanceof _.looker.SeekingError );
+  test.identical( got.originalMessage, 'SeekingError' );
+  test.identical( got.SeekingError, true );
   var exp =
   {
     'value' : true,
@@ -1532,17 +1646,17 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.props.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'SeekingError' );
   test.identical( got, exp );
 
   /* */
 
   test.case = 'with message';
-  var got = _.looker.LookingError( 'abc', 'def' );
+  var got = _.looker.SeekingError( 'abc', 'def' );
   test.true( _.errIs( got ) );
-  test.true( got instanceof _.looker.LookingError );
+  test.true( got instanceof _.looker.SeekingError );
   test.identical( got.originalMessage, 'abc def' );
-  test.identical( got.LookingError, true );
+  test.identical( got.SeekingError, true );
   var exp =
   {
     'value' : true,
@@ -1550,17 +1664,17 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.props.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'SeekingError' );
   test.identical( got, exp );
 
   /* */
 
   test.case = 'with message, new';
-  var got = new _.looker.LookingError( 'abc', 'def' );
+  var got = new _.looker.SeekingError( 'abc', 'def' );
   test.true( _.errIs( got ) );
-  test.true( got instanceof _.looker.LookingError );
+  test.true( got instanceof _.looker.SeekingError );
   test.identical( got.originalMessage, 'abc def' );
-  test.identical( got.LookingError, true );
+  test.identical( got.SeekingError, true );
   var exp =
   {
     'value' : true,
@@ -1568,16 +1682,16 @@ function errMakeBasic( test )
     'enumerable' : false,
     'configurable' : true,
   };
-  var got = _.props.descriptorOwnOf( got, 'LookingError' );
+  var got = _.props.descriptorOwnOf( got, 'SeekingError' );
   test.identical( got, exp );
 
   /* */
 
   test.case = 'remake';
-  var err1 = _.looker.LookingError( 'abc' );
-  var err2 = _.looker.LookingError( err1 );
-  test.true( err1 instanceof _.looker.LookingError );
-  test.true( err2 instanceof _.looker.LookingError );
+  var err1 = _.looker.SeekingError( 'abc' );
+  var err2 = _.looker.SeekingError( err1 );
+  test.true( err1 instanceof _.looker.SeekingError );
+  test.true( err2 instanceof _.looker.SeekingError );
   test.identical( err1.originalMessage, 'abc' );
   test.identical( err2.originalMessage, 'abc' );
   test.true( err1 === err2 );
@@ -1585,10 +1699,10 @@ function errMakeBasic( test )
   /* */
 
   test.case = 'remake, new';
-  var err1 = _.looker.LookingError( 'abc' );
-  var err2 = new _.looker.LookingError( err1 );
-  test.true( err1 instanceof _.looker.LookingError );
-  test.true( err2 instanceof _.looker.LookingError );
+  var err1 = _.looker.SeekingError( 'abc' );
+  var err2 = new _.looker.SeekingError( err1 );
+  test.true( err1 instanceof _.looker.SeekingError );
+  test.true( err2 instanceof _.looker.SeekingError );
   test.identical( err1.originalMessage, 'abc' );
   test.identical( err2.originalMessage, 'abc' );
   test.true( err1 !== err2 );
@@ -1596,10 +1710,10 @@ function errMakeBasic( test )
   /* */
 
   test.case = 'remake, extra argument, right';
-  var err1 = _.looker.LookingError( 'abc' );
-  var err2 = _.looker.LookingError( err1, 'def' );
-  test.true( err1 instanceof _.looker.LookingError );
-  test.true( err2 instanceof _.looker.LookingError );
+  var err1 = _.looker.SeekingError( 'abc' );
+  var err2 = _.looker.SeekingError( err1, 'def' );
+  test.true( err1 instanceof _.looker.SeekingError );
+  test.true( err2 instanceof _.looker.SeekingError );
   test.identical( err1.originalMessage, 'abc def' );
   test.identical( err2.originalMessage, 'abc def' );
   test.true( err1 === err2 );
@@ -1607,10 +1721,10 @@ function errMakeBasic( test )
   /* */
 
   test.case = 'remake, extra argument, right, new';
-  var err1 = _.looker.LookingError( 'abc' );
-  var err2 = new _.looker.LookingError( err1, 'def' );
-  test.true( err1 instanceof _.looker.LookingError );
-  test.true( err2 instanceof _.looker.LookingError );
+  var err1 = _.looker.SeekingError( 'abc' );
+  var err2 = new _.looker.SeekingError( err1, 'def' );
+  test.true( err1 instanceof _.looker.SeekingError );
+  test.true( err2 instanceof _.looker.SeekingError );
   test.identical( err1.originalMessage, 'abc' );
   test.identical( err2.originalMessage, 'abc def' );
   test.true( err1 !== err2 );
@@ -1618,10 +1732,10 @@ function errMakeBasic( test )
   /* */
 
   test.case = 'remake, extra argument, left';
-  var err1 = _.looker.LookingError( 'abc' );
-  var err2 = _.looker.LookingError( 'def', err1 );
-  test.true( err1 instanceof _.looker.LookingError );
-  test.true( err2 instanceof _.looker.LookingError );
+  var err1 = _.looker.SeekingError( 'abc' );
+  var err2 = _.looker.SeekingError( 'def', err1 );
+  test.true( err1 instanceof _.looker.SeekingError );
+  test.true( err2 instanceof _.looker.SeekingError );
   test.identical( err1.originalMessage, 'def abc' );
   test.identical( err2.originalMessage, 'def abc' );
   test.true( err1 === err2 );
@@ -1629,10 +1743,10 @@ function errMakeBasic( test )
   /* */
 
   test.case = 'remake, extra argument, left, new';
-  var err1 = _.looker.LookingError( 'abc' );
-  var err2 = new _.looker.LookingError( 'def', err1 );
-  test.true( err1 instanceof _.looker.LookingError );
-  test.true( err2 instanceof _.looker.LookingError );
+  var err1 = _.looker.SeekingError( 'abc' );
+  var err2 = new _.looker.SeekingError( 'def', err1 );
+  test.true( err1 instanceof _.looker.SeekingError );
+  test.true( err2 instanceof _.looker.SeekingError );
   test.identical( err1.originalMessage, 'abc' );
   test.identical( err2.originalMessage, 'def abc' );
   test.true( err1 !== err2 );
@@ -1889,7 +2003,7 @@ function optionWithImplicitBasic( test )
     {
       exp = [ '/', '/a', '/p', '/!prototype', '/!prototype/p' ];
       test.identical( its.map( ( it ) => it.path ), exp );
-      exp = [ src, 1, 0, Object.getPrototypeOf( src ), 0 ];
+      exp = [ src, 1, 0, _.prototype.of( src ), 0 ];
       test.identical( its.map( ( it ) => it.src ), exp );
       exp =
       [
@@ -1933,7 +2047,7 @@ function optionWithImplicitBasic( test )
     {
       exp = [ '/', '/a', '/!prototype', '/!prototype/a' ];
       test.identical( its.map( ( it ) => it.path ), exp );
-      exp = [ src, 1, Object.getPrototypeOf( src ), 0 ];
+      exp = [ src, 1, _.prototype.of( src ), 0 ];
       test.identical( its.map( ( it ) => it.src ), exp );
       exp =
       [
@@ -2497,7 +2611,7 @@ function optionOnSrcChanged( test )
   {
     let it = this;
 
-    it.Looker.srcChanged.call( it );
+    it.Seeker.srcChanged.call( it );
 
     if( !it.iterable )
     if( it.src instanceof Obj )
@@ -2521,7 +2635,7 @@ function optionOnSrcChanged( test )
   {
     let it = this;
 
-    it.Looker.srcChanged.call( it );
+    it.Seeker.srcChanged.call( it );
 
     if( !it.iterable )
     if( it.src instanceof Obj )
@@ -2537,7 +2651,7 @@ function optionOnSrcChanged( test )
   {
     let it = this;
 
-    it.Looker.srcChanged.call( it );
+    it.Seeker.srcChanged.call( it );
 
     if( !it.iterable )
     if( it.src instanceof Obj )
@@ -2823,7 +2937,7 @@ function optionAscend( test )
     if( it.src === 'name1' )
     it._countableAscend( [ 'r1', 'r2', 'r3' ] );
     else
-    it.Looker.ascend.call( it );
+    it.Seeker.ascend.call( it );
   }
 
   // function onAscend()
@@ -2833,7 +2947,7 @@ function optionAscend( test )
   //   if( it.src === 'name1' )
   //   it._countableAscend( [ 'r1', 'r2', 'r3' ] );
   //   else
-  //   it.Looker.onAscend.call( it );
+  //   it.Seeker.onAscend.call( it );
   // }
 
   function clean()
@@ -3634,10 +3748,6 @@ const Proto =
   tests :
   {
 
-    optionsToIterationWithPreserve,
-
-    //
-
     look,
     lookWithCountableVector,
     lookRecursive,
@@ -3646,6 +3756,7 @@ const Proto =
     lookSet,
     lookMethodAscend,
     lookCustomized,
+    lookUndefined,
 
     fieldPath,
     // complexStructure,

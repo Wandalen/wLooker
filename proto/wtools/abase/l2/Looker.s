@@ -10,13 +10,13 @@
 
 /**
  * Collection of light-weight routines to traverse complex data structure.
- * @namespace Tools.Looker
+ * @namespace Tools.Seeker
  * @module Tools/base/Looker
  */
 
 /**
  * Collection of light-weight routines to traverse complex data structure.
- * @class Tools.Looker
+ * @class Tools.Seeker
  * @module Tools/base/Looker
  */
 
@@ -42,7 +42,7 @@ _.assert( !!_realGlobal_ );
 // --
 
 /**
- * Default options for {@link module:Tools/base/Looker.Looker.look} routine.
+ * Default options for {@link module:Tools/base/Looker.Seeker.look} routine.
  * @typedef {Object} Prime
  * @property {Function} onUp
  * @property {Function} onDown
@@ -59,7 +59,7 @@ _.assert( !!_realGlobal_ );
  * @property {*} context = null
  * @property {Object} Looker = null
  * @property {Object} it = null
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 let Prime = Object.create( null );
@@ -87,69 +87,68 @@ Prime.context = null;
 // options
 // --
 
-function head( routine, args )
-{
-  _.assert( arguments.length === 2 );
-  _.assert( !!routine.defaults.Looker );
-  let o = routine.defaults.Looker.optionsFromArguments( args );
-  o.Looker = o.Looker || routine.defaults;
-  _.map.assertHasOnly( o, routine.defaults );
-  _.assert
-  (
-    _.props.keys( routine.defaults ).length === _.props.keys( o.Looker ).length,
-    () => `${_.props.keys( routine.defaults ).length} <> ${_.props.keys( o.Looker ).length}`
-  );
-  let it = o.Looker.optionsToIteration( null, o );
-  // let it = o.Looker.optionsToIteration( this !== o.Looker ? this : null, o );
-  return it;
-}
-
+// function head( routine, args )
+// {
+//   _.assert( arguments.length === 2 );
+//   _.assert( !!routine.defaults.Seeker );
+//   let o = routine.defaults.Seeker.optionsFromArguments( args );
+//   o.Seeker = o.Seeker || routine.defaults;
+//   _.map.assertHasOnly( o, routine.defaults );
+//   _.assert
+//   (
+//     _.props.keys( routine.defaults ).length === _.props.keys( o.Seeker ).length,
+//     () => `${_.props.keys( routine.defaults ).length} <> ${_.props.keys( o.Seeker ).length}`
+//   );
+//   let it = o.Seeker.optionsToIteration( null, o );
+//   return it;
+// }
 //
-
-function optionsFromArguments( args )
-{
-  let o;
-
-  if( args.length === 1 )
-  {
-    if( _.numberIs( args[ 0 ] ) )
-    o = { accuracy : args[ 0 ] }
-    else
-    o = args[ 0 ];
-  }
-  else if( args.length === 2 )
-  {
-    o = { src : args[ 0 ], onUp : args[ 1 ] };
-  }
-  else if( args.length === 3 )
-  {
-    o = { src : args[ 0 ], onUp : args[ 1 ], onDown : args[ 2 ] };
-  }
-  else _.assert( 0, 'look expects single options-map, 2 or 3 arguments' );
-
-  _.assert( args.length === 1 || args.length === 2 || args.length === 3 );
-  _.assert( arguments.length === 1 );
-  _.assert( _.mapIs( o ) );
-
-  return o;
-}
+// //
+//
+// function optionsFromArguments( args )
+// {
+//   let o;
+//
+//   if( args.length === 1 )
+//   {
+//     // if( _.numberIs( args[ 0 ] ) )
+//     // o = { accuracy : args[ 0 ] }
+//     // else
+//     o = args[ 0 ];
+//   }
+//   else if( args.length === 2 )
+//   {
+//     o = { src : args[ 0 ], onUp : args[ 1 ] };
+//   }
+//   else if( args.length === 3 )
+//   {
+//     o = { src : args[ 0 ], onUp : args[ 1 ], onDown : args[ 2 ] };
+//   }
+//   else _.assert( 0, 'look expects single options-map, 2 or 3 arguments' );
+//
+//   _.assert( args.length === 1 || args.length === 2 || args.length === 3 );
+//   _.assert( arguments.length === 1 );
+//   _.asseert( _.aux.is( o ) );
+//
+//   return o;
+// }
 
 // --
 // iterator
 // --
 
-function iteratorProper( it )
-{
-  if( !it )
-  return false;
-  if( !it.Looker )
-  return false;
-  if( it.iterator !== it )
-  return false;
-  if( it.constructor !== this.constructor )
-  return false;
-  return true;
-}
+// function iteratorProper( it )
+// {
+//   if( !it )
+//   return false;
+//   if( !it.Seeker )
+//   return false;
+//   if( it.iterator !== it )
+//   return false;
+//   if( it.constructor !== this.constructor )
+//   return false;
+//   return true;
+// }
 
 //
 
@@ -160,15 +159,15 @@ function iteratorRetype( iterator )
   _.assert( _.mapIs( iterator ) );
   _.assert( _.object.isBasic( this.Iterator ) );
   _.assert( _.object.isBasic( this.Iteration ) );
-  _.assert( _.object.isBasic( iterator.Looker ) );
-  _.assert( iterator.Looker === this );
+  _.assert( _.object.isBasic( iterator.Seeker ) );
+  _.assert( iterator.Seeker === this );
   _.assert( iterator.looker === undefined );
   _.assert( iterator.iterableEval !== null );
   _.assert( iterator.iterator === undefined );
-  _.assert( iterator.Looker.Looker === iterator.Looker, 'Default of a routine and its default Looker are not in agreement' );
-  _.assert( _.prototype.has( iterator.Looker, iterator.Looker.OriginalLooker ) );
+  _.assert( iterator.Seeker.Seeker === iterator.Seeker, 'Default of a routine and its default Looker are not in agreement' );
+  _.assert( _.prototype.has( iterator.Seeker, iterator.Seeker.OriginalSeeker ) );
 
-  Object.setPrototypeOf( iterator, iterator.Looker );
+  Object.setPrototypeOf( iterator, iterator.Seeker );
 
   _.assert( iterator.it === undefined );
 
@@ -184,11 +183,11 @@ function iteratorInitBegin( iterator )
   _.assert( !_.mapIs( iterator ) );
   _.assert( _.object.isBasic( this.Iterator ) );
   _.assert( _.object.isBasic( this.Iteration ) );
-  _.assert( _.object.isBasic( iterator.Looker ) );
-  _.assert( iterator.Looker === this );
+  _.assert( _.object.isBasic( iterator.Seeker ) );
+  _.assert( iterator.Seeker === this );
   _.assert( iterator.looker === undefined );
   _.assert( _.routineIs( iterator.iterableEval ) );
-  _.assert( _.prototype.has( iterator.Looker, iterator.Looker.OriginalLooker ) );
+  _.assert( _.prototype.has( iterator.Seeker, iterator.Seeker.OriginalSeeker ) );
   _.assert( iterator.iterator === null );
 
   iterator.iterator = iterator;
@@ -222,7 +221,7 @@ function iteratorInitEnd( iterator )
   iterator.recursive = iterator.recursive ? Infinity : 1;
 
   _.assert( iterator.iteratorProper( iterator ) );
-  _.assert( iterator.Looker.Looker === iterator.Looker, 'Default of a routine and its default Looker are not in agreement' );
+  _.assert( iterator.Seeker.Seeker === iterator.Seeker, 'Default of a routine and its default Looker are not in agreement' );
   _.assert( iterator.looker === undefined );
   _.assert
   (
@@ -247,8 +246,8 @@ function iteratorInitEnd( iterator )
     'Unexpected value of option::withImplicit'
   );
 
-  if( iterator.Looker === null )
-  iterator.Looker = Looker;
+  if( iterator.Seeker === null )
+  iterator.Seeker = Looker;
 
   /* */
 
@@ -269,9 +268,36 @@ function iteratorInitEnd( iterator )
   if( iterator.defaultUpToken === null )
   iterator.defaultUpToken = _.strsShortest( iterator.upToken );
 
-  iterator.iterationPrototype = Object.create( iterator );
-  Object.assign( iterator.iterationPrototype, iterator.Looker.Iteration );
-  Object.preventExtensions( iterator.iterationPrototype );
+  _.seeker.Seeker.iteratorInitEnd.call( this, iterator );
+
+  // iterator.iterationPrototype = Object.create( iterator );
+  // iterator.firstIterationPrototype = Object.create( iterator.iterationPrototype );
+  // Object.assign( iterator.iterationPrototype, iterator.Seeker.Iteration );
+  //
+  // const _iteratorInitExcluding = new Set([ 'Looker', 'iterationPrototype', 'iterator' ]);
+  // for( const [ key, val ] of Object.entries( iterator ) )
+  // {
+  //   if( !_iteratorInitExcluding.has( key ) )
+  //   if( _.props.has( iterator.iterationPrototype, key ) )
+  //   if( _.props.has( iterator.Iteration, key ) )
+  //   {
+  //     if( iterator.firstIterationPrototype[ key ] !== val )
+  //     {
+  //       iterator.firstIterationPrototype[ key ] = val;
+  //       console.log( `${key} -- firstIterationPrototype` );
+  //     }
+  //   }
+  //   else
+  //   {
+  //     if( iterator.iterationPrototype[ key ] !== val )
+  //     {
+  //       iterator.iterationPrototype[ key ] = val;
+  //       console.log( `${key} -- iterationPrototype` );
+  //     }
+  //   }
+  // }
+  //
+  // Object.preventExtensions( iterator.iterationPrototype );
 
   if( iterator.fast )
   {
@@ -304,7 +330,7 @@ function iteratorInitEnd( iterator )
     _.assert( _.strIs( iterator.lastPath ) );
     _.assert( _.routineIs( iterator.iterableEval ) );
     _.assert( iterator.iterationPrototype.constructor === iterator.constructor );
-    _.assert( iterator.iterationPrototype.constructor === iterator.Looker.constructor );
+    _.assert( iterator.iterationPrototype.constructor === iterator.Seeker.constructor );
   }
 
   return iterator;
@@ -336,7 +362,7 @@ function iteratorCopy( o )
 
 /**
  * @function iterationMake
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function iterationMake()
@@ -346,14 +372,15 @@ function iterationMake()
   // _.assert( arguments.length === 0, 'Expects no arguments' );
   // _.assert( it.level >= 0 );
   // _.assert( _.object.isBasic( it.iterator ) );
-  // _.assert( _.object.isBasic( it.Looker ) );
+  // _.assert( _.object.isBasic( it.Seeker ) );
   // _.assert( it.looker === undefined );
   // _.assert( _.numberIs( it.level ) && it.level >= 0 );
   // _.assert( !!it.iterationPrototype );
 
-  let newIt = it.iterationMakeCommon();
+  // let newIt = it.iterationMakeCommon();
+  let newIt = Object.create( it.iterationPrototype );
 
-  if( it.Looker === Self ) /* zzz : achieve such optimization automatically */
+  if( it.Seeker === Self ) /* zzz : achieve such optimization automatically */
   {
     newIt.level = it.level;
     newIt.path = it.path;
@@ -361,7 +388,7 @@ function iterationMake()
   }
   else
   {
-    for( let k in it.Looker.IterationPreserve )
+    for( let k in it.Seeker.IterationPreserve )
     newIt[ k ] = it[ k ];
   }
 
@@ -422,7 +449,7 @@ function performEnd()
 
 /**
  * @function elementGet
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function elementGet( e, k, c )
@@ -440,7 +467,7 @@ function elementGet( e, k, c )
 
 /**
  * @function choose
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function choose()
@@ -668,7 +695,7 @@ function isImplicit()
 
 /**
  * @function look
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function iterate()
@@ -700,7 +727,7 @@ function iterate()
 
 /**
  * @function visitUp
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function visitUp()
@@ -722,7 +749,7 @@ function visitUp()
 
 /**
  * @function visitUpBegin
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function visitUpBegin()
@@ -743,7 +770,7 @@ function visitUpBegin()
 
 /**
  * @function visitUpEnd
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function visitUpEnd()
@@ -764,7 +791,7 @@ function onUp( e, k, it )
 
 /**
  * @function visitDown
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function visitDown()
@@ -790,7 +817,7 @@ function visitDown()
 
 /**
  * @function visitDownBegin
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function visitDownBegin()
@@ -809,7 +836,7 @@ function visitDownBegin()
 
 /**
  * @function visitDownEnd
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function visitDownEnd()
@@ -865,7 +892,7 @@ function visitPop()
 
 /**
  * @function canVisit
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function canVisit()
@@ -882,7 +909,7 @@ function canVisit()
 
 /**
  * @function canAscend
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function canAscend()
@@ -1174,7 +1201,7 @@ function pathJoin( selectorPath, selectorName )
 function errMake()
 {
   let it = this;
-  let err = _.looker.LookingError
+  let err = _.looker.SeekingError
   (
     ... arguments
   );
@@ -1188,7 +1215,7 @@ function errMake()
 
 /**
  * @function look
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
 function exec_head( routine, args )
@@ -1204,70 +1231,70 @@ function exec_body( it )
 function execIt_body( it )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( _.object.isBasic( it.Looker ) );
-  _.assert( _.prototype.isPrototypeFor( it.Looker, it ) );
+  _.assert( _.object.isBasic( it.Seeker ) );
+  _.assert( _.prototype.isPrototypeFor( it.Seeker, it ) );
   _.assert( it.looker === undefined );
   it.perform();
   return it;
 }
 
+// //
+//
+// /**
+//  * @function is
+//  * @class Tools.Seeker
+//  */
+//
+// function is( looker )
+// {
+//   if( !looker )
+//   return false;
+//   if( !looker.Seeker )
+//   return false;
+//   return _.prototype.isPrototypeFor( looker, looker.Seeker );
+// }
+//
+// //
+//
+// /**
+//  * @function iteratorIs
+//  * @class Tools.Seeker
+//  */
+//
+// function iteratorIs( it )
+// {
+//   if( !it )
+//   return false;
+//   if( !it.Seeker )
+//   return false;
+//   if( it.iterator !== it )
+//   return false;
+//   return true;
+// }
+//
+// //
+//
+// /**
+//  * @function iterationIs
+//  * @class Tools.Seeker
+//  */
+//
+// function iterationIs( it )
+// {
+//   if( !it )
+//   return false;
+//   if( !it.Seeker )
+//   return false;
+//   if( !it.iterator )
+//   return false;
+//   if( it.iterator === it )
+//   return false;
+//   return true;
+// }
+
 //
 
-/**
- * @function is
- * @class Tools.Looker
- */
-
-function is( looker )
-{
-  if( !looker )
-  return false;
-  if( !looker.Looker )
-  return false;
-  return _.prototype.isPrototypeFor( looker, looker.Looker );
-}
-
-//
-
-/**
- * @function iteratorIs
- * @class Tools.Looker
- */
-
-function iteratorIs( it )
-{
-  if( !it )
-  return false;
-  if( !it.Looker )
-  return false;
-  if( it.iterator !== it )
-  return false;
-  return true;
-}
-
-//
-
-/**
- * @function iterationIs
- * @class Tools.Looker
- */
-
-function iterationIs( it )
-{
-  if( !it )
-  return false;
-  if( !it.Looker )
-  return false;
-  if( !it.iterator )
-  return false;
-  if( it.iterator === it )
-  return false;
-  return true;
-}
-
-//
-
-let _classDefine = _.looker.classDefine;
+let _classDefine = _.seeker.classDefine;
 _.routine.is( _classDefine );
 function classDefine( o )
 {
@@ -1279,7 +1306,7 @@ function classDefine( o )
   // _.routine.options_( classDefine, o );
   //
   // if( o.parent === null )
-  // o.parent = this.Looker;
+  // o.parent = this.Seeker;
   // if( o.name === null )
   // o.name = 'CustomLooker'
   //
@@ -1309,7 +1336,7 @@ function classDefine( o )
   // _.props.supplement( looker, o.iterationPreserve );
   //
   // looker.Looker = looker;
-  // looker.OriginalLooker = looker;
+  // looker.OriginalSeeker = looker;
   // looker.Prime = Object.create( looker.Prime || null );
   // if( o.prime )
   // _.props.extend( looker.Prime, o.prime );
@@ -1357,7 +1384,7 @@ function classDefine( o )
   function validate()
   {
     /* qqq : add explanation for each assert */
-    _.assert( looker.Prime.Looker === undefined );
+    _.assert( looker.Prime.Seeker === undefined );
     _.assert( _.routineIs( looker.iterableEval ) );
     _.assert( !_.props.has( looker.Iteration, 'src' ) && looker.Iteration.src === undefined );
     _.assert( _.props.has( looker.IterationPreserve, 'src' ) && looker.IterationPreserve.src === undefined );
@@ -1380,11 +1407,11 @@ function classDefine( o )
 
 classDefine.defaults =
 {
-  ... _.looker.classDefine.defaults,
+  ... _.seeker.classDefine.defaults,
   // name : null,
   // parent : null,
   // prime : null,
-  // looker : null,
+  // seeker : null,
   // iterator : null,
   // iteration : null,
   // iterationPreserve : null,
@@ -1396,7 +1423,7 @@ classDefine.defaults =
 // relations
 // --
 
-let LookingError = _.error.error_functor( 'LookingError' );
+let SeekingError = _.error.error_functor( 'SeekingError' );
 
 let ContainerType =
 {
@@ -1462,15 +1489,22 @@ let WithImplicict =
 
 //
 
-_.assert( !!_.looker.Looker );
-_.assert( _.looker.Looker === _.looker.Looker.Looker );
-_.assert( _.looker.Looker === _.looker.Looker.OriginalLooker );
-const Looker = _.looker.Looker;
-const Self = Looker;
+_.assert( !_.looker.Looker );
+_.assert( !!_.seeker.Seeker );
+_.assert( _.seeker.Seeker === _.seeker.Seeker.Seeker );
+_.assert( _.seeker.Seeker === _.seeker.Seeker.OriginalSeeker );
 
-Looker.OriginalLooker = Looker;
+// _.assert( !!_.looker.Looker );
+// _.assert( _.looker.Looker === _.looker.Looker.Seeker );
+// _.assert( _.looker.Looker === _.looker.Looker.OriginalSeeker );
 
-Looker.constructor = function Looker() /* zzz : implement */
+// const LookerExtension = _.looker.Looker = Object.create( null );
+const LookerExtension = Object.create( null );
+// const Self = Looker;
+
+// Looker.OriginalSeeker = Looker;
+
+LookerExtension.constructor = function Looker() /* zzz : implement */
 {
   _.assert( 0, 'not implemented' );
   let prototype = _.prototype.of( this );
@@ -1480,114 +1514,109 @@ Looker.constructor = function Looker() /* zzz : implement */
   _.assert( result === this );
   return this;
 }
-Looker.constructor.prototype = Object.create( null );
+LookerExtension.constructor.prototype = Object.create( null );
 
-// Looker.Looker = Looker;
+// Looker.Seeker = Looker;
 // Looker.Iterator = null;
 // Looker.Iteration = null;
 // Looker.IterationPreserve = null;
 
 // inter
 
-Looker.head = head;
-Looker.optionsFromArguments = optionsFromArguments;
-_.assert( _.routine.is( Looker.optionsToIteration ) );
+// LookerExtension.head = head;
+// LookerExtension.optionsFromArguments = optionsFromArguments;
 
 // iterator
 
-Looker.iteratorProper = iteratorProper;
-Looker.iteratorRetype = iteratorRetype;
-_.assert( _.routine.is( Looker.iteratorInit ) );
-Looker.iteratorInitBegin = iteratorInitBegin;
-Looker.iteratorInitEnd = iteratorInitEnd;
-_.assert( _.routine.is( Looker.iteratorIterationMake ) );
-Looker.iteratorCopy = iteratorCopy;
+// LookerExtension.iteratorProper = iteratorProper;
+LookerExtension.iteratorRetype = iteratorRetype;
+LookerExtension.iteratorInitBegin = iteratorInitBegin;
+LookerExtension.iteratorInitEnd = iteratorInitEnd;
+LookerExtension.iteratorCopy = iteratorCopy;
 
 // iteration
 
-_.assert( _.routine.is( Looker.iterationProper ) );
-_.assert( _.routine.is( Looker.iterationMakeCommon ) );
-Looker.iterationMake = iterationMake;
+LookerExtension.iterationMake = iterationMake;
 
 // perform
 
-Looker.reperform = reperform;
-Looker.perform = perform;
-Looker.performBegin = performBegin;
-Looker.performEnd = performEnd;
+LookerExtension.reperform = reperform;
+LookerExtension.perform = perform;
+LookerExtension.performBegin = performBegin;
+LookerExtension.performEnd = performEnd;
 
 // choose
 
-Looker.elementGet = elementGet;
-Looker.choose = choose;
-Looker.chooseBegin = chooseBegin;
-Looker.chooseEnd = chooseEnd;
-Looker.chooseRoot = chooseRoot;
+LookerExtension.elementGet = elementGet;
+LookerExtension.choose = choose;
+LookerExtension.chooseBegin = chooseBegin;
+LookerExtension.chooseEnd = chooseEnd;
+LookerExtension.chooseRoot = chooseRoot;
 
 // eval
 
-Looker.srcChanged = srcChanged;
-// Looker.onSrcChanged = onSrcChanged;
-Looker.iterableEval = iterableEval;
-Looker.revisitedEval = revisitedEval;
-Looker.isImplicit = isImplicit;
+LookerExtension.srcChanged = srcChanged;
+// LookerExtension.onSrcChanged = onSrcChanged;
+LookerExtension.iterableEval = iterableEval;
+LookerExtension.revisitedEval = revisitedEval;
+LookerExtension.isImplicit = isImplicit;
 
 // iterate
 
-Looker.iterate = iterate;
-Looker.visitUp = visitUp;
-Looker.visitUpBegin = visitUpBegin;
-Looker.visitUpEnd = visitUpEnd;
-Looker.onUp = onUp;
-Looker.visitDown = visitDown;
-Looker.visitDownBegin = visitDownBegin;
-Looker.visitDownEnd = visitDownEnd;
-Looker.onDown = onDown;
-Looker.visitPush = visitPush;
-Looker.visitPop = visitPop;
-Looker.canVisit = canVisit;
-Looker.canAscend = canAscend;
-Looker.canSibling = canSibling;
-Looker.ascendSrc = ascendSrc;
-Looker.ascend = ascend;
-// Looker.onAscend = onAscend;
+LookerExtension.iterate = iterate;
+LookerExtension.visitUp = visitUp;
+LookerExtension.visitUpBegin = visitUpBegin;
+LookerExtension.visitUpEnd = visitUpEnd;
+LookerExtension.onUp = onUp;
+LookerExtension.visitDown = visitDown;
+LookerExtension.visitDownBegin = visitDownBegin;
+LookerExtension.visitDownEnd = visitDownEnd;
+LookerExtension.onDown = onDown;
+LookerExtension.visitPush = visitPush;
+LookerExtension.visitPop = visitPop;
+LookerExtension.canVisit = canVisit;
+LookerExtension.canAscend = canAscend;
+LookerExtension.canSibling = canSibling;
+LookerExtension.ascendSrc = ascendSrc;
+LookerExtension.ascend = ascend;
+// LookerExtension.onAscend = onAscend;
 
 // ascend
 
-Looker._termianlAscend = _termianlAscend;
-Looker.onTerminal = onTerminal;
-Looker._countableAscend = _countableAscend;
-Looker._auxAscend = _auxAscend;
-Looker._hashMapAscend = _hashMapAscend;
-Looker._setAscend = _setAscend;
-Looker._customAscend = _customAscend;
+LookerExtension._termianlAscend = _termianlAscend;
+LookerExtension.onTerminal = onTerminal;
+LookerExtension._countableAscend = _countableAscend;
+LookerExtension._auxAscend = _auxAscend;
+LookerExtension._hashMapAscend = _hashMapAscend;
+LookerExtension._setAscend = _setAscend;
+LookerExtension._customAscend = _customAscend;
 
 // dichotomy
 
-Looker._isCountable = _isCountable;
-Looker._isVector = _isVector;
-Looker._isLong = _isLong;
-Looker._isArray = _isArray;
-Looker._isConstructibleLike = _isConstructibleLike;
-Looker._isAux = _isAux;
-Looker._false = _false;
+LookerExtension._isCountable = _isCountable;
+LookerExtension._isVector = _isVector;
+LookerExtension._isLong = _isLong;
+LookerExtension._isArray = _isArray;
+LookerExtension._isConstructibleLike = _isConstructibleLike;
+LookerExtension._isAux = _isAux;
+LookerExtension._false = _false;
 
 // etc
 
-Looker.pathJoin = pathJoin;
-Looker.errMake = errMake;
+LookerExtension.pathJoin = pathJoin;
+LookerExtension.errMake = errMake;
 
 // feilds
 
-Looker.LookingError = LookingError;
-Looker.ContainerType = ContainerType;
-Looker.ContainerTypeToName = ContainerTypeToName;
-Looker.ContainerTypeToAscend = ContainerTypeToAscend;
-Looker.WithCountableToIsElementalFunctionMap = WithCountableToIsElementalFunctionMap;
-Looker.WithImplicitToHasImplicitFunctionMap = WithImplicitToHasImplicitFunctionMap;
-Looker.WithCountable = WithCountable;
-Looker.WithImplicict = WithImplicict;
-Looker.Prime = Prime;
+LookerExtension.SeekingError = SeekingError;
+LookerExtension.ContainerType = ContainerType;
+LookerExtension.ContainerTypeToName = ContainerTypeToName;
+LookerExtension.ContainerTypeToAscend = ContainerTypeToAscend;
+LookerExtension.WithCountableToIsElementalFunctionMap = WithCountableToIsElementalFunctionMap;
+LookerExtension.WithImplicitToHasImplicitFunctionMap = WithImplicitToHasImplicitFunctionMap;
+LookerExtension.WithCountable = WithCountable;
+LookerExtension.WithImplicict = WithImplicict;
+LookerExtension.Prime = Prime;
 
 //
 
@@ -1612,16 +1641,17 @@ Looker.Prime = Prime;
  * @property {} key = null
  * @property {} error = null
  * @property {} visitedContainer = null
- * @class Tools.Looker
+ * @class Tools.Seeker
  */
 
-// let Iterator = Looker.Iterator = Object.create( null );
-let Iterator = Looker.Iterator;
-_.assert( _.map.is( Iterator ) );
+let Iterator = LookerExtension.Iterator = Object.create( null );
+// let Iterator = LookerExtension.Iterator;
+// _.assert( _.map.is( Iterator ) );
 
 Iterator.src = undefined;
 Iterator.iterator = null;
 Iterator.iterationPrototype = null;
+Iterator.firstIterationPrototype = null;
 Iterator.path = null; /* xxx : remove? */
 Iterator.lastPath = null;
 Iterator.lastIt = null;
@@ -1643,7 +1673,7 @@ Iterator.level = 0;
 Iterator.root = undefined;
 Iterator.context = null;
 
-_.props.extend( Looker, Iterator );
+_.props.extend( LookerExtension, Iterator );
 Object.freeze( Iterator );
 
 //
@@ -1664,11 +1694,11 @@ Object.freeze( Iterator );
  * @property {} visiting = false
  * @property {} iterable = null
  * @property {} visitCounted = 1
- * @class Tools.Looker.Looker
+ * @class Tools.Seeker.Seeker
  */
 
-// let Iteration = Looker.Iteration = Object.create( null );
-let Iteration = Looker.Iteration;
+let Iteration = LookerExtension.Iteration = Object.create( null );
+// let Iteration = LookerExtension.Iteration;
 _.assert( _.map.is( Iteration ) );
 Iteration.childrenCounter = 0;
 Iteration.level = 0;
@@ -1695,26 +1725,42 @@ Object.freeze( Iteration );
  * @property {} level = null
  * @property {} path = null
  * @property {} src = null
- * @class Tools.Looker.Looker
+ * @class Tools.Seeker.Seeker
  */
 
-// let IterationPreserve = Looker.IterationPreserve = Object.create( null );
-let IterationPreserve = Looker.IterationPreserve;
+let IterationPreserve = LookerExtension.IterationPreserve = Object.create( null );
+// let IterationPreserve = LookerExtension.IterationPreserve;
 _.assert( _.map.is( IterationPreserve ) );
 IterationPreserve.level = null;
 IterationPreserve.path = null;
 IterationPreserve.src = undefined;
 Object.freeze( IterationPreserve );
 
-_.assert( !_.props.has( Looker.Iteration, 'src' ) && Looker.Iteration.src === undefined );
-_.assert( _.props.has( Looker.IterationPreserve, 'src' ) && Looker.IterationPreserve.src === undefined );
-_.assert( _.props.has( Looker, 'src' ) && Looker.src === undefined );
-_.assert( !_.props.has( Looker.Iteration, 'root' ) && Looker.Iteration.root === undefined );
-_.assert( _.props.has( Looker, 'root' ) && Looker.root === undefined );
+_.assert( !_.props.has( LookerExtension.Iteration, 'src' ) && LookerExtension.Iteration.src === undefined );
+_.assert( _.props.has( LookerExtension.IterationPreserve, 'src' ) && LookerExtension.IterationPreserve.src === undefined );
+_.assert( _.props.has( LookerExtension, 'src' ) && LookerExtension.src === undefined );
+_.assert( !_.props.has( LookerExtension.Iteration, 'root' ) && LookerExtension.Iteration.root === undefined );
+_.assert( _.props.has( LookerExtension, 'root' ) && LookerExtension.root === undefined );
 
-_.map.assertHasAll( Looker, Prime );
+_.map.assertHasAll( LookerExtension, Prime );
 
 //
+
+const Looker = _.seeker.classDefine
+({
+  name : 'Looker',
+  parent : _.seeker.Seeker,
+  prime : Prime,
+  seeker : LookerExtension,
+  iterator : Iterator,
+  iteration : Iteration,
+  iterationPreserve : IterationPreserve,
+  // exec : { head : exec_head, body : exec_body },
+});
+const Self = Looker;
+
+// Looker.exec.defaults = Looker;
+// Looker.execIt.defaults = Looker;
 
 exec_body.defaults = Looker;
 let exec = _.routine.uniteReplacing( exec_head, exec_body );
@@ -1724,50 +1770,66 @@ execIt_body.defaults = Looker;
 let execIt = _.routine.uniteReplacing( exec_head, execIt_body );
 Looker.execIt = execIt;
 
+_.assert( _.routine.is( Looker.optionsToIteration ) );
+_.assert( _.routine.is( Looker.iteratorInit ) );
+_.assert( _.routine.is( Looker.iteratorIterationMake ) );
+_.assert( _.routine.is( Looker.iterationProper ) );
+_.assert( _.routine.is( Looker.head ) );
+_.assert( _.routine.is( Looker.optionsFromArguments ) );
+_.assert( _.routine.is( Looker.iteratorProper ) );
+
 // --
 // declare
 // --
-
-let LookerObjectExtension =
-{
-
-}
 
 let LookerNamespaceExtension =
 {
 
   name : 'looker',
   Looker,
-  LookingError,
+  Seeker : Looker,
+  SeekingError,
 
   look : exec,
   lookIt : execIt,
 
-  is,
-  iteratorIs,
-  iterationIs,
+  is : _.seeker.is,
+  iteratorIs : _.seeker.iteratorIs,
+  iterationIs : _.seeker.iterationIs,
   classDefine, /* qqq : cover please */
 
 }
 
+_.props.extend( _.looker, LookerNamespaceExtension );
+
+//
+
 let ErrorExtension =
 {
 
-  LookingError,
+  SeekingError,
 
 }
+
+_.props.extend( _.error, ErrorExtension );
+
+//
 
 let ToolsExtension =
 {
 
-  Looker,
+  // Looker,
   look : exec,
 
 }
 
-_.props.extend( _.looker, LookerNamespaceExtension );
-_.props.extend( _.error, ErrorExtension );
 _.props.extend( _, ToolsExtension );
+
+//
+
+_.assert( _.looker.Looker === Looker );
+_.assert( _.looker.Looker === _.looker.Looker.Seeker );
+_.assert( _.looker.Looker === _.looker.Looker.OriginalSeeker );
 
 // --
 // export

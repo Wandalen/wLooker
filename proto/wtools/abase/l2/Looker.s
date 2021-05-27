@@ -52,7 +52,7 @@ _.assert( !!_realGlobal_ );
  * @property {Number} recursive = Infinity
  * @property {Boolean} trackingVisits = 1
  * @property {String} upToken = '/'
- * @property {String} path = null
+ * @property {String} path = '/'
  * @property {Number} level = 0
  * @property {*} src = null
  * @property {*} root = null
@@ -79,7 +79,7 @@ Prime.withCountable = 'array';
 Prime.withImplicit = 'aux';
 Prime.upToken = '/';
 Prime.defaultUpToken = null;
-Prime.path = null;
+Prime.path = '/';
 Prime.level = 0;
 Prime.context = null;
 
@@ -430,7 +430,11 @@ function performBegin()
   let it = this;
   _.assert( arguments.length === 0 );
   _.assert( it.iterationProper( it ) );
+  _.assert( _.strDefined( it.path ) );
+  // if( it.src && it.src.type === 'Program' )
+  // debugger;
   it.chooseRoot();
+  _.assert( _.strDefined( it.path ) );
   return it;
 }
 
@@ -879,8 +883,8 @@ function visitPop()
     _.assert
     (
       Object.is( it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ], it.originalSrc ),
-      () => `Top-most visit ${it.path} does not match ${it.originalSrc} <> ${
-        it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ]}`
+      () => `Top-most visit ${it.path} does not match`
+      + `\n${it.originalSrc} <> ${ it.iterator.visitedContainer.original[ it.iterator.visitedContainer.original.length-1 ]}`
     );
     it.iterator.visitedContainer.pop( it.originalSrc );
     it.visitCounting = false;
@@ -1386,11 +1390,19 @@ function classDefine( o )
     /* qqq : add explanation for each assert */
     _.assert( looker.Prime.Seeker === undefined );
     _.assert( _.routineIs( looker.iterableEval ) );
-    _.assert( !_.props.has( looker.Iteration, 'src' ) && looker.Iteration.src === undefined );
+
+    // _.assert( !_.props.has( looker.Iteration, 'src' ) && looker.Iteration.src === undefined );
     _.assert( _.props.has( looker.IterationPreserve, 'src' ) && looker.IterationPreserve.src === undefined );
     _.assert( _.props.has( looker, 'src' ) && looker.src === undefined );
     _.assert( !_.props.has( looker.Iteration, 'root' ) && looker.Iteration.root === undefined );
     _.assert( _.props.has( looker, 'root' ) && looker.root === undefined );
+
+    _.assert( !_.props.has( looker.Iteration, 'src' ) || looker.Iteration.src === undefined );
+    // _.assert( !_.props.has( looker.IterationPreserve, 'src' ) || looker.IterationPreserve.src === undefined );
+    // _.assert( !_.props.has( looker, 'src' ) || looker.src === undefined );
+    // _.assert( !_.props.has( looker.Iteration, 'root' ) || looker.Iteration.root === undefined );
+    // _.assert( !_.props.has( looker, 'root' ) || looker.root === undefined );
+
     if( _.props.has( looker, 'dst' ) )
     {
       _.assert( _.props.has( looker.Iteration, 'dst' ) && looker.Iteration.dst === undefined );
@@ -1634,7 +1646,7 @@ LookerExtension.Prime = Prime;
  * @property {} visitDownEnd = visitDownEnd
  * @property {} canVisit = canVisit
  * @property {} canAscend = canAscend
- * @property {} path = null
+ * @property {} path = '/'
  * @property {} lastPath = null
  * @property {} lastIt = null
  * @property {} continue = true
@@ -1652,9 +1664,6 @@ Iterator.src = undefined;
 Iterator.iterator = null;
 Iterator.iterationPrototype = null;
 Iterator.firstIterationPrototype = null;
-Iterator.path = null; /* xxx : remove? */
-Iterator.lastPath = null;
-Iterator.lastIt = null;
 Iterator.continue = true;
 Iterator.key = null; /* xxx : remove? */
 Iterator.error = null;
@@ -1668,13 +1677,15 @@ Iterator.withCountable = 'array';
 Iterator.withImplicit = 'aux';
 Iterator.upToken = '/';
 Iterator.defaultUpToken = null;
-Iterator.path = null;
+Iterator.lastIt = null;
+Iterator.lastPath = null;
+Iterator.path = '/';
 Iterator.level = 0;
 Iterator.root = undefined;
 Iterator.context = null;
 
 _.props.extend( LookerExtension, Iterator );
-Object.freeze( Iterator );
+// Object.freeze( Iterator );
 
 //
 
@@ -1716,7 +1727,7 @@ Iteration.down = null;
 Iteration.visiting = false;
 Iteration.iterable = null;
 Iteration.visitCounting = true;
-Object.freeze( Iteration );
+// Object.freeze( Iteration );
 
 //
 
@@ -1734,7 +1745,7 @@ _.assert( _.map.is( IterationPreserve ) );
 IterationPreserve.level = null;
 IterationPreserve.path = null;
 IterationPreserve.src = undefined;
-Object.freeze( IterationPreserve );
+// Object.freeze( IterationPreserve );
 
 _.assert( !_.props.has( LookerExtension.Iteration, 'src' ) && LookerExtension.Iteration.src === undefined );
 _.assert( _.props.has( LookerExtension.IterationPreserve, 'src' ) && LookerExtension.IterationPreserve.src === undefined );

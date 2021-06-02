@@ -4,7 +4,7 @@
 'use strict';
 
 /**
- * Collection of light-weight routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison or operation on several similar data structures, for replication. Several other modules used this to traverse abstract data structures.
+ * Collection of routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison, cloning, serialization or operation on several similar data structures. Many other modules based on this to traverse abstract data structures.
   @module Tools/base/Looker
 */
 
@@ -34,8 +34,6 @@ const _ObjectHasOwnProperty = Object.hasOwnProperty;
 _.looker = _.looker || Object.create( null );
 
 _.assert( !!_realGlobal_ );
-
-/* xxx : qqq : write nice example for readme */
 
 // --
 // relations
@@ -571,7 +569,7 @@ function chooseEnd()
     _.assert( c >= 0 );
     k2 = `#${c}`;
   }
-  _.assert( k2 );
+  _.assert( k2.length  > 0 );
   let hasUp = _.strHasAny( k2, it.upToken );
   if( hasUp )
   k2 = '"' + k2 + '"';
@@ -1022,7 +1020,7 @@ function _countableAscend( src )
   if( _.class.methodIteratorOf( src ) )
   {
     let k = 0;
-    for( let e of src ) /* xxx : implement test with e === undefined */
+    for( let e of src )
     {
       let eit = it.iterationMake().choose( e, k, k, true );
       eit.iterate();
@@ -1035,7 +1033,7 @@ function _countableAscend( src )
   {
     for( let k = 0 ; k < src.length ; k++ )
     {
-      let e = src[ k ]; /* xxx : implement test with e === undefined */
+      let e = src[ k ];
       let eit = it.iterationMake().choose( e, k, k, true );
       eit.iterate();
       if( !it.canSibling() )
@@ -1055,7 +1053,7 @@ function _auxAscend( src )
   _.assert( arguments.length === 1 );
 
   let c = 0;
-  for( let k in src ) /* xxx : implement test with e === undefined */
+  for( let k in src )
   {
     let e = src[ k ];
     let eit = it.iterationMake().choose( e, k, c, true );
@@ -1093,7 +1091,7 @@ function _hashMapAscend( src )
   _.assert( arguments.length === 1 );
 
   let c = 0;
-  for( var [ k, e ] of src ) /* xxx : implement test with e === undefined */
+  for( var [ k, e ] of src )
   {
     let eit = it.iterationMake().choose( e, k, c, true );
     eit.iterate();
@@ -1113,7 +1111,7 @@ function _setAscend( src )
   _.assert( arguments.length === 1 );
 
   let c = 0;
-  for( let e of src ) /* xxx : implement test with e === undefined */
+  for( let e of src )
   {
     let eit = it.iterationMake().choose( e, e, c, true );
     eit.iterate();
@@ -1665,7 +1663,7 @@ Iterator.iterator = null;
 Iterator.iterationPrototype = null;
 Iterator.firstIterationPrototype = null;
 Iterator.continue = true;
-Iterator.key = null; /* xxx : remove? */
+// Iterator.key = null; /* yyy : remove? */
 Iterator.error = null;
 Iterator.visitedContainer = null;
 Iterator.isCountable = null;
@@ -1712,8 +1710,8 @@ let Iteration = LookerExtension.Iteration = Object.create( null );
 // let Iteration = LookerExtension.Iteration;
 _.assert( _.map.is( Iteration ) );
 Iteration.childrenCounter = 0;
-Iteration.level = 0;
-Iteration.path = '/';
+// Iteration.level = 0;
+// Iteration.path = '/';
 Iteration.key = null;
 Iteration.cardinal = null;
 Iteration.originalKey = null;
@@ -1742,8 +1740,8 @@ Iteration.visitCounting = true;
 let IterationPreserve = LookerExtension.IterationPreserve = Object.create( null );
 // let IterationPreserve = LookerExtension.IterationPreserve;
 _.assert( _.map.is( IterationPreserve ) );
-IterationPreserve.level = null;
-IterationPreserve.path = null;
+IterationPreserve.level = 0;
+IterationPreserve.path = '/';
 IterationPreserve.src = undefined;
 // Object.freeze( IterationPreserve );
 
@@ -1811,7 +1809,7 @@ let LookerNamespaceExtension =
 
 }
 
-_.props.extend( _.looker, LookerNamespaceExtension );
+/* _.props.extend */Object.assign( _.looker, LookerNamespaceExtension );
 
 //
 
@@ -1822,7 +1820,7 @@ let ErrorExtension =
 
 }
 
-_.props.extend( _.error, ErrorExtension );
+/* _.props.extend */Object.assign( _.error, ErrorExtension );
 
 //
 

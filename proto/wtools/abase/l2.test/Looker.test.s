@@ -1169,7 +1169,7 @@ fieldPath.description =
 
 //
 
-// xxx : switch on after rewriting of Stringer
+// qqq : for Rahul : for Junior : write the test as if routine::diagnosticStructureGenerate was used, but without using it.
 // function complexStructure( test )
 // {
 //   let ups = [];
@@ -2222,10 +2222,7 @@ function optionWithImplicitGenerated( test )
         '/withImplicit',
         '/basic',
         '/vector',
-        // '/!prototype'
       ]
-      // xxx : qqq : improve _.str.typeParse to parse such strigns
-      // '!prototype'
       if( env.withOwnConstructor )
       exp.push( '/constructor' );
       if( env.withImplicit )
@@ -2740,7 +2737,6 @@ function optionOnUpNonContainer( test )
 
 //
 
-/* xxx : qqq : add test routine for different type of src to module::selector, based on the test routine optionOnPathJoin */
 function optionOnPathJoin( test )
 {
   let ups = [];
@@ -3660,12 +3656,54 @@ function optionFastCycled( test )
 }
 
 // --
+// samples
+// --
+
+function sampleTrivial( test )
+{
+
+  let logger = new __.LoggerToString();
+  let structure =
+  {
+    number : 1,
+    string : 's',
+    array : [ 1, { date : new Date() } ],
+    routine : function(){},
+    set : new Set([ 'a', 13 ]),
+    hasmap : new HashMap([ [ 'a', 13 ], [ null, 0 ] ]),
+  }
+
+  _.look( structure, ( e, k, it ) => logger.log( it.path ) );
+
+  var exp =
+`
+  /
+  /number
+  /string
+  /array
+  /array/#0
+  /array/#1
+  /array/#1/date
+  /routine
+  /set
+  /set/a
+  /set/#1
+  /hasmap
+  /hasmap/a
+  /hasmap/#1
+`
+  test.equivalent( logger.outputData, exp );
+
+}
+
+// --
 // performance
 // --
 
 function performance( test ) /* xxx : write similar test for other lookers */
 {
-  // Config.debug = false;
+  const configDebug = Config.debug;
+  Config.debug = false;
 
   /* */
 
@@ -3697,6 +3735,8 @@ function performance( test ) /* xxx : write similar test for other lookers */
   test.identical( counter, 1068 * nruns );
   debugger; /* eslint-disable-line no-debugger */
 
+  Config.debug = configDebug;
+
   /*
 
 == Inner
@@ -3706,7 +3746,7 @@ nruns:10 time:43s
 = after
 nruns:10 time:8.3s
 = now
-nruns:10 time:12.6s
+nruns:10 time:10.8s
 
 == Outer
 
@@ -3715,7 +3755,7 @@ nruns:1000 time:14.5s
 = after
 nruns:1000 time:3.3s
 = now
-nruns:1000 time:5.0s
+nruns:1000 time:4.1s
 
   */
 
@@ -3776,6 +3816,10 @@ const Proto =
     optionFastPerformance,
     // optionFast,
     // optionFastCycled,
+
+    // samples
+
+    sampleTrivial,
 
     // performance
 

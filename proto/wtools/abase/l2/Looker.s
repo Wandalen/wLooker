@@ -1203,11 +1203,14 @@ function pathJoin( selectorPath, selectorName )
 function errMake()
 {
   let it = this;
+
+  // return _.err( ... arguments );
+
   let err = _.looker.SeekingError
   (
     ... arguments
   );
-  debugger; /* eslint-disable-line no-debugger */
+  // debugger; /* eslint-disable-line no-debugger */
   return err;
 }
 

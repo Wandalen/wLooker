@@ -569,7 +569,7 @@ function chooseEnd()
     _.assert( c >= 0 );
     k2 = `#${c}`;
   }
-  _.assert( k2.length  > 0 );
+  _.assert( k2.length > 0 );
   let hasUp = _.strHasAny( k2, it.upToken );
   if( hasUp )
   k2 = '"' + k2 + '"';

@@ -2221,6 +2221,7 @@ function optionWithImplicitGenerated( test )
         '/new',
         '/withImplicit',
         '/basic',
+        '/iteratorIsGenerator',
         '/vector',
       ]
       if( env.withOwnConstructor )
@@ -2250,6 +2251,7 @@ function optionWithImplicitGenerated( test )
         '/new',
         '/withImplicit',
         '/basic',
+        '/iteratorIsGenerator',
         '/vector',
       ]
       if( env.withOwnConstructor )
@@ -2257,9 +2259,6 @@ function optionWithImplicitGenerated( test )
       test.identical( gotUpPaths, exp );
 
     }
-
-    /* - */
-
   }
 
   /* */
@@ -2298,7 +2297,6 @@ function optionWithImplicitGenerated( test )
     gotDownVals.push( it.src );
     gotDownIndices.push( it.index );
   }
-
 }
 
 //

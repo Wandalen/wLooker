@@ -816,7 +816,7 @@ function canAscend()
   return false;
 
   _.assert( _.numberIs( it.recursive ) );
-  if( it.recursive > 0 && !it.fast )
+  // if( it.recursive > 0 )
   if( !( it.level < it.recursive ) )
   return false;
 

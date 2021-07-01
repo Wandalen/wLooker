@@ -1,18 +1,37 @@
 {
-  "name" : "wlooker",
-  "version" : "0.3.313",
-  "description" : "Collection of routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison, cloning, serialization or operation on several similar data structures. Many other modules based on this to traverse abstract data structures.",
-  "author" : "Kostiantyn Wandalen <wanalen@01.school>",
-  "license" : "MIT",
-  "main" : "proto/node_modules/wlooker",
-  "files" : [ "proto/wtools/abase/l2", "out", "proto/node_modules", "proto/node_modules/Tools", "proto/node_modules/wlooker" ],
-  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
-  "repository" : { "type" : "git", "url" : "https://github.com/Wandalen/wLooker.git" },
-  "bugs" :
-  {
-    "url" : "https://github.com/Wandalen/wLooker/issues"
+  "name": "wlooker",
+  "version": "0.3.314",
+  "description": "Collection of routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison, cloning, serialization or operation on several similar data structures. Many other modules based on this to traverse abstract data structures.",
+  "author": "Kostiantyn Wandalen <wanalen@01.school>",
+  "license": "MIT",
+  "main": "proto/node_modules/wlooker",
+  "files": [
+    "proto/wtools/abase/l2",
+    "out",
+    "proto/node_modules",
+    "proto/node_modules/Tools",
+    "proto/node_modules/wlooker"
+  ],
+  "scripts": {
+    "test": "wtest .run 'proto/**' rapidity:-3",
+    "docgen": "wdocgen proto"
   },
-  "dependencies" : { "wTools" : "gamma" },
-  "devDependencies" : { "eslint" : "7.1.0", "wstringer" : "gamma", "wTesting" : "gamma" },
-  "keywords" : [ "wTools" ]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wandalen/wLooker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Wandalen/wLooker/issues"
+  },
+  "dependencies": {
+    "wTools": "gamma"
+  },
+  "devDependencies": {
+    "wTesting": "gamma",
+    "wstringer": "gamma",
+    "eslint": "7.1.0"
+  },
+  "keywords": [
+    "wTools"
+  ]
 }

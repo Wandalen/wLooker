@@ -1,6 +1,6 @@
 {
   "name": "wlooker",
-  "version": "0.3.321",
+  "version": "0.3.322",
   "description": "Collection of routines to traverse complex data structure. The module takes care of cycles in a data structure( recursions ) and can be used for comparison, cloning, serialization or operation on several similar data structures. Many other modules based on this to traverse abstract data structures.",
   "author": "Kostiantyn Wandalen <wanalen@01.school>",
   "license": "MIT",

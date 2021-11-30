@@ -3,8 +3,8 @@ root:
   - wLooker.out
 consistency:
   ../will.yml: &ref_0
-    hash: 997823153542e2b3e3271bc8512745bf
-    size: 6606
+    hash: dbab384b0931c5b32a61ca889def17de
+    size: 6614
 module:
   wLooker.out:
     about:
@@ -1462,5 +1462,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 997823153542e2b3e3271bc8512745bf
-        size: 6606
+        hash: dbab384b0931c5b32a61ca889def17de
+        size: 6614
